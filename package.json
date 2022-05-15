@@ -1,0 +1,71 @@
+{
+	"name": "greenfedora",
+	"version": "1.0.0-alpha.1",
+	"description": "Static Site Generator.",
+	"homepage": "https://gordonansell.com/greenfedora",
+	"license": "MIT",
+	"minimum-stability": "dev",
+	"main": "index.js",
+    "scripts": {
+        "test": "npx ava --verbose"
+    },
+    "ava": {
+        "failFast": false,
+        "files": [
+            "./test/*.js"
+        ]
+    },
+    "bin": {
+        "greenfedora": "./index.js"
+    },
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/gordon-ansell/greenfedora"
+	},
+	"authors": [
+		{
+			"name": "Gordon Ansell",
+			"email": "contact@gordonansell.com",
+			"url": "https://gordonansell.com"
+		}
+	],
+	"files": [
+		"src/"
+	],
+    "keywords": [
+        "static-site-generator",
+        "ssg",
+        "website",
+        "blog",
+        "templates",
+        "framework",
+        "greenfedora",
+        "html",
+        "markdown",
+        "nunjucks",
+        "node",
+        "javascript"
+    ],
+	"dependencies": {
+        "autoprefixer": "^10.4.7",
+        "debug": "^4.3.4",
+        "deepmerge": "^4.2.2",
+        "dotenv": "^16.0.0",
+        "fast-glob": "^3.2.11",
+        "gray-matter": "^4.0.2",
+        "is-plain-object": "^5.0.0",
+        "kleur": "^4.1.4",
+        "lodash": "^4.17.21",
+        "minimist": "^1.2.6",
+        "nunjucks": "^3.2.2",
+        "postcss": "^8.4.13",
+        "sass": "*",
+        "showdown": "^2.1.0"
+	},
+	"devDependencies": {
+        "ava": "^4.2.0"
+    },
+	"engines": {
+		"node": ">=16"
+	}
+}

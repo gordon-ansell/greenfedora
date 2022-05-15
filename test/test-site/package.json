@@ -1,0 +1,32 @@
+{
+	"name": "test-site",
+	"version": "0.0.1",
+	"description": "Website used for test runs.",
+	"homepage": "https://github.com/gordon-ansell/greenfedora/",
+	"license": "MIT",
+	"minimum-stability": "dev",
+	"scripts": {
+		"build": "greenfedora",
+        "version": "greenfedora --version"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/gordon-ansell/greenfedora/"
+	},
+	"authors": [
+		{
+			"name": "Gordon Ansell",
+			"email": "contact@gordonansell.com",
+			"url": "https://gordonansell.com"
+		}
+	],
+	"files": [
+		"src/"
+	],
+	"dependencies": {
+		"greenfedora": "../../../"
+	},
+	"engines": {
+		"node": ">=16"
+	}
+}
