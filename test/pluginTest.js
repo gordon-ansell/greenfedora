@@ -4,7 +4,7 @@ const PluginManager = require('../src/config/pluginManager');
 test("Check we can add a plugin.", t => {
     let c = new PluginManager();
 
-    let examplePlugin = function(userConfig, options = {}) {
+    let examplePlugin = function(config, options = {}) {
         //console.log(`Example plugin loaded.`);
         return {
             one: 1,
@@ -20,7 +20,7 @@ test("Check we can add a plugin.", t => {
 test("Check we can load a plugin.", t => {
     let c = new PluginManager();
 
-    let examplePlugin = function(userConfig, options = {}) {
+    let examplePlugin = function(config, options = {}) {
         //console.log(`Example plugin loaded.`);
         return {
             one: 1,

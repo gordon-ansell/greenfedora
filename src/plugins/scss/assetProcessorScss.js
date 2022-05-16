@@ -6,10 +6,9 @@
  */
 'use strict';
 
-const AssetProcessor = require('../../asset/processors/assetProcessor');
 const sass = require('sass');
 const postcss = require('postcss');
-const { GfError, syslog } = require('greenfedora-utils');
+const { GfError, syslog, AssetProcessor } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const debug = require("debug")("GreenFedora:Plugin:AssetProcessorScss");

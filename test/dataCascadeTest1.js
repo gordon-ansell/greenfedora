@@ -1,6 +1,5 @@
 const test = require("ava");
 const Config = require('../src/config');
-const PluginManager = require('../src/config/pluginManager');
 
 test("Check the base data cascades ok.", t => {
     let c = new Config('./test/test-site', './test/test-site/_site', './test/test-site/.grnfdr.js');
@@ -18,7 +17,7 @@ test("Check we can override base data with input parameter.", t => {
 test("Check the base data + plugins cascades ok.", t => {
     let c = new Config('./test/test-site', './test/test-site/_site', './test/test-site/.grnfdr.js');
 
-    let examplePlugin1 = function(userConfig, options = {}) {
+    let examplePlugin1 = function(config, options = {}) {
         //console.log(`Example plugin loaded.`);
         return {
             plugin1: {
@@ -27,7 +26,7 @@ test("Check the base data + plugins cascades ok.", t => {
         }
     };
 
-    let examplePlugin2 = function(userConfig, options = {}) {
+    let examplePlugin2 = function(config, options = {}) {
         //console.log(`Example plugin loaded.`);
         return {
             plugin2: {
@@ -36,8 +35,8 @@ test("Check the base data + plugins cascades ok.", t => {
         }
     };
 
-    c.userConfig.pluginManager.addPlugin(examplePlugin1);
-    c.userConfig.pluginManager.addPlugin(examplePlugin2);
+    c.pluginManager.addPlugin(examplePlugin1);
+    c.pluginManager.addPlugin(examplePlugin2);
 
     let r = c.getBaseConfig();
     t.is(r['_test_thisconfig_is'], "Local Config");

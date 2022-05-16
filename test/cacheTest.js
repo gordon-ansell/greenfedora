@@ -1,5 +1,5 @@
 const test = require("ava");
-const Cache = require('../src/utils/cache');
+const { Cache } = require('greenfedora-utils');
 const fs = require('fs');
 
 test("Check we can add a cache group.", t => {

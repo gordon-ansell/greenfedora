@@ -6,9 +6,8 @@
  */
 'use strict';
 
-const TemplateProcessor = require('./templateProcessor');
 const nunjucks = require('nunjucks');
-const { GfError, syslog } = require('greenfedora-utils');
+const { GfError, syslog, TemplateProcessor } = require('greenfedora-utils');
 const TemplateFile = require('../file/templateFile');
 const debug = require("debug")("GreenFedora:TemplateProcessorNunjucks");
 

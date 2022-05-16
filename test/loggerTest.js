@@ -1,5 +1,5 @@
 const test = require("ava");
-const { Logger } = require('../src/utils/logger');
+const { Logger } = require('greenfedora-utils');
 
 test("By default we display log messages.", t => {
     let l = new Logger();

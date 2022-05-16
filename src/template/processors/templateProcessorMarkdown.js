@@ -6,9 +6,8 @@
  */
 'use strict';
 
-const TemplateProcessor = require('./templateProcessor');
 const showdown = require('showdown');
-const { GfError, syslog } = require('greenfedora-utils');
+const { GfError, syslog, TemplateProcessor } = require('greenfedora-utils');
 const TemplateFile = require('../file/templateFile');
 const debug = require("debug")("GreenFedora:TemplateProcessorMarkdown");
 

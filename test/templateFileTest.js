@@ -2,7 +2,7 @@ const test = require("ava");
 const path = require('path');
 const Config = require('../src/config');
 const TemplateFile = require('../src/template/file/templateFile');
-const { syslog } = require("../src/utils/logger");
+const { syslog } = require("greenfedora-utils");
 
 test("Check we're extracting front matter and content okay.", async t => {
     let cfg = new Config('./test/test-site', './test/test-site/_site', './test/test-site/.grnfdr.js');

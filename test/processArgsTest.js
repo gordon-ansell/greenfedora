@@ -1,6 +1,6 @@
 const test = require("ava");
 const ProcessArgs = require('../src/processArgs');
-const GfError = require('../src/utils/gfError');
+const { GfError } = require('greenfedora-utils');
 
 test("Basic check of flag and string args.", t => {
     let p = new ProcessArgs(['--silent', '--input=./input']);
