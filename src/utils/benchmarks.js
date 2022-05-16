@@ -52,7 +52,7 @@ class Benchmarks
             items.getEntries().forEach((entry) => {
                 debugb(`Benchmarks: "${entry.name}" start: ${entry.startTime} duration: ${entry.duration}`);
             });
-            observer.disconnect();
+            //observer.disconnect();
         });
         this.po.observe(options)
     }

@@ -144,9 +144,9 @@ class Config
 
     /**
      * Saved templates.
-     * @member  {TemplateFile[]}
+     * @member  {Map}
      */
-    templates = [];
+    templates = null;
 
     /**
      * =========================================================================
@@ -207,7 +207,7 @@ class Config
         this.templateManager = new TemplateManager(this);
         this.assetManager = new AssetManager(this);
 
-        this.templates = [];
+        this.templates = new Map();
 
         // Base config items.
         this.globalData = {};
@@ -599,17 +599,26 @@ class Config
      */
     saveTemplate(tpl)
     {
-        this.templates.push(tpl);
+        this.templates.set(tpl.relPath, tpl);
         return this;
     }
 
     /**
      * Get the saved templates.
      * 
-     * @return  {TemplateFile[]}
+     * @param   {"map"|"values"|"entries"|"keys"}   [format="map"]     Return it as an array.
+     * 
+     * @return  {Map|TemplateFile[]}
      */
-    getTemplates()
+    getTemplates(format = "map")
     {
+        if ("values" === format) {
+            return [...this.templates.values()];
+        } else if ("entries" === format) {
+            return [...this.templates.entries()]
+        } else if ("keys" === format) {
+            return [...this.templates.keys()]
+        }
         return this.templates;
     }
 }

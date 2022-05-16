@@ -12,7 +12,6 @@ const postcss = require('postcss');
 const GfError = require('../../utils/gfError');
 const path = require('path');
 const fs = require('fs');
-const { basename } = require('path');
 const { syslog } = require('../../utils/logger');
 const debug = require("debug")("GreenFedora:Plugin:AssetProcessorScss");
 

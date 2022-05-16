@@ -44,7 +44,7 @@ module.exports = function(userConfig) {
                     parseFrontMatter: true,
                     fmParseOptions: {excerpt: false},
                     extractFromFm: ['content'],
-                    usePrecompiledTemplates: false
+                    usePrecompiledTemplates: true
                 },
                 engineOptions: {
                     autoescape: false, 

@@ -73,11 +73,11 @@ class GreenFedora
      */
     async init()
     {
-        Benchmarks.getInstance().markStart('gf-init', 'Starting GreenFedora Initialisation');
+        Benchmarks.getInstance().markStart('gf-init', 'Initialisation');
 
         await this.processFiles();
 
-        Benchmarks.getInstance().markEnd('gf-init', true, true);
+        Benchmarks.getInstance().markEnd('gf-init');
         return true;
     }
 
@@ -131,12 +131,14 @@ class GreenFedora
      */
     async processTemplateFiles(files)
     {
+        Benchmarks.getInstance().markStart('gf-proctpl', 'Processing templates');
         await Promise.all(files.map(async file => {
             debug(`Processing template file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
             await this.processSingleTemplateFile(fullPath);
         }));
 
+        Benchmarks.getInstance().markEnd('gf-proctpl');
         return true;
     }
 
@@ -175,12 +177,14 @@ class GreenFedora
      */
     async processAssetFiles(files)
     {
+        Benchmarks.getInstance().markStart('gf-procass', 'Processing assets');
         await Promise.all(files.map(async file => {
             debug(`Processing template file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
             await this.processSingleAssetFile(fullPath);
         }));
 
+        Benchmarks.getInstance().markEnd('gf-procass');
         return true;
     }
 
@@ -210,8 +214,9 @@ class GreenFedora
      */
     async render()
     {
+        Benchmarks.getInstance().markStart('gf-render', 'Render');
         // Render all the templates.
-        let tpls = this.config.getTemplates();
+        let tpls = this.config.getTemplates('values');
         await Promise.all(tpls.map(async tpl => {
             let data = await tpl.renderData();
             syslog.log(`Rendering ${tpl.relPath}.`);
@@ -220,6 +225,7 @@ class GreenFedora
             //syslog.inspect(op);
         }));
 
+        Benchmarks.getInstance().markEnd('gf-render');
         return 0;
     }
 
@@ -230,7 +236,7 @@ class GreenFedora
      */
     async parseFileSystem()
     {
-        Benchmarks.getInstance().markStart('gf-fsparse', 'Starting GreenFedora file system parse');
+        Benchmarks.getInstance().markStart('gf-fsparse', 'File system parse');
         let fsp = FsParser.fromLocal(this.config);
         let ret = await fsp.parse();
         Benchmarks.getInstance().markEnd('gf-fsparse');
