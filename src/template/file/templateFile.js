@@ -8,12 +8,10 @@
 
 const fsPromises = require('fs').promises;
 const path = require('path');
-const GfError = require('../../utils/gfError');
+const { GfError, syslog, GfPath } = require('greenfedora-utils');
 const TemplateData = require('./templateData');
-const { syslog } = require('../../utils/logger');
 const fs = require('fs');
 const fmparse = require('gray-matter');
-const GfPath = require('../../utils/gfPath');
 const debug = require("debug")("GreenFedora:TemplateFile");
 
 // Local error.

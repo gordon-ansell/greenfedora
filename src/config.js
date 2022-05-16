@@ -6,13 +6,9 @@
  */
 'use strict';
 
-const GfPath = require('./utils/gfPath');
-const GfError = require('./utils/gfError');
-const { syslog } = require('./utils/logger');
-const Merge = require('./utils/merge');
+const { syslog, GfPath, GfError, Merge, EventManager } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
-const EventManager = require('./utils/eventManager');
 const PluginManager = require('./config/pluginManager');
 const TemplateManager = require('./config/templateManager');
 const AssetManager = require('./config/assetManager');

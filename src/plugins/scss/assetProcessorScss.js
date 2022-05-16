@@ -9,10 +9,9 @@
 const AssetProcessor = require('../../asset/processors/assetProcessor');
 const sass = require('sass');
 const postcss = require('postcss');
-const GfError = require('../../utils/gfError');
+const { GfError, syslog } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
-const { syslog } = require('../../utils/logger');
 const debug = require("debug")("GreenFedora:Plugin:AssetProcessorScss");
 
 // Local error.

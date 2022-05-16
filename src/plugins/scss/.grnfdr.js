@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { syslog } = require('../../utils/logger');
+const { syslog } = require('greenfedora-utils');
 const autoprefixer = require('autoprefixer');
 const AssetProcessorScss = require('./assetProcessorScss');
 

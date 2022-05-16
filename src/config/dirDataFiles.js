@@ -7,11 +7,9 @@
 'use strict';
 
 const path = require('path');
-const GfPath = require('../utils/gfPath');
+const { GfPath, Merge, syslog } = require('greenfedora-utils');
 const fs = require('fs');
-const Merge = require('../utils/merge');
 const DataFileLoader = require('./dataFileLoader');
-const { syslog } = require('../utils/logger');
 const debug = require("debug")("GreenFedora:DirDataFiles");
 
 /**

@@ -6,8 +6,7 @@
  */
 'use strict';
 
-const GfError = require('../utils/gfError');
-const Merge = require('../utils/merge');
+const { GfError, Merge } = require('greenfedora-utils');
 const path = require('path');
 const constants = require('./constants');
 const fs = require('fs');

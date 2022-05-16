@@ -7,7 +7,7 @@
  */
 'use strict';
 
-const { syslog } = require('./src/utils/logger');
+const { syslog } = require('greenfedora-utils');
 const ProcessArgs = require('./src/processArgs');
 const debug = require("debug")("GreenFedora:index");
 require('dotenv').config();

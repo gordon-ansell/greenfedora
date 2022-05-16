@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const GfError = require('./utils/gfError');
+const { GfError } = require('greenfedora-utils');
 const debug = require("debug")("GreenFedora:ProcessArgs");
 
 // Local error.

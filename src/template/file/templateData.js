@@ -6,8 +6,7 @@
  */
 'use strict';
 
-const GfError = require('../../utils/gfError');
-const Merge = require('../../utils/merge');
+const { GfError, Merge } = require('greenfedora-utils');
 const DirDataFiles = require('../../config/dirDataFiles');
 const GlobalDataFileConfig = require('../../config/globalDataFileConfig');
 const debug = require("debug")("GreenFedora:TemplateData");

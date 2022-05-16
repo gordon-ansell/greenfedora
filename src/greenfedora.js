@@ -7,14 +7,12 @@
 'use strict';
 
 const gfpkg = require("../package.json");
-const { syslog } = require('./utils/logger');
+const { syslog, GfError, Benchmarks } = require('greenfedora-utils');
 const path = require('path');
 const Config = require("./config");
 const TemplateFile = require('./template/file/templateFile');
 const GlobalDataFileConfig = require('./config/globalDataFileConfig');
-const GfError = require('./utils/gfError');
-const FsParser = require('./utils/fsParser');
-const Benchmarks = require('./utils/benchmarks');
+const FsParser = require('./fsParser');
 const debug = require("debug")("GreenFedora");
 const debugdev = require("debug")("Dev.GreenFedora");
 

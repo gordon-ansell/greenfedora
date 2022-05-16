@@ -8,9 +8,8 @@
 
 const TemplateProcessor = require('./templateProcessor');
 const showdown = require('showdown');
-const GfError = require('../../utils/gfError');
+const { GfError, syslog } = require('greenfedora-utils');
 const TemplateFile = require('../file/templateFile');
-const { syslog } = require('../../utils/logger');
 const debug = require("debug")("GreenFedora:TemplateProcessorMarkdown");
 
 // Local error.

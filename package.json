@@ -1,6 +1,6 @@
 {
 	"name": "greenfedora",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Static Site Generator.",
 	"homepage": "https://gordonansell.com/greenfedora",
 	"license": "MIT",
@@ -49,13 +49,10 @@
 	"dependencies": {
         "autoprefixer": "^10.4.7",
         "debug": "^4.3.4",
-        "deepmerge": "^4.2.2",
         "dotenv": "^16.0.0",
         "fast-glob": "^3.2.11",
         "gray-matter": "^4.0.2",
-        "is-plain-object": "^5.0.0",
-        "kleur": "^4.1.4",
-        "lodash": "^4.17.21",
+        "greenfedora-utils": "../greenfedora-utils",
         "minimist": "^1.2.6",
         "nunjucks": "^3.2.2",
         "postcss": "^8.4.13",

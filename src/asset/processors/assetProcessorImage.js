@@ -7,7 +7,7 @@
 'use strict';
 
 const AssetProcessor = require('./assetProcessor');
-const GfError = require('../../utils/gfError');
+const { GfError } = require('greenfedora-utils');
 const debug = require("debug")("GreenFedora:AssetProcessorImage");
 
 // Local error.

@@ -6,14 +6,11 @@
  */
 'use strict';
 
-const GfError = require('../utils/gfError');
-const GfPath = require('../utils/gfPath');
-const Merge = require('../utils/merge');
+const { GfError, GfPath, Merge, syslog } = require('greenfedora-utils');
 const DataFileLoader = require('./dataFileLoader');
 const path = require('path');
 const fs = require('fs');
 const fmparse = require('gray-matter');
-const { syslog } = require('../utils/logger');
 const debug = require("debug")("GreenFedora:GlobalDataFileConfig");
 
 // Local error.

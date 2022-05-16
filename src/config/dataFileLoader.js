@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const GfError = require('../utils/gfError');
+const { GfError } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const fmparse = require('gray-matter');
