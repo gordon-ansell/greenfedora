@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { GfError, Merge } = require('greenfedora-utils');
+const { GfError, Merge, syslog } = require('greenfedora-utils');
 const DirDataFiles = require('../../config/dirDataFiles');
 const GlobalDataFileConfig = require('../../config/globalDataFileConfig');
 const debug = require("debug")("GreenFedora:TemplateData");
@@ -55,6 +55,12 @@ class TemplateData
      * @member {object}
      */
     frontMatterData = {};
+
+    /**
+     * Computed data.
+     * @member {object}
+     */
+    computedData = null;
 
     /**
      * Constructor.
@@ -116,6 +122,10 @@ class TemplateData
 
         ret = Merge.merge(ret, this._getDirData());
         ret = Merge.merge(ret, this.frontMatterData);
+
+        if (null !== this.computedData) {
+            ret = Merge.merge(ret, this.computedData);
+        }
 
         return ret;
     }

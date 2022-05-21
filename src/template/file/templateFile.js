@@ -13,6 +13,7 @@ const TemplateData = require('./templateData');
 const fs = require('fs');
 const fmparse = require('gray-matter');
 const debug = require("debug")("GreenFedora:TemplateFile");
+const debugdev = require("debug")("Dev.GreenFedora:TemplateFile");
 
 // Local error.
 class GfTemplateFileError extends GfError {};
@@ -87,6 +88,24 @@ class TemplateFile
     renderer = null;
 
     /**
+     * Do we have computed data?
+     * @member  {boolean}
+     */
+    hasComputed = false;
+
+    /**
+     * File stats.
+     * @member  {object}
+     */
+    stats = null;
+
+    /**
+     * Computed template processor.
+     * @member  {string}
+     */
+    computedTemplateProcessor = null;
+
+    /**
      * Constructor.
      * 
      * @param   {string}    filePath    Path to the file.
@@ -106,24 +125,65 @@ class TemplateFile
 
         this.config = config;
 
-        this.fnParts.dir = path.dirname(this.relPath);
+        this.fnParts.dir = GfPath.addLeadingSlash(path.dirname(this.relPath));
         this.fnParts.ext = path.extname(this.relPath);
         this.fnParts.base = path.basename(this.relPath, this.fnParts.ext);
         this.templateData = new TemplateData(filePath, config);
+
+        this.stats = fs.statSync(this.filePath);
     }
 
     /**
-     * Get the data for rendering.
+     * Get the data.
      * 
-     * @return {object}
+     * @param   {boolean}   extractions     Return the extractions too?
+     * 
+     * @return  {object}
      */
-    renderData()
+    getData(extractions = false)
     {
         let ret = this.templateData.mergeData();
-        for (let k in this.extracted) {
-            ret[k] = this.extracted[k];
+
+        if (extractions) {
+            for (let idx in this.extracted) {
+                ret[idx] = this.extracted[idx];
+            }
         }
+
         return ret;
+    }
+
+    /**
+     * Add computed data.
+     * 
+     * @return  {void}
+     */
+    addComputedData()
+    {
+        // If we don't have a _computed field there's nothing to do.
+        if (!this.hasComputed) {
+            return;
+        }
+
+        // Workout which template processor to use to parse computed data.
+        if (null === this.computedTemplateProcessor) {
+            let tp = this.config.getTemplateProcessorForFile(this.filePath);
+            this.computedTemplateProcessor = tp.options.computedTemplateProcessor || 'nunjucks';
+        }
+
+        // Get the latest data.
+        let data = this.getData();
+
+        // Convert computed data to a string.
+        let str = JSON.stringify(data._computed);
+
+        // Parse the computed data string using the selected template processor,
+        //  passing in the data we have so far.
+        let parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data);
+
+        // Turn the parsed data back into an object and save it.
+        this.templateData.computedData = JSON.parse(parsed);
+
     }
 
     /**
@@ -147,6 +207,26 @@ class TemplateFile
             this.templateData.layoutData = this.layout.frontMatter.data;
         } else {
             debug(`Template file ${this.relPath} has no layout specified.`);
+        }
+
+        // Extracted fields.
+        for (let k in this.extracted) {
+            this.templateData.frontMatterData[k] = this.extracted[k];
+        }
+
+        // File name parts.
+        for (let k in this.fnParts) {
+            this.templateData.frontMatterData['f' + k] = this.fnParts[k];
+        }
+
+        // Stats.
+        this.templateData.frontMatterData['stats'] = this.stats;
+
+        // Do we have computed data?
+        dataSoFar = this.templateData.mergeData();
+        if (dataSoFar._computed) {
+            this.hasComputed = true;
+            debug(`Template file '${this.relPath}' has computed data.`)
         }
 
         return true;
@@ -281,7 +361,7 @@ class TemplateFile
             ret = {data: {}, content: "", excerpt: ""};
         }
 
-        debug(`Front matter for '${this.relPath}: %o`, ret);
+        debugdev(`Front matter for '${this.relPath}: %o`, ret);
 
         return ret;
     }

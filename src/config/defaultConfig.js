@@ -8,43 +8,60 @@
 
 const footnotes = require('../template/processors/showdown/showdownFootnotes');
 
-module.exports = function(userConfig) {
+module.exports = function(config) {
 
     return {
-        // For testing purposes.
-        _test_thisconfig_is: "Default Config",
 
         // Locations.
         locations: {
             layouts: '_layouts',
             data: '_data',
             cache: '_cache',
-            copy: '_copy'
+            copy: '_copy',
+            site: '_site'
         },
 
         // Default template processor configs.
         defaultTemplateProcessors: {
-            markdown: {
+            markdoc: {
                 options: {
                     parseFrontMatter: true,
                     fmParseOptions: {excerpt: true},
                     extractFromFm: ['content', 'excerpt', 'leader'],
                     compileFields: ['content', 'excerpt', 'leader'],
-                    layoutTemplateProcessor: 'nunjucks'
+                    layoutTemplateProcessor: 'nunjucks',
+                    computedTemplateProcessor: 'nunjucks'
                 },
                 engineOptions: {
                     extensions: [footnotes],
                     strikethrough: true,
                     tables: true
                 },
-                exts: ['md', 'markdown']
+                exts: ['md', 'markdown'],
+            },
+            markdown: {
+                options: {
+                    parseFrontMatter: true,
+                    fmParseOptions: {excerpt: true},
+                    extractFromFm: ['content', 'excerpt', 'leader'],
+                    compileFields: ['content', 'excerpt', 'leader'],
+                    layoutTemplateProcessor: 'nunjucks',
+                    computedTemplateProcessor: 'nunjucks'
+                },
+                engineOptions: {
+                    extensions: [footnotes],
+                    strikethrough: true,
+                    tables: true
+                },
+                exts: ['md', 'markdown'],
             },
             nunjucks: {
                 options: {
                     parseFrontMatter: true,
                     fmParseOptions: {excerpt: false},
                     extractFromFm: ['content'],
-                    usePrecompiledTemplates: true
+                    usePrecompiledTemplates: false,
+                    computedTemplateProcessor: 'nunjucks'
                 },
                 engineOptions: {
                     autoescape: false, 
@@ -86,6 +103,14 @@ module.exports = function(userConfig) {
                 ],
                 onlyFiles: true
             }
+        },
+
+        // Some flags.
+        useMarkdoc: false,
+
+        // Suitable defaults.
+        _computed: {
+            permalink: "{{fbase}}"
         } 
     };
 

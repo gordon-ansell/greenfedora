@@ -8,6 +8,7 @@
 
 const ResourceManager = require('./resourceManager');
 const TemplateProcessorMarkdown = require('../template/processors/templateProcessorMarkdown');
+const TemplateProcessorMarkdoc = require('../template/processors/templateProcessorMarkdoc');
 const TemplateProcessorNunjucks = require('../template/processors/templateProcessorNunjucks');
 const debug = require("debug")("GreenFedora:TemplateManager");
 
@@ -36,14 +37,30 @@ class TemplateManager extends ResourceManager
      */
     addDefaultProcessors()
     {
-        let cfg = this.config.getBaseConfig().defaultTemplateProcessors.markdown;
+        let cfg; 
 
-        // Markdown.
-        this.addProcessor(
-            'markdown', 
-            new TemplateProcessorMarkdown(this.config, cfg.options, cfg.engineOptions),
-            cfg.exts
-        );
+        if (this.config.getBaseConfig().useMarkdoc) {
+
+            cfg = this.config.getBaseConfig().defaultTemplateProcessors.markdoc;
+
+            // Markdoc.
+            this.addProcessor(
+                'markdoc', 
+                new TemplateProcessorMarkdoc(this.config, cfg.options, cfg.engineOptions),
+                cfg.exts
+            );
+
+        } else {
+
+            cfg = this.config.getBaseConfig().defaultTemplateProcessors.markdown;
+
+            // Markdown.
+            this.addProcessor(
+                'markdown', 
+                new TemplateProcessorMarkdown(this.config, cfg.options, cfg.engineOptions),
+                cfg.exts
+            );
+        }
 
         cfg = this.config.getBaseConfig().defaultTemplateProcessors.nunjucks;
 

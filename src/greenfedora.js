@@ -9,6 +9,7 @@
 const gfpkg = require("../package.json");
 const { syslog, GfError, Benchmarks } = require('greenfedora-utils');
 const path = require('path');
+const fs = require('fs');
 const Config = require("./config");
 const TemplateFile = require('./template/file/templateFile');
 const GlobalDataFileConfig = require('./config/globalDataFileConfig');
@@ -59,7 +60,7 @@ class GreenFedora
         debugdev(`Global data file config: %O`, gd);
 
         // Load a bunch of defaults.
-        this.config.postProcessing();
+        this.config.postProcessing(true);
 
         Benchmarks.getInstance().markEnd('gf-constructor');
     }
@@ -216,11 +217,23 @@ class GreenFedora
         // Render all the templates.
         let tpls = this.config.getTemplates('values');
         await Promise.all(tpls.map(async tpl => {
-            let data = await tpl.renderData();
             syslog.log(`Rendering ${tpl.relPath}.`);
-            //syslog.inspect(data);
+
+            tpl.addComputedData();
+            let data = tpl.getData(true);
+
             let op = await tpl.renderer(data);
-            //syslog.inspect(op);
+
+            //syslog.inspect(data);
+
+            let opFile = path.join(this.config.sitePath, data.locations.site, data.permalink);
+            if ('' === path.extname(opFile)) {
+                opFile = path.join(opFile, 'index.html');
+            }
+            if (!fs.existsSync(path.dirname(opFile))) {
+                fs.mkdirSync(path.dirname(opFile), {recursive: true});
+            }
+            fs.writeFileSync(opFile, op, 'utf-8');
         }));
 
         Benchmarks.getInstance().markEnd('gf-render');

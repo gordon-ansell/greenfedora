@@ -85,7 +85,7 @@ class TemplateProcessorNunjucks extends TemplateProcessor
             compiled = new nunjucks.Template(tpl.extracted.content, this.engine, tpl.filePath, true);
         }
 
-        // Return a function that will eventually render the template.
+        // Prepare a function that will eventually render the template.
         return async function (data) {
             return new Promise(function (resolve, reject) {
                 compiled.render(data, function (err, res) {
@@ -97,6 +97,28 @@ class TemplateProcessorNunjucks extends TemplateProcessor
                 });
             });
         };
+
+    }
+
+    /**
+     * Render a string.
+     * 
+     * @param   {string}    str         String to render.
+     * @param   {object}    [data={}]   Data to use.
+     * 
+     * @return  {string}
+     * 
+     * @throws  {GfTemplateProcessorNunjucksError}
+     */
+    renderString(str, data = {})
+    {
+        let ret;
+        try {
+            ret = this.engine.renderString(str, data);
+        } catch (err) {
+            throw new GfTemplateProcessorNunjucksError(`Unable to render string.`, null, err);
+        }
+        return ret;
     }
 }
 

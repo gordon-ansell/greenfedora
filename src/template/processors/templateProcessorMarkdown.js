@@ -10,6 +10,7 @@ const showdown = require('showdown');
 const { GfError, syslog, TemplateProcessor } = require('greenfedora-utils');
 const TemplateFile = require('../file/templateFile');
 const debug = require("debug")("GreenFedora:TemplateProcessorMarkdown");
+const debugdev = require("debug")("Dev.GreenFedora:TemplateProcessorMarkdown");
 
 // Local error.
 class GfTemplateProcessorMarkdownError extends GfError {};
@@ -60,8 +61,9 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         }
 
         // Get the template data.
-        let data = tpl.templateData.mergeData();
+        let data = tpl.getData();
 
+        // Compile the necessary fields.
         for (let f of this.options.compileFields) {
             if (f.startsWith('data.') && data[f]) {
                 tpl.templateData.frontMatterData[f] = this.engine.makeHtml(data[f]);
@@ -74,8 +76,6 @@ class TemplateProcessorMarkdown extends TemplateProcessor
 
         let ltpName = this.options.layoutTemplateProcessor;
         let ltp = this.config.getTemplateProcessor(ltpName);
-
-        //syslog.inspect(tpl.dump());
 
         return ltp.compile(tpl.layout);
 
