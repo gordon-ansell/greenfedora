@@ -7,6 +7,7 @@
 'use strict';
 
 const fg = require('fast-glob');
+const { syslog } = require('greenfedora-utils');
 const debug = require("debug")("GreenFedora:FsParser");
 
 /**
@@ -65,6 +66,13 @@ class FsParser {
         if (config.assetManager.processorExts) {
             for (let ext in config.assetManager.processorExts) {
                 includes.push('**.' + ext);
+            }
+        }
+
+        // We need the 'Just Copy' stuff.
+        if (config.justCopy.length > 0) {
+            for (let p of config.justCopy) {
+                includes.push(p + '**');
             }
         }
 

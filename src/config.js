@@ -109,6 +109,12 @@ class Config
     baseConfig = null;
 
     /**
+     * Global API data.
+     * @member  {object}
+     */
+    globalData = {};
+
+    /**
      * =========================================================================
      * USER CONFIG
      * =========================================================================
@@ -145,16 +151,11 @@ class Config
     templates = null;
 
     /**
-     * =========================================================================
-     * GLOBAL API DATA
-     * =========================================================================
+     * Just copy things.
+     * @member  {string[]}
      */
+    justCopy = [];
 
-    /**
-     * Global API data.
-     * @member  {object}
-     */
-    globalData = {};
 
     /**
      * Constructor.
@@ -202,8 +203,8 @@ class Config
         this.pluginManager = new PluginManager(this);
         this.templateManager = new TemplateManager(this);
         this.assetManager = new AssetManager(this);
-
         this.templates = new Map();
+        this.justCopy = [];
 
         // Base config items.
         this.globalData = {};
@@ -602,7 +603,7 @@ class Config
     /**
      * Get the saved templates.
      * 
-     * @param   {"map"|"values"|"entries"|"keys"}   [format="map"]     Return it as an array.
+     * @param   {"map"|"values"|"entries"|"keys"}   [format="map"]     Return it as required.
      * 
      * @return  {Map|TemplateFile[]}
      */
@@ -616,6 +617,30 @@ class Config
             return [...this.templates.keys()]
         }
         return this.templates;
+    }
+
+    /**
+     * =========================================================================
+     * UTILITY
+     * =========================================================================
+     */
+
+    /**
+     * Add a file or path ti the 'just copy' list.
+     * 
+     * @param   {string|string[]}    pathLike    File/path/dir, string or array of.
+     * 
+     * @return  {Config}
+     */
+    addJustCopy(pathLike)
+    {
+        if (!Array.isArray(pathLike)) {
+            pathLike = [pathLike];
+        }
+        for (let p of pathLike) {
+            this.justCopy.push(GfPath.removeLeadingSlash(p));
+        }
+        return this;
     }
 }
 

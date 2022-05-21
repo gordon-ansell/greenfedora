@@ -96,9 +96,19 @@ class GreenFedora
             files = [files];
         }
 
+        // Filter 'just copy' files.
+        let justcopy = files.filter(f => {
+            for (let item of this.config.justCopy) {
+                if (f.startsWith(item)) {
+                    return f;
+                }
+            }
+        });
+        debugdev(`'Just Copy' files to process: %O`, justcopy);
+
         // Filter assets.
         let assets = files.filter(f => {
-            if (this.config.assetManager.isHandled(path.extname(f))) {
+            if (this.config.assetManager.isHandled(path.extname(f)) && !justcopy.includes(f)) {
                 return f;
             }
         });
@@ -106,17 +116,21 @@ class GreenFedora
 
         // Filter templates.
         let templates = files.filter(f => {
-            if (this.config.templateManager.isHandled(path.extname(f))) {
+            if (this.config.templateManager.isHandled(path.extname(f)) && !justcopy.includes(f)) {
                 return f;
             }
         });
         debugdev(`Template files to process: %O`, templates);
+
 
         // Process the asset files.
         await this.processAssetFiles(assets);
 
         // Process the template files.
         await this.processTemplateFiles(templates);
+
+        // Process the just copy files.
+        await this.processJustCopyFiles(justcopy);
 
         return true;
     }
@@ -207,6 +221,27 @@ class GreenFedora
     }
 
     /**
+     * Process just copy files.
+     * 
+     * @param   {string[]}  files   Files to process.
+     * 
+     * @return  {Promise<boolean>}
+     */
+    async processJustCopyFiles(files)
+    {
+        Benchmarks.getInstance().markStart('gf-procjc', 'Processing just copies');
+        await Promise.all(files.map(async file => {
+            debug(`Processing 'just copy' file: %s`, file);
+            let fullPath = path.join(this.config.sitePath, file);
+            let opPath = path.join(this.config.sitePath, this.config.locations.site, file);
+            fs.copyFileSync(fullPath, opPath);
+        }));
+
+        Benchmarks.getInstance().markEnd('gf-procjc');
+        return true;
+    }
+
+    /**
      * Rendering.
      * 
      * @return  {Promise<number>}        0 for success.
@@ -223,8 +258,6 @@ class GreenFedora
             let data = tpl.getData(true);
 
             let op = await tpl.renderer(data);
-
-            //syslog.inspect(data);
 
             let opFile = path.join(this.config.sitePath, data.locations.site, data.permalink);
             if ('' === path.extname(opFile)) {
