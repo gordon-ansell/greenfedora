@@ -15,7 +15,7 @@ module.exports = function(config) {
     let cfg = {
         options: {
             ignoreFileStart: '_',
-            outputDir: '/assets/css',
+            outputDir: '/assets/style',
             outputExt: '.css',
             postcss: {
                 engineOptions: {

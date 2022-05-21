@@ -9,6 +9,7 @@
 const nunjucks = require('nunjucks');
 const { GfError, syslog, TemplateProcessor } = require('greenfedora-utils');
 const TemplateFile = require('../file/templateFile');
+const { TOKEN_WHITESPACE } = require('nunjucks/src/lexer');
 const debug = require("debug")("GreenFedora:TemplateProcessorNunjucks");
 
 // Local error.
@@ -19,6 +20,15 @@ class GfTemplateProcessorNunjucksError extends GfError {};
  */
 class TemplateProcessorNunjucks extends TemplateProcessor
 {
+    /**
+     * Processor mods (filters, shortcodes etc.)
+     * @member  {object}
+     */
+    mods = {
+        filters: {},
+        preProcessors: {}
+    };
+
     /**
      * Constructor.
      * 
@@ -46,6 +56,21 @@ class TemplateProcessorNunjucks extends TemplateProcessor
         }
 
         debug(`Loaded nunjucks template processor.`)
+    }
+
+    /**
+     * Add a filter.
+     * 
+     * @param   {string}                    name                Name.
+     * @param   {function}                  func                Function to call.
+     * @param   {boolean}                   [isAsync=false]     Well, is it?
+     * 
+     * @return  {TemplateProcessorNunjucks}
+     */
+    addFilter(name, func, isAsync = false)
+    {
+        this.engine.addFilter(name, func, isAsync);
+        return this;
     }
 
     /**
@@ -116,9 +141,41 @@ class TemplateProcessorNunjucks extends TemplateProcessor
         try {
             ret = this.engine.renderString(str, data);
         } catch (err) {
-            throw new GfTemplateProcessorNunjucksError(`Unable to render string.`, null, err);
+            throw new GfTemplateProcessorNunjucksError(`Unable to render string: ${err.message}` +
+                this._getUsefulErrDetails(err.message), null, err);           
         }
         return ret;
+    }
+
+    /**
+     * Get the useful information from an error.
+     * 
+     * @param   {string}    errMessage      Error message.
+     * @return  {string}                    Useful stuff.
+     */
+    _getUsefulErrDetails(errMessage)
+    {
+        let ret = [];
+        let lines = errMessage.split('\n');
+
+        for (let line of lines) {
+            if (line.includes('(unknown path)')) {
+                continue;
+            }
+            ret.push(line);
+        }
+
+        if (ret.length == 0) {
+            ret.push("No error information present.");
+        }
+
+        if (errMessage.includes("attempted to output null or undefined value")) {
+            ret.push("\t==> This will most likely be a logic error in your template.");
+            ret.push("\t==> Check everything between the '{' and '}' characters and the odds are you'll find something wrong.");
+            ret.push("\t==> A mistyped variable name or spurious '%' are good candidates.");
+        }
+
+        return ret.join('\n');
     }
 }
 

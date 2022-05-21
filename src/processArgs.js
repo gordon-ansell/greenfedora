@@ -52,11 +52,13 @@ class ProcessArgs
               "input",
               "output",
               "config",
-              "level"
+              "level",
+              "port"
             ],
             boolean: [
               "silent",
-              "version"
+              "version",
+              "serve"
             ],
             default: {
               input: './',
@@ -65,6 +67,8 @@ class ProcessArgs
               level: 'log',
               silent: false,
               version: false,
+              serve: false,
+              port: '8081'
             },
             unknown: function (unknownArgument) {
               throw new GfProcessArgsError(`Unrecognised argument: '${unknownArgument}'. Use --help to see the list of supported commands.`);

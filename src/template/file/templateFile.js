@@ -150,6 +150,8 @@ class TemplateFile
             }
         }
 
+        ret['hostname'] = this.config.hostname;
+
         return ret;
     }
 
@@ -160,7 +162,7 @@ class TemplateFile
      */
     addComputedData()
     {
-        // If we don't have a _computed field there's nothing to do.
+        // If we don't have a computed field there's nothing to do.
         if (!this.hasComputed) {
             return;
         }
@@ -175,7 +177,7 @@ class TemplateFile
         let data = this.getData();
 
         // Convert computed data to a string.
-        let str = JSON.stringify(data._computed);
+        let str = JSON.stringify(data.computed);
 
         // Parse the computed data string using the selected template processor,
         //  passing in the data we have so far.
@@ -224,7 +226,7 @@ class TemplateFile
 
         // Do we have computed data?
         dataSoFar = this.templateData.mergeData();
-        if (dataSoFar._computed) {
+        if (dataSoFar.computed) {
             this.hasComputed = true;
             debug(`Template file '${this.relPath}' has computed data.`)
         }

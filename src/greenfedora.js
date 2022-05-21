@@ -14,6 +14,7 @@ const Config = require("./config");
 const TemplateFile = require('./template/file/templateFile');
 const GlobalDataFileConfig = require('./config/globalDataFileConfig');
 const FsParser = require('./fsParser');
+const Server = require('./server');
 const debug = require("debug")("GreenFedora");
 const debugdev = require("debug")("Dev.GreenFedora");
 
@@ -260,7 +261,13 @@ class GreenFedora
             tpl.addComputedData();
             let data = tpl.getData(true);
 
-            let op = await tpl.renderer(data);
+            let op;
+            try {
+                op = await tpl.renderer(data);
+            } catch(err) {
+                syslog.error(`Error rendering ${tpl.relPath}`);
+                syslog.exception(err);
+            }
 
             let opFile = path.join(this.config.outputPath, data.permalink);
             if ('' === path.extname(opFile)) {
@@ -273,6 +280,23 @@ class GreenFedora
         }));
 
         Benchmarks.getInstance().markEnd('gf-render');
+        return 0;
+    }
+
+    /**
+     * Start the server.
+     * 
+     * @return
+     */
+    async serve()
+    {
+        let result = await this.render();
+        if (result.error) {
+            return Promise.reject(result.error);
+        }  
+
+        let server = new Server(this.config, parseInt(this.processArgs.argv.port));
+        server.start();
         return 0;
     }
 

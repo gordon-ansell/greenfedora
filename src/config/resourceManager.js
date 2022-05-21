@@ -6,9 +6,9 @@
  */
 'use strict';
 
-const { GfError } = require('greenfedora-utils');
+const { GfError, syslog } = require('greenfedora-utils');
 const path = require('path');
-const debug = require("debug")("GreenFedora:TemplateManager");
+const debug = require("debug")("GreenFedora:ResourceManager");
 
 // Local exception.
 class GfResourceManagerError extends GfError {};
@@ -56,8 +56,21 @@ class ResourceManager
         this.config = config;
     }
 
+
     /**
-     * Add a template processor.
+     * Get the processor mods for a type.
+     * 
+     * @param   {string}        type    Type to get.
+     * 
+     * @return  {object[]}
+     */
+    getProcessorModsForType(type)
+    {
+        return this.processorMods[type];
+    }
+
+    /**
+     * Add a processor.
      * 
      * @param   {string}                name        Name of the template processor.
      * @param   {ResourceProcessor}     instance    Resource processor instance.

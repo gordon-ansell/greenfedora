@@ -10,6 +10,10 @@ const ResourceManager = require('./resourceManager');
 const TemplateProcessorMarkdown = require('../template/processors/templateProcessorMarkdown');
 const TemplateProcessorMarkdoc = require('../template/processors/templateProcessorMarkdoc');
 const TemplateProcessorNunjucks = require('../template/processors/templateProcessorNunjucks');
+const absoluteUrl = require('../template/filters/absoluteUrl');
+const htmlAbsUrl = require('../template/filters/htmlAbsUrl');
+const slugify = require('../template/filters/slugify');
+const url = require('../template/filters/url');
 const debug = require("debug")("GreenFedora:TemplateManager");
 
 /**
@@ -76,6 +80,19 @@ class TemplateManager extends ResourceManager
         );
     }
 
+    /**
+     * Add the default template processor mods.
+     * 
+     * @return  {TemplateManager}
+     */
+    addDefaultProcessorMods()
+    {
+        this.getProcessor('nunjucks')
+            .addFilter('absoluteUrl', absoluteUrl)
+            .addFilter('htmlAbsUrl', htmlAbsUrl)
+            .addFilter('slugify', slugify)
+            .addFilter('url', url);
+    }
 }
 
 module.exports = TemplateManager;

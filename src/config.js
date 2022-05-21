@@ -67,6 +67,12 @@ class Config
     localConfigPath = null;
 
     /**
+     * Hostname.
+     * @member  {string}
+     */
+    hostname = null;
+
+    /**
      * =========================================================================
      * BASE CONFIG
      * =========================================================================
@@ -296,9 +302,9 @@ class Config
             if (hd.port) {
                 calchost += ':' + hd.port;
             }
-            this.config.hostname = calchost;
+            this.hostname = calchost;
         } else {
-            this.config.hostname = os.hostname();
+            this.hostname = os.hostname();
         }
     }
 
@@ -309,7 +315,12 @@ class Config
      */
     mergeConfigs()
     {
-        let merged = Merge.mergeMany([this.defaultConfig, this.pluginConfig, this.localConfig, this.inputConfig]);
+        let merged;
+        try { 
+            merged = Merge.mergeMany([this.defaultConfig, this.pluginConfig, this.localConfig, this.inputConfig]);
+        } catch (err) {
+            throw new GfConfigError(`Hmm, failed to merge all the configs.`, null, err);
+        }
         debug(`Merged (default, plugin, local & input) configs: %o`, merged);
         return merged;
     }
@@ -326,6 +337,7 @@ class Config
         if (forceReload) {
             this.hasMerged = false;
         }
+        // NOTE: don't call getBaseConfig in any of these or we'll loop eternally.
         if (!this.hasMerged) {
             this.loadLocalConfig();
             this.loadPlugins();
@@ -369,6 +381,24 @@ class Config
     }
 
     /**
+     * Add a template processor mod.
+     * 
+     * @param   {string}                    proc                Processor name.                      
+     * @param   {filters|preProcessors}     type                Type.
+     * @param   {string}                    name                Name.
+     * @param   {function}                  func                Function to call.
+     * @param   {boolean}                   [preserve=false]    Protect against overwrite?
+     * @param   {boolean}                   [isAsync=false]     Well, is it?
+     * 
+     * @return  {Config}
+     */
+    addTemplateProcessorMod(proc, type, name, func, preserve = false, isAsync = false)
+    {
+        this.templateManager.addProcessorMod(type, name, func, preserve, isAsync);
+        return this;
+    }
+
+    /**
      * Add the default template processors.
      * 
      * @return  {Config}
@@ -376,6 +406,7 @@ class Config
     addDefaultTemplateProcessors()
     {
         this.templateManager.addDefaultProcessors();
+        this.templateManager.addDefaultProcessorMods();
         return this;
     }
 

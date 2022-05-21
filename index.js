@@ -44,8 +44,19 @@ try {
         console.log(GreenFedora.version());
     } else {
         let gf = new GreenFedora(processArgs);
-        gf.init().then(async function () {
-            return await gf.render();
+        gf.init().then(function () {
+            try {
+                if (processArgs.argv.serve) {
+                    return gf.serve();
+                } else {
+                    return gf.render();
+                }
+
+            } catch (err) {
+                syslog.error(`GreenFedora CLI error.`);
+                syslog.exception(err);
+                process.exitCode = 1;
+            }
         })
     }
 

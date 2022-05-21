@@ -108,7 +108,7 @@ module.exports = function(config) {
         useMarkdoc: false,
 
         // Suitable defaults.
-        _computed: {
+        computed: {
             permalink: "{{fbase}}"
         } 
     };

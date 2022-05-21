@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { GfError, Merge } = require('greenfedora-utils');
+const { GfError, Merge, syslog } = require('greenfedora-utils');
 const path = require('path');
 const constants = require('./constants');
 const fs = require('fs');
@@ -69,6 +69,7 @@ class PluginManager
      */
     addPlugin(plugin, options = {})
     {
+        syslog.info('Calling addplugins')
         if ('function' !== typeof plugin) {
             throw new GfPluginManagerError(`Plugin entry points must be a function (processing ${this.getPluginName(plugin)})`)
         }
