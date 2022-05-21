@@ -233,7 +233,10 @@ class GreenFedora
         await Promise.all(files.map(async file => {
             debug(`Processing 'just copy' file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
-            let opPath = path.join(this.config.sitePath, this.config.locations.site, file);
+            let opPath = path.join(this.config.outputPath, file);
+            if (!fs.existsSync(path.dirname(opPath))) {
+                fs.mkdirSync(path.dirname(opPath), {recursive: true});
+            }
             fs.copyFileSync(fullPath, opPath);
         }));
 
@@ -259,7 +262,7 @@ class GreenFedora
 
             let op = await tpl.renderer(data);
 
-            let opFile = path.join(this.config.sitePath, data.locations.site, data.permalink);
+            let opFile = path.join(this.config.outputPath, data.permalink);
             if ('' === path.extname(opFile)) {
                 opFile = path.join(opFile, 'index.html');
             }

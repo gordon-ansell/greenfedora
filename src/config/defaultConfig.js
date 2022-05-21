@@ -17,8 +17,7 @@ module.exports = function(config) {
             layouts: '_layouts',
             data: '_data',
             cache: '_cache',
-            copy: '_copy',
-            site: '_site'
+            copy: '_copy'
         },
 
         // Default template processor configs.
