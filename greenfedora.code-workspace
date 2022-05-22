@@ -8,6 +8,9 @@
         },
         {
             "path": "../greenfedora-utils"
+        },
+        {
+            "path": "../../scss-fw"
         }
     ]
 }
