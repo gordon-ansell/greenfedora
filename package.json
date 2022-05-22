@@ -60,6 +60,7 @@
         "nunjucks": "^3.2.2",
         "postcss": "^8.4.13",
         "sass": "*",
+        "sharp": "^0.30.4",
         "showdown": "^2.1.0"
 	},
 	"devDependencies": {

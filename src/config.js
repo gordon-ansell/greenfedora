@@ -353,7 +353,7 @@ class Config
     {
         let merged;
         try { 
-            merged = Merge.mergeMany([this.defaultConfig, this.pluginConfig, this.localConfig, this.inputConfig]);
+            merged = Merge.mergeMany([this.defaultConfig, this.localConfig, this.inputConfig]);
         } catch (err) {
             throw new GfConfigError(`Hmm, failed to merge all the configs.`, null, err);
         }
@@ -376,7 +376,6 @@ class Config
         // NOTE: don't call getBaseConfig in any of these or we'll loop eternally.
         if (!this.hasMerged) {
             this.loadLocalConfig();
-            this.loadPlugins();
             this.config = this.mergeConfigs();
             this.applyExtractions();
             this.hasMerged = true;
@@ -393,6 +392,7 @@ class Config
     {
         this.addDefaultTemplateProcessors();
         this.addDefaultAssetProcessors();
+        this.loadPlugins();
     }
 
     /**

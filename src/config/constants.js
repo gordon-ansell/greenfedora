@@ -12,7 +12,9 @@ module.exports = Object.freeze({
 
     /** Events. @constant {string[]} */
     EVENTS: [
-        'INIT_FINISHED'
+        'INIT_FINISHED',
+        'AFTER_PROCESS_ASSETS',
+        'RENDER_FINISHED'
     ]
 });
 

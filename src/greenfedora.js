@@ -15,6 +15,7 @@ const TemplateFile = require('./template/file/templateFile');
 const GlobalDataFileConfig = require('./config/globalDataFileConfig');
 const FsParser = require('./fsParser');
 const Server = require('./server');
+const constants = require('./config/constants');
 const debug = require("debug")("GreenFedora");
 const debugdev = require("debug")("Dev.GreenFedora");
 
@@ -76,6 +77,8 @@ class GreenFedora
         Benchmarks.getInstance().markStart('gf-init', 'Initialisation');
 
         await this.processFiles();
+
+        await this.config.eventManager.emit('INIT_FINISHED');
 
         Benchmarks.getInstance().markEnd('gf-init');
         return true;
@@ -199,6 +202,7 @@ class GreenFedora
         }));
 
         Benchmarks.getInstance().markEnd('gf-procass');
+        await this.config.eventManager.emit('AFTER_PROCESS_ASSETS', this.config)
         return true;
     }
 
@@ -273,6 +277,7 @@ class GreenFedora
             fs.writeFileSync(opFile, op, 'utf-8');
         }));
 
+        await this.config.eventManager.emit('RENDER_FINISHED', this.config);
         Benchmarks.getInstance().markEnd('gf-render');
         return 0;
     }

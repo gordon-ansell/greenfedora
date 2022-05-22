@@ -100,6 +100,7 @@ module.exports = function(config) {
                     'package.json',
                     'package-lock.json',
                     'sh-*',
+                    'assets/_generatedImages/**',
                     '_*/**'
                 ],
                 onlyFiles: true
@@ -108,7 +109,7 @@ module.exports = function(config) {
 
         // Some flags.
         useMarkdoc: false,
-        lazyload: false,
+        lazyload: true,
         figureClass: 'respimg',
 
         // Suitable defaults.

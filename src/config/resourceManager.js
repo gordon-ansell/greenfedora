@@ -81,7 +81,7 @@ class ResourceManager
     addProcessor(name, instance, exts)
     {
         if (name in this.processors) {
-            syslog.warning(`Overwriting existing ${this.type} processor for '${name}' with instance of '${instance.constructor.name}'`);
+            debug(`Overwriting existing ${this.type} processor for '${name}' with instance of '${instance.constructor.name}'`);
         }
 
         this.processors[name] = instance;
@@ -92,7 +92,7 @@ class ResourceManager
 
         for (let ext of exts) {
             if (ext in this.processorExts) {
-                syslog.warning(`Overwriting existing ${this.type} processor extension for '${ext}' with processor '${name}'`);
+                debug(`Overwriting existing ${this.type} processor extension for '${ext}' with processor '${name}'`);
             }
             this.processorExts[ext] = name;
         }
