@@ -14,6 +14,7 @@ const absoluteUrl = require('../template/filters/absoluteUrl');
 const htmlAbsUrl = require('../template/filters/htmlAbsUrl');
 const slugify = require('../template/filters/slugify');
 const url = require('../template/filters/url');
+const SimpleImg = require('../template/shortcodes/simpleImg');
 const debug = require("debug")("GreenFedora:TemplateManager");
 
 /**
@@ -92,6 +93,9 @@ class TemplateManager extends ResourceManager
             .addFilter('htmlAbsUrl', htmlAbsUrl)
             .addFilter('slugify', slugify)
             .addFilter('url', url);
+
+        this.getProcessor('nunjucks')
+            .addShortcode('simpleimg', SimpleImg);
     }
 }
 

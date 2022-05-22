@@ -94,6 +94,8 @@ class ImageInfoStore
      * @param   {boolean}   mustExist   Must this exist?
      * 
      * @return  {object}
+     * 
+     * @throws  {GfImageInfoStoreError}
      */
     getBySrc(src, mustExist = true)
     {
@@ -187,6 +189,8 @@ class ImageInfoStore
      * @param   {boolean}   mustExist   Must this exist?
      * 
      * @return  {object}
+     * 
+     * @throws  {GfImageInfoStoreError}
      */
     getByPage(page, mustExist = false)
     {

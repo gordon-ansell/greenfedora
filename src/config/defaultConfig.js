@@ -17,7 +17,8 @@ module.exports = function(config) {
             layouts: '_layouts',
             data: '_data',
             cache: '_cache',
-            copy: '_copy'
+            copy: '_copy',
+            assets: 'assets'
         },
 
         // Default template processor configs.
@@ -107,6 +108,8 @@ module.exports = function(config) {
 
         // Some flags.
         useMarkdoc: false,
+        lazyload: false,
+        figureClass: 'respimg',
 
         // Suitable defaults.
         computed: {

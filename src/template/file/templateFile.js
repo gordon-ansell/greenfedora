@@ -246,7 +246,7 @@ class TemplateFile
 
             // Save the chained layout data as part of the data cascade.
             this.templateData.layoutData = ld;
-            syslog.inspect(ld);
+            //syslog.inspect(ld);
 
         } else {
             debug(`Template file ${this.relPath} has no layout specified.`);

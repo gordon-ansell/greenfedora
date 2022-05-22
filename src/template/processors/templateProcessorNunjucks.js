@@ -74,6 +74,36 @@ class TemplateProcessorNunjucks extends TemplateProcessor
     }
 
     /**
+     * Add a shortcode.
+     * 
+     * @param   {string}                    name                Name.
+     * @param   {function}                  func                Function to call.
+     * @param   {boolean}                   [isAsync=false]     Well, is it?
+     * 
+     * @return  {TemplateProcessorNunjucks}
+     */
+    addShortcode(name, func, isAsync = false)
+    {
+        this.engine.addExtension(name, new func(name, this.config, false, isAsync));
+        return this;
+    }
+
+    /**
+     * Add a paired shortcode.
+     * 
+     * @param   {string}                    name                Name.
+     * @param   {function}                  func                Function to call.
+     * @param   {boolean}                   [isAsync=false]     Well, is it?
+     * 
+     * @return  {TemplateProcessorNunjucks}
+     */
+    addPairedShortcode(name, func, isAsync = false)
+    {
+        this.engine.addExtension(name, new func(name, this.config, true, isAsync));
+        return this;
+    }
+
+    /**
      * Get a template.
      * 
      * @param   {string}    name                    Template name.

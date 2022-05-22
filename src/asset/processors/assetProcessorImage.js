@@ -6,7 +6,8 @@
  */
 'use strict';
 
-const { GfError, AssetProcessor } = require('greenfedora-utils');
+const { GfError, AssetProcessor, FsUtils } = require('greenfedora-utils');
+const path = require('path');
 const debug = require("debug")("GreenFedora:AssetProcessorImage");
 
 // Local error.
@@ -47,6 +48,12 @@ class AssetProcessorImage extends AssetProcessor
      */
     process(filePath)
     {
+        // By default we just copy the file.
+        let op = path.join(this.config.outputPath, filePath.replace(this.config.sitePath, ''));
+
+        FsUtils.mkDirRecurse(path.dirname(op));
+        FsUtils.copyFile(filePath, op);
+
         return true;
     }
 

@@ -12,8 +12,10 @@ const fs = require('fs');
 const PluginManager = require('./config/pluginManager');
 const TemplateManager = require('./config/templateManager');
 const AssetManager = require('./config/assetManager');
+const ImageInfoStore = require('./imageInfoStore');
 const os = require('os');
 const constants = require('./config/constants');
+const { URL } = require('url');
 const debug = require("debug")("GreenFedora:Config");
 
 // Local error.
@@ -151,6 +153,12 @@ class Config
     assetManager = null;
 
     /**
+     * Image info store.
+     * @member  {ImageInfoStore}
+     */
+    imageInfoStore = null;
+
+    /**
      * Cache.
      * @member  {Cache}
      */
@@ -162,6 +170,17 @@ class Config
      */
     justCopy = [];
 
+    /**
+     * Assets directory.
+     * @member {string}
+     */
+    assetsDir = null;
+
+    /**
+     * Assets path.
+     * @member {string}
+     */
+    assetsPath = null;
 
     /**
      * Constructor.
@@ -209,8 +228,11 @@ class Config
         this.pluginManager = new PluginManager(this);
         this.templateManager = new TemplateManager(this);
         this.assetManager = new AssetManager(this);
+        this.imageInfoStore = new ImageInfoStore(this);
         this.prepareCache();
         this.justCopy = [];
+        this.assetsDir = null;
+        this.assetsPath = null;
 
         // Base config items.
         this.globalData = {};
@@ -317,6 +339,9 @@ class Config
         } else {
             this.hostname = os.hostname();
         }
+
+        // Save the assets locations.
+        this.assetsDir = this.config.locations.assets;
     }
 
     /**
@@ -547,6 +572,39 @@ class Config
     getAssetProcessorForFile(filePath)
     {
         return this.assetManager.getProcessorForFile(filePath);
+    }
+
+    /**
+     * Get the correct assets path for something.
+     * 
+     * @param   {string}    ass     Input asset - should be a root relative dir.
+     * 
+     * @return  {string}
+     */
+    asset(ass)
+    {
+        // If we're passed and absolute path with an appropriate domain, just return.
+        if (ass.startsWith('http')) {
+            return ass;
+        }
+
+        // First see if it already begins with the assets dir. If not, add it.
+        if (this.assetsDir) {
+            let tmp = GfPath.removeBothSlashes(ass);
+            if (!tmp.startsWith(GfPath.removeBothSlashes(this.assetsDir))) {
+                ass = path.join(this.assetsDir, ass);
+            }
+        }
+
+        ass = GfPath.addLeadingSlash(ass);
+
+        // If we have an assets path, put that at the start.
+        if (this.assetsPath) {
+            let u = new URL(ass, this.assetsPath);
+            ass = u.toString();
+        }
+
+        return ass;
     }
 
     /**
