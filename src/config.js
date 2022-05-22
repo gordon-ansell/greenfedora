@@ -157,12 +157,6 @@ class Config
     cache = null;
 
     /**
-     * Saved templates.
-     * @member  {Map}
-     */
-    //templates = null;
-
-    /**
      * Just copy things.
      * @member  {string[]}
      */
@@ -215,15 +209,24 @@ class Config
         this.pluginManager = new PluginManager(this);
         this.templateManager = new TemplateManager(this);
         this.assetManager = new AssetManager(this);
-        this.cache = new Cache();
-        this.cache.addGroup('templates');
-        //this.templates = new Map();
+        this.prepareCache();
         this.justCopy = [];
 
         // Base config items.
         this.globalData = {};
         this.loadDefaultConfig();
         this.getBaseConfig(true);
+    }
+
+    /**
+     * Prepare the cache.
+     * 
+     * @return  {void}
+     */
+    prepareCache()
+    {
+        this.cache = new Cache();
+        this.cache.addGroup('templates');
     }
 
     /**
@@ -636,7 +639,6 @@ class Config
     saveTemplate(tpl)
     {
         this.cache.getGroup('templates').set(tpl.relPath, tpl);
-        //this.templates.set(tpl.relPath, tpl);
         return this;
     }
 
@@ -649,17 +651,7 @@ class Config
      */
     getTemplates(format = "map")
     {
-        return this.getGroup('templates').getInternals(format);
-        /*
-        if ("values" === format) {
-            return [...this.templates.values()];
-        } else if ("entries" === format) {
-            return [...this.templates.entries()]
-        } else if ("keys" === format) {
-            return [...this.templates.keys()]
-        }
-        return this.templates;
-        */
+        return this.cache.getGroup('templates').getInternals(format);
     }
 
     /**

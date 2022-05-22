@@ -8,7 +8,7 @@
 
 const fsPromises = require('fs').promises;
 const path = require('path');
-const { GfError, syslog, GfPath } = require('greenfedora-utils');
+const { GfError, syslog, GfPath, Merge } = require('greenfedora-utils');
 const TemplateData = require('./templateData');
 const fs = require('fs');
 const fmparse = require('gray-matter');
@@ -225,9 +225,29 @@ class TemplateFile
         // Do we have a layout? If so, load it now.
         if (dataSoFar.layout) {
             // Read the template's layout.
+            debug(`Loading layout ${dataSoFar.layout}`)
             await this.getLayout().load();
             // Save the layout data as part of the data cascade.
             this.templateData.layoutData = this.layout.frontMatter.data;
+
+            // Chain through dependent layouts.
+            let ld = {};
+            let curr = this.layout;
+            while(curr) {
+                if (curr.frontMatter.data) {
+                    ld = Merge.merge(ld, curr.frontMatter.data)
+                }
+                if (curr.layout) {
+                    curr = curr.layout;
+                } else {
+                    curr = null;
+                }
+            }
+
+            // Save the chained layout data as part of the data cascade.
+            this.templateData.layoutData = ld;
+            syslog.inspect(ld);
+
         } else {
             debug(`Template file ${this.relPath} has no layout specified.`);
         }
@@ -249,6 +269,8 @@ class TemplateFile
         dataSoFar = this.templateData.mergeData();
         if (dataSoFar.computed) {
             this.hasComputed = true;
+        }
+        if (this.templateData.frontMatterData.computed) {
             debug(`Template file '${this.relPath}' has computed data.`)
         }
 

@@ -110,6 +110,14 @@ class TemplateProcessorNunjucks extends TemplateProcessor
             compiled = new nunjucks.Template(tpl.extracted.content, this.engine, tpl.filePath, true);
         }
 
+        // Layout?
+        if (tpl.layout) {
+            let ltpName = this.options.layoutTemplateProcessor;
+            let ltp = this.config.getTemplateProcessor(ltpName);
+
+            return ltp.compile(tpl.layout);
+        }
+
         // Prepare a function that will eventually render the template.
         return async function (data) {
             return new Promise(function (resolve, reject) {
