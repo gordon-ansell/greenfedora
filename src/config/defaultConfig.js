@@ -60,6 +60,7 @@ module.exports = function(config) {
                     fmParseOptions: {excerpt: false},
                     extractFromFm: ['content'],
                     usePrecompiledTemplates: false,
+                    layoutTemplateProcessor: 'nunjucks',
                     computedTemplateProcessor: 'nunjucks'
                 },
                 engineOptions: {

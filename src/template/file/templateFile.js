@@ -134,6 +134,27 @@ class TemplateFile
     }
 
     /**
+     * Render this template with the passed data.
+     * 
+     * @param   {object}    data    Data.
+     * 
+     * @return  {string}
+     */
+    async render(data = {}, content = null)
+    {
+        let op;
+
+        try {
+            op = await this.renderer(data);
+        } catch(err) {
+            syslog.error(`Error rendering ${this.relPath}`);
+            syslog.exception(err);
+        }
+
+        return op;
+    }
+
+    /**
      * Get the data.
      * 
      * @param   {boolean}   extractions     Return the extractions too?

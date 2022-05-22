@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { syslog, GfPath, GfError, Merge, EventManager } = require('greenfedora-utils');
+const { syslog, GfPath, GfError, Merge, EventManager, Cache } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const PluginManager = require('./config/pluginManager');
@@ -151,10 +151,16 @@ class Config
     assetManager = null;
 
     /**
+     * Cache.
+     * @member  {Cache}
+     */
+    cache = null;
+
+    /**
      * Saved templates.
      * @member  {Map}
      */
-    templates = null;
+    //templates = null;
 
     /**
      * Just copy things.
@@ -209,7 +215,9 @@ class Config
         this.pluginManager = new PluginManager(this);
         this.templateManager = new TemplateManager(this);
         this.assetManager = new AssetManager(this);
-        this.templates = new Map();
+        this.cache = new Cache();
+        this.cache.addGroup('templates');
+        //this.templates = new Map();
         this.justCopy = [];
 
         // Base config items.
@@ -627,7 +635,8 @@ class Config
      */
     saveTemplate(tpl)
     {
-        this.templates.set(tpl.relPath, tpl);
+        this.cache.getGroup('templates').set(tpl.relPath, tpl);
+        //this.templates.set(tpl.relPath, tpl);
         return this;
     }
 
@@ -640,6 +649,8 @@ class Config
      */
     getTemplates(format = "map")
     {
+        return this.getGroup('templates').getInternals(format);
+        /*
         if ("values" === format) {
             return [...this.templates.values()];
         } else if ("entries" === format) {
@@ -648,6 +659,7 @@ class Config
             return [...this.templates.keys()]
         }
         return this.templates;
+        */
     }
 
     /**

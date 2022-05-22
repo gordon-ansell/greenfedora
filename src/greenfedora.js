@@ -261,13 +261,7 @@ class GreenFedora
             tpl.addComputedData();
             let data = tpl.getData(true);
 
-            let op;
-            try {
-                op = await tpl.renderer(data);
-            } catch(err) {
-                syslog.error(`Error rendering ${tpl.relPath}`);
-                syslog.exception(err);
-            }
+            let op = await tpl.render(data);
 
             let opFile = path.join(this.config.outputPath, data.permalink);
             if ('' === path.extname(opFile)) {
