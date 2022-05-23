@@ -17,7 +17,6 @@ const Collection = require('./collection');
 const os = require('os');
 const constants = require('./config/constants');
 const { URL } = require('url');
-const CollectionContainer = require('./collectionContainer');
 const debug = require("debug")("GreenFedora:Config");
 
 // Local error.
@@ -735,18 +734,18 @@ class Config
     /**
      * Add a template to a collection.
      * 
-     * @param   {string}        cont    Container name.
      * @param   {string}        coll    Collection name.
+     * @param   {string}        item    Item name.
      * @param   {TemplateFile}  tpl     Template to add.    
      * 
      * @return  {Config}
      */
-    addToCollection(coll, tpl)
+    addToCollection(coll, item, tpl)
     {
-        if (!this.collections[cont]) {
-            this.collections[cont] = new CollectionContainer()
+        if (!this.collections[coll]) {
+            this.collections[coll] = new Collection()
         }
-        this.collections[cont].getCollection(coll, true).add(tpl.relPath, tpl);
+        this.collections[coll].getItem(item, true).add(tpl.relPath, tpl);
 
         return this;
     }

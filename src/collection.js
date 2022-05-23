@@ -7,6 +7,7 @@
 'use strict';
 
 const { GfError } = require('greenfedora-utils');
+const CollectionItem = require('./collectionItem');
 
 // Local error.
 class GfCollectionError extends GfError {};
@@ -17,10 +18,10 @@ class GfCollectionError extends GfError {};
 class Collection
 {
     /**
-     * The collection data.
-     * @member  {map}
+     * The individual items in the collection.
+     * @member  {object}
      */
-    data = null;
+    items = {};
 
     /**
      * Constructor.
@@ -29,35 +30,53 @@ class Collection
      */
     constructor()
     {
-        this.data = new Map();
     }
 
     /**
-     * Add an item to the collection.
+     * See if we have an item of a given name.
      * 
-     * @param   {string}        key     Key to add.
-     * @param   {TemplateFile}  tpl     Template file to add.
+     * @param   {string}    name    Name to test.
      * 
-     * @return  {Collection}
+     * @return  {boolean}
      */
-    add(key, tpl)
+    hasItem(name)
     {
-        this.data.set(key, tpl);
-        return this;
+        return (name in this.items);
     }
 
     /**
-     * Standard sort (descending).
+     * Get a collection item.
+     * 
+     * @param   {string}    name                Name to retrieve.
+     * @param   {boolean}   [autoCreate=false]  Auto create collection if necessary.
+     * 
+     * @return  {CollectionItem}
+     */
+    getItem(name, autoCreate = false)
+    {
+        if (!this.hasItem(name)) {
+            if (autoCreate) {
+                this.createItem(name);
+            } else {
+                throw new GfCollectionError(`Collection has no item named '${name}'.`)
+            }
+        }
+        return this.items[name];
+    }
+
+    /**
+     * Create a new collection item.
+     * 
+     * @param   {string}    name    Name to create.
      * 
      * @return  {Collection}
      */
-    sortDefault()
+    createItem(name)
     {
-        this.data = new Map([...this.data.entries()].sort((a, b) => {
-            let ams = (new Date(a[1].date)).getMilliseconds();
-            let bms = (new Date(b[1].date)).getMilliseconds()
-            return (ams < b.ms) ? 1 : ((bms < ams) ? -1 : 0)
-        }));   
+        if (this.hasItem(name)) {
+            throw new GfCollectionError(`Collection already has an item named '${name}'.`); 
+        }
+        this.items[name] = new CollectionItem();
 
         return this;
     }

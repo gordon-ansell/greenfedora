@@ -195,9 +195,9 @@ class GreenFedora
         this.config.saveTemplate(tpl);
 
         // Extract collection data.
-        if (tpl.collectionsToTrack) {
-            let data = tpl.getData();
-            for (let coll of tpl.collectionsToTrack) {
+        let data = tpl.getData();
+        if (data.collectionsToTrack) {
+            for (let coll of data.collectionsToTrack) {
                 if (data[coll]) {
                     let arr = data[coll];
                     if (!Array.isArray(arr)) {
