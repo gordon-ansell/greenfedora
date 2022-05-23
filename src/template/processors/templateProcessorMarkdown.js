@@ -20,11 +20,6 @@ class GfTemplateProcessorMarkdownError extends GfError {};
  */
 class TemplateProcessorMarkdown extends TemplateProcessor
 {
-    /**
-     * Preprocessors.
-     * @member  {object[]} 
-     */
-    preProcessors = [];
     
     /**
      * Constructor.
@@ -68,6 +63,25 @@ class TemplateProcessorMarkdown extends TemplateProcessor
 
         // Get the template data.
         let data = tpl.getData();
+
+        // Are we building separate RSS content?
+        let rss = false;
+        if (data.buildSeparateRssContent) {
+            rss = true;
+            tpl.extracted['content_rss'] = tpl.extracted['content'];
+            this.options.compileFields.push('content_rss');
+        }
+
+        // Preprocessing.
+        if (this.preprocessors.length > 0) {
+            for (let pp of this.preprocessors) {
+                tpl.extracted.content = pp.preprocessString(tpl.extracted.content, data.permalink, tpl.filePath);
+                if (rss) {
+                    tpl.extracted.content_rss = pp.preprocessString(tpl.extracted.content_rss, data.permalink, 
+                        tpl.filePath, true);
+                }
+            }
+        }
 
         // Compile the necessary fields.
         for (let f of this.options.compileFields) {

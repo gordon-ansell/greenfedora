@@ -111,6 +111,10 @@ module.exports = function(config) {
         useMarkdoc: false,
         lazyload: true,
         figureClass: 'respimg',
+        buldSeparateRssContent: true,
+
+        // Parts of permalink to ignore.
+        permalinkIgnoreParts: ["^\\d{4}-\\d{2}-\\d{2}-"],
 
         // Suitable defaults.
         computed: {

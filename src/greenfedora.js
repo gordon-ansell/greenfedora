@@ -7,7 +7,7 @@
 'use strict';
 
 const gfpkg = require("../package.json");
-const { syslog, GfError, Benchmarks } = require('greenfedora-utils');
+const { syslog, GfError, Benchmarks, FsUtils } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const Config = require("./config");
@@ -76,12 +76,24 @@ class GreenFedora
     {
         Benchmarks.getInstance().markStart('gf-init', 'Initialisation');
 
+        this.cleanDirs();
+
         await this.processFiles();
 
         await this.config.eventManager.emit('INIT_FINISHED');
 
         Benchmarks.getInstance().markEnd('gf-init');
         return true;
+    }
+
+    /**
+     * Clean up various directories.
+     * 
+     * @return  {void}
+     */
+    cleanDirs()
+    {
+        FsUtils.cleanDir(this.config.outputPath);
     }
 
     /**

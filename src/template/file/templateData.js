@@ -127,6 +127,14 @@ class TemplateData
             ret = Merge.merge(ret, this.computedData);
         }
 
+        // Possibly modify the permalink.
+        if (ret.permalink && ret.permalinkIgnoreParts) {
+            for (let r of ret.permalinkIgnoreParts) {
+                ret.permalink = ret.permalink.replace(new RegExp(r), '');
+            }
+        }
+
+
         return ret;
     }
 

@@ -16,6 +16,9 @@ const slugify = require('../template/filters/slugify');
 const url = require('../template/filters/url');
 const SimpleImg = require('../template/shortcodes/simpleImg');
 const Img = require('../template/shortcodes/img');
+const PreprocessorImage = require('../template/preprocessors/preprocessorImage');
+const PreprocessorComment = require('../template/preprocessors/preprocessorComment');
+const PreprocessorDelimiter = require('../template/preprocessors/preprocessorDelimiter');
 const debug = require("debug")("GreenFedora:TemplateManager");
 
 /**
@@ -98,6 +101,11 @@ class TemplateManager extends ResourceManager
         this.getProcessor('nunjucks')
             .addShortcode('simpleimg', SimpleImg)
             .addShortcode('img', Img);
+
+        this.getProcessor('markdown')
+            .addPreprocessor(new PreprocessorImage(this.config))
+            .addPreprocessor(new PreprocessorComment(this.config))
+            .addPreprocessor(new PreprocessorDelimiter(this.config));
     }
 }
 
