@@ -15,8 +15,10 @@ const debug = require('debug')('GreenFedora:Plugin:images');
 
 async function copyGeneratedImages(config)
 {
-    let indir = path.join(config.sitePath, config.imageConfig.options.outputDir);
-    let outdir = path.join(config.outputPath, config.imageConfig.options.outputDir);
+    let imageConfig = config.getGlobalData('imageConfig');
+
+    let indir = path.join(config.sitePath, imageConfig.options.outputDir);
+    let outdir = path.join(config.outputPath, imageConfig.options.outputDir);
 
     if (!fs.existsSync(outdir)) {
         FsUtils.mkDirRecurse(outdir);
@@ -90,7 +92,7 @@ module.exports = function(config, options = {}) {
 
     cfg.options.generatedStorePath = path.join(config.sitePath, cfg.options.generatedStoreFile);
 
-    config.imageConfig = cfg;
+    config.addGlobalData('imageConfig', cfg);
 
     //config.assetHandlers.image = imageCfg;
 

@@ -21,6 +21,12 @@ class GfTemplateProcessorMarkdownError extends GfError {};
 class TemplateProcessorMarkdown extends TemplateProcessor
 {
     /**
+     * Preprocessors.
+     * @member  {object[]} 
+     */
+    preProcessors = [];
+    
+    /**
      * Constructor.
      * 
      * @param   {Config}    config              Configs.

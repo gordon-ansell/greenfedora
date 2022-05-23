@@ -24,7 +24,7 @@ class ImgShortcode extends NunjucksShortcode
      */
     _findFiles(url)
     {
-        let imageOpts = this.config.imageConfig.options;
+        let imageOpts = this.config.getGlobalData('imageConfig').options;
 
         let base = path.basename(url, path.extname(url));
         //let targetUrlStart = path.join(imageOpts.outputDir, path.dirname(url), base);
@@ -153,15 +153,15 @@ class ImgShortcode extends NunjucksShortcode
             }
         } 
 
+        let imageOpts = this.config.getGlobalData('imageConfig').options;
 
         let ret = '';
         //let imgHtml = new ImageHtml(this.config.assetHandlers.image, this.config.hostname);
         let imgHtml = new ComplexImage(bc.lazyload, bc.figureClass, this.config.sitePath, 
-            this.config.hostname, this.config.imageConfig.options);
+            this.config.hostname, imageOpts);
 
         //let sources = this.formatFilesArray(files);
 
-        let imageOpts = this.config.imageConfig.options;
         if (!imageOpts.generated.has(url)) {
             throw new GfImageShortcodeError(`No generated files for URL: ${url}`);
         }

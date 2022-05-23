@@ -197,7 +197,8 @@ class AssetProcessorImage extends AssetProcessor
         debug(`Processing image: ${filePath}`);
 
         // Grab the options.
-        let options = this.options;
+        //let options = this.options;
+        let options = this.config.getGlobalData('imageConfig').options;
 
         if (options.placeholderWidth && (!options.widths.includes(options.placeholderWidth))) {
             options.widths.push(options.placeholderWidth);
