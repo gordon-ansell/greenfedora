@@ -112,6 +112,10 @@ module.exports = function(config) {
         lazyload: true,
         figureClass: 'respimg',
         buldSeparateRssContent: true,
+        type: 'page',
+
+        // Default collections.
+        collectionsToTrack: ['type', 'tags'],
 
         // Parts of permalink to ignore.
         permalinkIgnoreParts: ["^\\d{4}-\\d{2}-\\d{2}-"],

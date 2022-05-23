@@ -13,9 +13,11 @@ const PluginManager = require('./config/pluginManager');
 const TemplateManager = require('./config/templateManager');
 const AssetManager = require('./config/assetManager');
 const ImageInfoStore = require('./imageInfoStore');
+const Collection = require('./collection');
 const os = require('os');
 const constants = require('./config/constants');
 const { URL } = require('url');
+const CollectionContainer = require('./collectionContainer');
 const debug = require("debug")("GreenFedora:Config");
 
 // Local error.
@@ -183,6 +185,18 @@ class Config
     assetsPath = null;
 
     /**
+     * =========================================================================
+     * COLLECTIONS
+     * =========================================================================
+     */
+
+    /**
+     * Collections.
+     * @member {object}
+     */
+    collections = {};
+
+    /**
      * Constructor.
      * 
      * @param   {string}    sitePath                    Path to the user's site project.
@@ -233,6 +247,7 @@ class Config
         this.justCopy = [];
         this.assetsDir = null;
         this.assetsPath = null;
+        this.collections = {};
 
         // Base config items.
         this.globalData = {};
@@ -710,6 +725,30 @@ class Config
     getTemplates(format = "map")
     {
         return this.cache.getGroup('templates').getInternals(format);
+    }
+
+    /**
+     * =========================================================================
+     * COLLECTIONS
+     * =========================================================================
+     */
+    /**
+     * Add a template to a collection.
+     * 
+     * @param   {string}        cont    Container name.
+     * @param   {string}        coll    Collection name.
+     * @param   {TemplateFile}  tpl     Template to add.    
+     * 
+     * @return  {Config}
+     */
+    addToCollection(coll, tpl)
+    {
+        if (!this.collections[cont]) {
+            this.collections[cont] = new CollectionContainer()
+        }
+        this.collections[cont].getCollection(coll, true).add(tpl.relPath, tpl);
+
+        return this;
     }
 
     /**

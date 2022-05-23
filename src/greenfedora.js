@@ -194,6 +194,22 @@ class GreenFedora
         // Save the template.
         this.config.saveTemplate(tpl);
 
+        // Extract collection data.
+        if (tpl.collectionsToTrack) {
+            let data = tpl.getData();
+            for (let coll of tpl.collectionsToTrack) {
+                if (data[coll]) {
+                    let arr = data[coll];
+                    if (!Array.isArray(arr)) {
+                        arr = [arr];
+                    }
+                    for (let item of arr) {
+                        this.config.addToCollection(coll, item, tpl);
+                    }
+                }
+            }
+        }
+
         return true;
     }
 
