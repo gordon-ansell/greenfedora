@@ -9,7 +9,6 @@
 const nunjucks = require('nunjucks');
 const { GfError, syslog, TemplateProcessor } = require('greenfedora-utils');
 const TemplateFile = require('../file/templateFile');
-const { TOKEN_WHITESPACE } = require('nunjucks/src/lexer');
 const debug = require("debug")("GreenFedora:TemplateProcessorNunjucks");
 
 // Local error.
@@ -123,7 +122,7 @@ class TemplateProcessorNunjucks extends TemplateProcessor
      * 
      * @return  {Promise<function>}
      */
-    async compile(tpl)
+    async compile(tpl, fnReady)
     {
         // Sanity check.
         if (!tpl instanceof TemplateFile) {
@@ -150,6 +149,10 @@ class TemplateProcessorNunjucks extends TemplateProcessor
 
         // Prepare a function that will eventually render the template.
         return async function (data) {
+            if ("function" === typeof fnReady) {
+                let content = await fnReady(data);
+                data.content = content;
+            }
             return new Promise(function (resolve, reject) {
                 compiled.render(data, function (err, res) {
                     if (err) {

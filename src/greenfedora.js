@@ -7,7 +7,7 @@
 'use strict';
 
 const gfpkg = require("../package.json");
-const { syslog, GfError, Benchmarks, FsUtils } = require('greenfedora-utils');
+const { syslog, GfError, Benchmarks, FsUtils, Merge } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const Config = require("./config");
@@ -197,14 +197,14 @@ class GreenFedora
         // Extract collection data.
         let data = tpl.getData();
         if (data.collectionsToTrack) {
-            for (let coll of data.collectionsToTrack) {
-                if (data[coll]) {
-                    let arr = data[coll];
+            for (let group of data.collectionsToTrack) {
+                if (data[group]) {
+                    let arr = data[group];
                     if (!Array.isArray(arr)) {
                         arr = [arr];
                     }
-                    for (let item of arr) {
-                        this.config.addToCollection(coll, item, tpl);
+                    for (let coll of arr) {
+                        this.config.addToCollection(group, coll, tpl);
                     }
                 }
             }
@@ -285,13 +285,58 @@ class GreenFedora
     async render()
     {
         Benchmarks.getInstance().markStart('gf-render', 'Render');
-        // Render all the templates.
-        let tpls = this.config.getTemplates('values');
-        await Promise.all(tpls.map(async tpl => {
+
+        // Render all the early templates.
+        await this._renderParse('early');
+
+        // Render all the late templates.
+        await this._renderParse('late', {collections: this.config.collections});
+
+        await this.config.eventManager.emit('RENDER_FINISHED', this.config);
+        Benchmarks.getInstance().markEnd('gf-render');
+        return 0;
+    }
+
+    /**
+     * Render an individual parse.
+     * 
+     * @param   {string}    parse       Parse to render.
+     * @param   {object}    extraData   Extra data to merge in for the parse.
+     * 
+     * @return  {void}
+     */
+    async _renderParse(parse, extraData = null)
+    {
+        Benchmarks.getInstance().markStart('gf-render-' + parse, 'Render' + ' (' + parse + ')');
+
+        let tpls = Object.values(this.config.getTemplates());
+
+        let todo;
+        if ('late' === parse) {
+            todo = tpls.filter(t => {
+                let d = t.getData();
+                if (d.parse && 'late' === d.parse) {
+                    return t;
+                }  
+            })
+        } else {
+            todo = tpls.filter(t => {
+                let d = t.getData();
+                if (!d.parse || 'late' !== d.parse) {
+                    return t;
+                }  
+            })
+        }
+
+        await Promise.all(todo.map(async tpl => {
             syslog.log(`Rendering ${tpl.relPath}.`);
 
             tpl.addComputedData();
             let data = tpl.getData(true);
+
+            if (null !== extraData) {
+                data = Merge.merge(data, extraData);
+            }
 
             let op = await tpl.render(data);
 
@@ -305,9 +350,8 @@ class GreenFedora
             fs.writeFileSync(opFile, op, 'utf-8');
         }));
 
-        await this.config.eventManager.emit('RENDER_FINISHED', this.config);
-        Benchmarks.getInstance().markEnd('gf-render');
-        return 0;
+        Benchmarks.getInstance().markEnd('gf-render-' + parse);
+
     }
 
     /**

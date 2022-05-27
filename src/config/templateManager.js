@@ -10,10 +10,17 @@ const ResourceManager = require('./resourceManager');
 const TemplateProcessorMarkdown = require('../template/processors/templateProcessorMarkdown');
 const TemplateProcessorMarkdoc = require('../template/processors/templateProcessorMarkdoc');
 const TemplateProcessorNunjucks = require('../template/processors/templateProcessorNunjucks');
+
 const absoluteUrl = require('../template/filters/absoluteUrl');
 const htmlAbsUrl = require('../template/filters/htmlAbsUrl');
 const slugify = require('../template/filters/slugify');
 const url = require('../template/filters/url');
+const displayDate = require('../template/filters/displayDate');
+const displayTime = require('../template/filters/displayTime');
+const datePart = require('../template/filters/datePart');
+const isoDateTime = require('../template/filters/isoDateTime');
+const utcDateTime = require('../template/filters/utcDateTime');
+
 const SimpleImg = require('../template/shortcodes/simpleImg');
 const Img = require('../template/shortcodes/img');
 const PreprocessorImage = require('../template/preprocessors/preprocessorImage');
@@ -96,7 +103,12 @@ class TemplateManager extends ResourceManager
             .addFilter('absoluteUrl', absoluteUrl)
             .addFilter('htmlAbsUrl', htmlAbsUrl)
             .addFilter('slugify', slugify)
-            .addFilter('url', url);
+            .addFilter('url', url)
+            .addFilter('datePart', datePart)
+            .addFilter('displayDate', displayDate)
+            .addFilter('displayTime', displayTime)
+            .addFilter('isoDateTime', isoDateTime)
+            .addFilter('utcDateTime', utcDateTime)
 
         this.getProcessor('nunjucks')
             .addShortcode('simpleimg', SimpleImg)

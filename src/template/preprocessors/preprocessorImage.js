@@ -33,15 +33,14 @@ class PreprocessorImage extends Preprocessor
      * Preprocess a string.
      * 
      * @param   {string}    content     Content to preprocess.
-     * @param   {string}    permalink   Permalink for post.
      * @param   {string}    filePath    File path.
      * @param   {boolean}   [rss=false] For RSS?
      * 
      * @return  {string}
      */
-    preprocessString(content, permalink, filePath, rss = false)
+    preprocessString(content, filePath, rss = false)
     {
-        debug(`Preprocessing images for ${permalink}`);
+        debug(`Preprocessing images for ${filePath}`);
 
         let ret = content;
         const regex = /!\[([^\]]*)\]\((.*?)\s*("(?:.*[^"])")?\s*\)/g;

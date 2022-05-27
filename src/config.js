@@ -184,6 +184,12 @@ class Config
     assetsPath = null;
 
     /**
+     * Ongoing templates.
+     * @member  {TemplateFile[]}
+     */
+    templates = {};
+
+    /**
      * =========================================================================
      * COLLECTIONS
      * =========================================================================
@@ -247,6 +253,7 @@ class Config
         this.assetsDir = null;
         this.assetsPath = null;
         this.collections = {};
+        this.template = {};
 
         // Base config items.
         this.globalData = {};
@@ -710,7 +717,8 @@ class Config
      */
     saveTemplate(tpl)
     {
-        this.cache.getGroup('templates').set(tpl.relPath, tpl);
+        this.templates[tpl.relPath] = tpl; 
+        //this.cache.getGroup('templates').set(tpl.relPath, tpl);
         return this;
     }
 
@@ -723,7 +731,8 @@ class Config
      */
     getTemplates(format = "map")
     {
-        return this.cache.getGroup('templates').getInternals(format);
+        return this.templates;
+        //return this.cache.getGroup('templates').getInternals(format);
     }
 
     /**
@@ -734,18 +743,26 @@ class Config
     /**
      * Add a template to a collection.
      * 
+     * @param   {string}        group   Group.
      * @param   {string}        coll    Collection name.
-     * @param   {string}        item    Item name.
      * @param   {TemplateFile}  tpl     Template to add.    
      * 
      * @return  {Config}
      */
-    addToCollection(coll, item, tpl)
+    addToCollection(group, coll, tpl)
     {
-        if (!this.collections[coll]) {
-            this.collections[coll] = new Collection()
+
+        if (!this.collections[group]) {
+            this.collections[group] = {};
         }
-        this.collections[coll].getItem(item, true).add(tpl.relPath, tpl);
+
+        if (!this.collections[group][coll]) {
+            this.collections[group][coll] = new Collection(coll, this);
+        }
+
+        this.collections[group][coll].add(tpl.relPath);
+
+        debug(`Added ${tpl.relPath} to ${group}.${coll}`)
 
         return this;
     }

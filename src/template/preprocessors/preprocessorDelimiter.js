@@ -33,15 +33,18 @@ class PreprocessorDelimiter extends Preprocessor
      * Preprocess a string.
      * 
      * @param   {string}    content     Content to preprocess.
-     * @param   {string}    permalink   Permalink for post.
      * @param   {string}    filePath    File path.
      * @param   {boolean}   [rss=false] For RSS?
      * 
      * @return  {string}
      */
-    preprocessString(content, permalink, filePath, rss = false)
+    preprocessString(content, filePath, rss = false)
     {
-        debug(`Preprocessing delimiters for ${permalink}`);
+        debug(`Preprocessing delimiters for ${filePath}`);
+
+        if ("string" != typeof content) {
+            throw new GfPreprocessorDelimiterError(`The 'content' passes tp the delimiter preprocessor must be a string, we got '${typeof content}'. Processing ${filePath}.`)
+        }
 
         if (-1 !== content.indexOf('{ldelim}') || -1 !== content.indexOf('{rdelim}')) {
             let ret = GfString.replaceAll(content, '{ldelim}', '{');

@@ -6,8 +6,7 @@
  */
 'use strict';
 
-const { GfError } = require('greenfedora-utils');
-const CollectionItem = require('./collectionItem');
+const { GfError, syslog } = require('greenfedora-utils');
 
 // Local error.
 class GfCollectionError extends GfError {};
@@ -18,67 +17,105 @@ class GfCollectionError extends GfError {};
 class Collection
 {
     /**
-     * The individual items in the collection.
-     * @member  {object}
+     * Item name.
+     * @member  {string}
      */
-    items = {};
+    name = null;
+
+    /**
+     * The collection data.
+     * @member  {TemplateFile[]}
+     */
+    data = [];
+
+    /**
+     * Config.
+     * @member  {Config}
+     */
+    config = null;
 
     /**
      * Constructor.
      * 
-     * @return  {Collection}
-     */
-    constructor()
-    {
-    }
-
-    /**
-     * See if we have an item of a given name.
-     * 
-     * @param   {string}    name    Name to test.
-     * 
-     * @return  {boolean}
-     */
-    hasItem(name)
-    {
-        return (name in this.items);
-    }
-
-    /**
-     * Get a collection item.
-     * 
-     * @param   {string}    name                Name to retrieve.
-     * @param   {boolean}   [autoCreate=false]  Auto create collection if necessary.
+     * @param   {string}    name    Name of collection.
+     * @param   {Config}    config  Configs.
      * 
      * @return  {CollectionItem}
      */
-    getItem(name, autoCreate = false)
+    constructor(name, config)
     {
-        if (!this.hasItem(name)) {
-            if (autoCreate) {
-                this.createItem(name);
-            } else {
-                throw new GfCollectionError(`Collection has no item named '${name}'.`)
-            }
-        }
-        return this.items[name];
+        this.name = name;
+        this.config = config;
     }
 
     /**
-     * Create a new collection item.
+     * Add a template to the collection item.
      * 
-     * @param   {string}    name    Name to create.
+     * @param   {TemplateFile}  tpl     Template file to add.
      * 
-     * @return  {Collection}
+     * @return  {CollectionItem}
      */
-    createItem(name)
+    add(tpl)
     {
-        if (this.hasItem(name)) {
-            throw new GfCollectionError(`Collection already has an item named '${name}'.`); 
-        }
-        this.items[name] = new CollectionItem();
-
+        this.data.push(tpl);
         return this;
+    }
+
+    /**
+     * Standard sort (descending).
+     * 
+     * @param   {TemplateFile[]}    toSort  Array to sort.
+     * 
+     * @return  {TemplateFile[]}
+     */
+    sortDefault(toSort)
+    {
+        toSort.sort((a, b) => {
+            let ams = (new Date(a.date)).getMilliseconds();
+            let bms = (new Date(b.date)).getMilliseconds();
+            return (ams < b.ms) ? 1 : ((bms < ams) ? -1 : 0)
+        });   
+
+        return toSort;
+    }
+
+    /**
+     * Load the live templates.
+     * 
+     * @return  {object}
+     */
+    loadLive()
+    {
+        let ret = [];
+        for (let item of this.data) {
+            if (!item in this.config.templates) {
+                throw new GfCollectionError(`No '${item}' entry found in live templates.`);
+            }
+            ret.push(this.config.templates[item].getData());
+        }
+        return ret;
+    }
+
+    /**
+     * Get all entries.
+     * 
+     * @return  {TemplateFile[]}
+     */
+    getAll()
+    {
+        let ret = this.loadLive();
+        ret = this.sortDefault(ret);
+        return ret;
+    }
+
+    /**
+     * Dump the items.
+     * 
+     * @return  {string[]}
+     */
+    dump()
+    {
+        return this.data;
     }
 
 }

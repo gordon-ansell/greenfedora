@@ -75,10 +75,9 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         // Preprocessing.
         if (this.preprocessors.length > 0) {
             for (let pp of this.preprocessors) {
-                tpl.extracted.content = pp.preprocessString(tpl.extracted.content, data.permalink, tpl.filePath);
+                tpl.extracted.content = pp.preprocessString(tpl.extracted.content, tpl.filePath);
                 if (rss) {
-                    tpl.extracted.content_rss = pp.preprocessString(tpl.extracted.content_rss, data.permalink, 
-                        tpl.filePath, true);
+                    tpl.extracted.content_rss = pp.preprocessString(tpl.extracted.content_rss, tpl.filePath, true);
                 }
             }
         }
@@ -92,12 +91,18 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             } else {
                 debug(`No '${f}' field found in data or extracts for ${tpl.relPath}`);
             }
-        }
+        }        
+
+        let eng = this.config.getTemplateProcessor('nunjucks');
+
+        let fnReady = async function (data) {
+            return eng.renderString(tpl.extracted.content, data);
+        };
 
         let ltpName = this.options.layoutTemplateProcessor;
         let ltp = this.config.getTemplateProcessor(ltpName);
 
-        return ltp.compile(tpl.layout);
+        return ltp.compile(tpl.layout, fnReady);
 
     }
 

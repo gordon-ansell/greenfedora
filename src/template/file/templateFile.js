@@ -171,7 +171,8 @@ class TemplateFile
             }
         }
 
-        ret['hostname'] = this.config.hostname;
+        ret.hostname = this.config.hostname;
+        ret.collections = this.config.collections;
 
         return ret;
     }
