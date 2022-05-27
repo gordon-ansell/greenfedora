@@ -23,6 +23,8 @@ const utcDateTime = require('../template/filters/utcDateTime');
 
 const SimpleImg = require('../template/shortcodes/simpleImg');
 const Img = require('../template/shortcodes/img');
+const Schema = require('../template/shortcodes/schema');
+
 const PreprocessorImage = require('../template/preprocessors/preprocessorImage');
 const PreprocessorComment = require('../template/preprocessors/preprocessorComment');
 const PreprocessorDelimiter = require('../template/preprocessors/preprocessorDelimiter');
@@ -112,7 +114,8 @@ class TemplateManager extends ResourceManager
 
         this.getProcessor('nunjucks')
             .addShortcode('simpleimg', SimpleImg)
-            .addShortcode('img', Img);
+            .addShortcode('img', Img)
+            .addShortcode('schema', Schema);
 
         this.getProcessor('markdown')
             .addPreprocessor(new PreprocessorImage(this.config))
