@@ -58,7 +58,8 @@ class ProcessArgs
             boolean: [
               "silent",
               "version",
-              "serve"
+              "serve",
+              "watch"
             ],
             default: {
               input: './',
@@ -68,6 +69,7 @@ class ProcessArgs
               silent: false,
               version: false,
               serve: false,
+              watch: false,
               port: '8081'
             },
             unknown: function (unknownArgument) {

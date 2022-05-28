@@ -54,6 +54,8 @@ class AssetProcessorImage extends AssetProcessor
         FsUtils.mkDirRecurse(path.dirname(op));
         FsUtils.copyFile(filePath, op);
 
+        syslog.notice(`Processed image asset: ${filePath.replace(this.config.sitePath, '')}`);
+
         return true;
     }
 

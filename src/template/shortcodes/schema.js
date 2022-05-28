@@ -27,10 +27,13 @@ class SchemaShortcode extends NunjucksShortcode
             "@context": "https://schema.org",
             "@graph": []
         }
+
+        let schstruct = args[0];
+
         //syslog.inspect(args[0]);
         
-        for (let idx in args[0]) {
-            let curr = args[0][idx];
+        for (let idx in schstruct) {
+            let curr = schstruct[idx];
             if (!curr["@id"]) {
                 curr["@id"] = "/#" + idx;
             }

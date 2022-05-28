@@ -113,6 +113,7 @@ module.exports = function(config) {
         figureClass: 'respimg',
         buldSeparateRssContent: true,
         type: 'page',
+        livereload: true,
 
         // Default collections.
         collectionsToTrack: ['type', 'tags'],

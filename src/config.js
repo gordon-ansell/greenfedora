@@ -124,6 +124,12 @@ class Config
     globalData = {};
 
     /**
+     * Extra data that's calculated here.
+     * @member  {object}
+     */
+    extraConfig = {};
+
+    /**
      * =========================================================================
      * USER CONFIG
      * =========================================================================
@@ -190,6 +196,18 @@ class Config
     templates = {};
 
     /**
+     * Is this a watcher run?
+     * @member  {boolean}
+     */
+    isWatcherRun = false;
+
+    /**
+     * Template store for watcher runs.
+     * @member  {TemplateFile[]}
+     */
+    watcherTemplates = {};
+
+    /**
      * =========================================================================
      * COLLECTIONS
      * =========================================================================
@@ -253,7 +271,9 @@ class Config
         this.assetsDir = null;
         this.assetsPath = null;
         this.collections = {};
-        this.template = {};
+        this.templates = {};
+        this.isWatcherRun = false;
+        this.watcherTemplates = {};
 
         // Base config items.
         this.globalData = {};
@@ -340,6 +360,8 @@ class Config
             this.config.mode = process.env.GF_MODE || 'dev';
         }
 
+        this.extraConfig.mode = this.config.mode;
+
         // Work out the hostname.
         if (this.config.modehost && this.config.mode && this.config.modehost[this.config.mode]) {
             let hd = this.config.modehost[this.config.mode];
@@ -360,6 +382,8 @@ class Config
         } else {
             this.hostname = os.hostname();
         }
+
+        this.extraConfig.hostname = this.hostname;
 
         // Save the assets locations.
         this.assetsDir = this.config.locations.assets;
@@ -399,6 +423,7 @@ class Config
             this.loadLocalConfig();
             this.config = this.mergeConfigs();
             this.applyExtractions();
+            this.config = Merge.merge(this.config, this.extraConfig);  // Merge a second time to pick ip extra config.
             this.hasMerged = true;
         }
         return this.config;
@@ -717,22 +742,38 @@ class Config
      */
     saveTemplate(tpl)
     {
-        this.templates[tpl.relPath] = tpl; 
-        //this.cache.getGroup('templates').set(tpl.relPath, tpl);
+        if (this.isWatcherRun) {
+            this.watcherTemplates[tpl.relPath] = tpl;
+        } else {
+            this.templates[tpl.relPath] = tpl; 
+        }
         return this;
     }
 
     /**
      * Get the saved templates.
      * 
-     * @param   {"map"|"values"|"entries"|"keys"}   [format="map"]     Return it as required.
-     * 
-     * @return  {Map|TemplateFile[]}
+     * @return  {TemplateFile[]}
      */
-    getTemplates(format = "map")
+    getTemplates()
     {
+        if (this.isWatcherRun) {
+            return this.watcherTemplates;
+        }
         return this.templates;
-        //return this.cache.getGroup('templates').getInternals(format);
+    }
+
+    /**
+     * Copy watcher templates.
+     * 
+     * @return  {void}
+     */
+    copyWatcherTemplates()
+    {
+        for (let idx in this.watcherTemplates) {
+            this.templates[idx] = this.watcherTemplates[idx];
+        }
+        this.watcherTemplates = {};
     }
 
     /**

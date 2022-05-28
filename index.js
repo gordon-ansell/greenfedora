@@ -46,7 +46,9 @@ try {
         let gf = new GreenFedora(processArgs);
         gf.init().then(function () {
             try {
-                if (processArgs.argv.serve) {
+                if (processArgs.argv.watch) {
+                    return gf.watch();
+                } else if (processArgs.argv.serve) {
                     return gf.serve();
                 } else {
                     return gf.render();

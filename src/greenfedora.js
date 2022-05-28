@@ -15,6 +15,7 @@ const TemplateFile = require('./template/file/templateFile');
 const GlobalDataFileConfig = require('./config/globalDataFileConfig');
 const FsParser = require('./fsParser');
 const Server = require('./server');
+const Watcher = require('./watcher');
 const constants = require('./config/constants');
 const debug = require("debug")("GreenFedora");
 const debugdev = require("debug")("Dev.GreenFedora");
@@ -35,6 +36,12 @@ class GreenFedora
      * @member  {Config}
      */
     config = undefined;
+
+    /**
+     * Server.
+     * @member  {Server}
+     */
+    server = null;
 
     /**
      * Constructor.
@@ -70,15 +77,23 @@ class GreenFedora
     /**
      * Initialisation.
      * 
+     * @param   {boolean}           [watch=false]   Are we initialising for a watch?            
+     * @param   {string[]|null}     [files=null]    Files to process or null to parse filesystem.
+     * 
      * @return  {Promise<boolean>}
      */
-    async init()
+    async init(watch = false, files = null)
     {
         Benchmarks.getInstance().markStart('gf-init', 'Initialisation');
 
+        if (watch) {
+            this.config.isWatcherRun = true;
+            this.config.watcherTemplates = {};
+        }
+
         this.cleanDirs();
 
-        await this.processFiles();
+        await this.processFiles(files);
 
         await this.config.eventManager.emit('INIT_FINISHED');
 
@@ -93,7 +108,9 @@ class GreenFedora
      */
     cleanDirs()
     {
-        FsUtils.cleanDir(this.config.outputPath);
+        if (!this.config.isWatcherRun) {
+            FsUtils.cleanDir(this.config.outputPath);
+        }
     }
 
     /**
@@ -248,7 +265,7 @@ class GreenFedora
         debug(`About to process asset %s.`, filePath.replace(this.config.sitePath, ''));
 
         // Process the file.
-        proc.process(filePath);
+        await proc.process(filePath);
 
         return true;
     }
@@ -357,7 +374,7 @@ class GreenFedora
     /**
      * Start the server.
      * 
-     * @return
+     * @return  {number}
      */
     async serve()
     {
@@ -366,9 +383,37 @@ class GreenFedora
             return Promise.reject(result.error);
         }  
 
-        let server = new Server(this.config, parseInt(this.processArgs.argv.port));
-        server.start();
+        this.server = new Server(this.config, parseInt(this.processArgs.argv.port));
+        this.server.start();
         return 0;
+    }
+
+    /**
+     * Process a watcher run.
+     * 
+     * @param   {string[]}  files   Files to process.
+     * 
+     * @return  {void}
+     */
+    async processWatch(files)
+    {
+        await this.init(true, files);
+        await this.render();
+        this.config.copyWatcherTemplates();
+        this.config.watcherRun = false;
+    }
+
+    /**
+     * Start the watcher.
+     * 
+     * @return
+     */
+    async watch()
+    {
+        await this.serve();
+
+        let watcher = new Watcher(this.config, this, this.server);
+        watcher.watch();
     }
 
     /**
