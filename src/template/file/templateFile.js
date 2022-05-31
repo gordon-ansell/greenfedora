@@ -10,6 +10,7 @@ const fsPromises = require('fs').promises;
 const path = require('path');
 const { GfError, syslog, GfPath, Merge } = require('greenfedora-utils');
 const TemplateData = require('./templateData');
+const Pagination = require('../pagination');
 const fs = require('fs');
 const fmparse = require('gray-matter');
 const debug = require("debug")("GreenFedora:TemplateFile");
@@ -169,11 +170,25 @@ class TemplateFile
             for (let idx in this.extracted) {
                 ret[idx] = this.extracted[idx];
             }
+            ret.hostname = this.config.hostname;
+            ret.collections = this.config.collections;
+            ret.relPath = this.relPath;
+            ret.sitePath = this.config.sitePath;
+
+            if (ret.pagination && ret.pagination.data) {
+                let generate = true;
+                if ('last' === ret.parse) {
+                    generate = false;
+                }
+                let pagination = new Pagination(ret, this.config);
+                pagination.calculate(generate);
+            }
+
+            //if (-1 !== this.filePath.indexOf('_temp/2.njk')) {
+            //    syslog.inspect(ret, "getdata");
+            //}
         }
-
-        ret.hostname = this.config.hostname;
-        ret.collections = this.config.collections;
-
+ 
         return ret;
     }
 

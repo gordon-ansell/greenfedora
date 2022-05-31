@@ -17,6 +17,7 @@ const FsParser = require('./fsParser');
 const Server = require('./server');
 const Watcher = require('./watcher');
 const constants = require('./config/constants');
+const Pagination = require("./template/pagination");
 const debug = require("debug")("GreenFedora");
 const debugdev = require("debug")("Dev.GreenFedora");
 
@@ -60,8 +61,23 @@ class GreenFedora
         // Set the log level here.
         syslog.setLevel(this.processArgs.level);
 
+        // Load the configs.
+        this.loadConfig();
+
+        Benchmarks.getInstance().markEnd('gf-constructor');
+    }
+
+    /**
+     * Load the configs.
+     * 
+     * @return  {void}
+     */
+    loadConfig()
+    {
+        Benchmarks.getInstance().markStart('gf-loadconf', 'Loading GreenFedora config');
+
         // Create the config.
-        this.config = new Config(processArgs.input, processArgs.output, processArgs.config);
+        this.config = new Config(this.processArgs.input, this.processArgs.output, this.processArgs.config);
         debugdev(`Base config: %O`, this.config.getBaseConfig());
 
         // Process global data.
@@ -71,7 +87,7 @@ class GreenFedora
         // Load a bunch of defaults.
         this.config.postProcessing(true);
 
-        Benchmarks.getInstance().markEnd('gf-constructor');
+        Benchmarks.getInstance().markEnd('gf-loadconf');
     }
 
     /**
@@ -110,6 +126,7 @@ class GreenFedora
     {
         if (!this.config.isWatcherRun) {
             FsUtils.cleanDir(this.config.outputPath);
+            FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.temp));
         }
     }
 
@@ -211,6 +228,12 @@ class GreenFedora
         // Save the template.
         this.config.saveTemplate(tpl);
 
+        /*
+        if (-1 !== filePath.indexOf('_temp/2.njk')) {
+            syslog.inspect(tpl.getData());
+        }
+        */
+
         // Extract collection data.
         let data = tpl.getData();
         if (data.collectionsToTrack) {
@@ -303,11 +326,26 @@ class GreenFedora
     {
         Benchmarks.getInstance().markStart('gf-render', 'Render');
 
+        // Prev/next links.
+        let colldata = this.config.collections.type.post.getAll('date-desc', true);
+        Pagination.prevNext(colldata);
+
         // Render all the early templates.
         await this._renderParse('early');
 
         // Render all the late templates.
         await this._renderParse('late', {collections: this.config.collections});
+
+        // Push any 'last' parsers through the system.
+        let bc = this.config.getBaseConfig();
+        let tmpDir = path.join(this.config.sitePath, bc.locations.temp);
+        let fsp = FsParser.fromLocal(this.config, tmpDir);
+        let files = await fsp.parse();
+        syslog.inspect(files);
+        await this.processTemplateFiles(files);
+
+        // Render all the last templates.
+        await this._renderParse('last', {collections: this.config.collections});
 
         await this.config.eventManager.emit('RENDER_FINISHED', this.config);
         Benchmarks.getInstance().markEnd('gf-render');
@@ -336,6 +374,14 @@ class GreenFedora
                     return t;
                 }  
             })
+        } else if ('last' === parse) {
+            todo = tpls.filter(t => {
+                let d = t.getData();
+                if (d.parse && 'last' === d.parse) {
+                    return t;
+                }  
+            })
+
         } else {
             todo = tpls.filter(t => {
                 let d = t.getData();

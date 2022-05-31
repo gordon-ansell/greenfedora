@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { GfError } = require('greenfedora-utils');
+const { GfError, GfPath, syslog } = require('greenfedora-utils');
 const debug = require("debug")('GreenFedora:ImageInfoStore');
 const debugdev = require("debug")('Dev.GreenFedora:ImageInfoStore');
 
@@ -54,8 +54,8 @@ class ImageInfoStore
     {
         if (!this.hasBySrc(src)) {
             this.addBySrc(src, info);
-            this.addByPage(page, src);
         }
+        this.addByPage(page, src);
         return this;
     }
 
@@ -163,6 +163,7 @@ class ImageInfoStore
      */
     addByPage(page, src)
     {
+        page = GfPath.removeBothSlashes(page);
         if (!this.store.byPage[page]) {
             this.store.byPage[page] = [];
         }
@@ -179,6 +180,7 @@ class ImageInfoStore
      */
     hasByPage(page)
     {
+        page = GfPath.removeBothSlashes(page);
         return Object.keys(this.store.byPage).includes(page);
     }
 
@@ -194,6 +196,8 @@ class ImageInfoStore
      */
     getByPage(page, mustExist = false)
     {
+        page = GfPath.removeBothSlashes(page);
+
         if (!this.hasByPage(page)) {
             if (mustExist) {
                 throw new GfImageInfoStoreError(`Could not retrieve image by page: ${page}`);
@@ -221,6 +225,8 @@ class ImageInfoStore
      */
     getSpecificByPage(page, type, size)
     {
+        page = GfPath.removeBothSlashes(page);
+
         if (!this.hasByPage(page)) {
             return null;
         }

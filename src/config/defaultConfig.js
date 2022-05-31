@@ -18,6 +18,7 @@ module.exports = function(config) {
             data: '_data',
             cache: '_cache',
             copy: '_copy',
+            temp: '_temp',
             assets: 'assets'
         },
 
@@ -114,6 +115,11 @@ module.exports = function(config) {
         buldSeparateRssContent: true,
         type: 'page',
         livereload: true,
+
+        // Schema definitions.
+        schemaDefs: {
+            addImagesTo: ['webpage', 'article']
+        },
 
         // Default collections.
         collectionsToTrack: ['type', 'tags'],

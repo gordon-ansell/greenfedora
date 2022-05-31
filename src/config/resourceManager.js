@@ -150,7 +150,7 @@ class ResourceManager
         if (this.isHandled(ext)) {
             return this.getProcessor(this.processorExts[ext]);
         } else {
-            throw new GfTemplateManagerError(`Could not find a ${this.type} processor for extension: ${ext}.`);
+            throw new GfResourceManagerError(`Could not find a ${this.type} processor for extension: ${ext}.`);
         }
     }
 

@@ -7,6 +7,7 @@
 'use strict';
 
 const { Preprocessor, GfError, GfPath } = require('GreenFedora-Utils');
+const path = require('path');
 const debug = require("debug")("GreenFedora:PreprocessorImage");
 
 // Local error.

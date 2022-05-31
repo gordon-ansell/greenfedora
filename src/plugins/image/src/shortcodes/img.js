@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { NunjucksShortcode, ComplexImage, syslog, GfError } = require("greenfedora-utils");
+const { NunjucksShortcode, ComplexImage, syslog, GfError, GfPath } = require("greenfedora-utils");
 const path = require('path');
 const debug = require("debug")("GreenFedora:Plugin:ImgShortcode");
 const debugdev = require("debug")("Dev.GreenFedora:Plugin:ImgShortcode");
@@ -127,6 +127,8 @@ class ImgShortcode extends NunjucksShortcode
 
         let imgSpec = {};
 
+        let presentation = false;
+
         for (let argnum of [1,2]) {
             let argdata = args[argnum];
             if (null === argdata) {
@@ -145,7 +147,9 @@ class ImgShortcode extends NunjucksShortcode
                             imgSpec[ds[0].trim()] = ds[1].trim();
                         }
                     } else {
-                        if (!subdata.trim().startsWith('__')) {
+                        if ('presentation' === subdata.trim()) {
+                            presentation = true;
+                        } else if (!subdata.trim().startsWith('__')) {
                             imgSpec[subdata.trim()] = true;
                         }
                     }
@@ -168,7 +172,13 @@ class ImgShortcode extends NunjucksShortcode
 
         let generated = imageOpts.generated.get(url);
 
-        this.config.imageInfoStore.addBySrcAndPage(url, context.ctx.permalink, generated);
+        if (presentation) {
+            this.config.imageInfoStore.addBySrc(url, generated);
+        } else {
+            this.config.imageInfoStore.addBySrcAndPage(url, context.ctx.permalink, generated);
+        }
+        //syslog.warning(`Added images for: ` + context.ctx.permalink)
+        //syslog.inspect(this.config.imageInfoStore.store.byPage[GfPath.removeBothSlashes(context.ctx.permalink)])
         debugdev(`Generated: %O`, generated);
         /*
         let sel = generated.files[0];

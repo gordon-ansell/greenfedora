@@ -7,7 +7,7 @@
 'use strict';
 
 const path = require('path');
-const { syslog } = require('greenfedora-utils');
+const { syslog, GfPath } = require('greenfedora-utils');
 
 /**
  * URL filter. Ensure a URL is properly constructed.
@@ -23,6 +23,8 @@ function url(url, base = '/')
     if (!ret.startsWith(base)) {
         ret = path.join(base, ret);
     }
+
+    ret = GfPath.addTrailingSlash(ret);
 
     return ret;
 }

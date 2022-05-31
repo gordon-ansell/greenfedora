@@ -63,6 +63,12 @@ class TemplateData
     computedData = null;
 
     /**
+     * Late additions.
+     * @member {object}
+     */
+    lateData = null;
+
+    /**
      * Constructor.
      * 
      * @param   {string}    filePath    Path to the file.
@@ -132,6 +138,10 @@ class TemplateData
             for (let r of ret.permalinkIgnoreParts) {
                 ret.permalink = ret.permalink.replace(new RegExp(r), '');
             }
+        }
+
+        if (null !== this.lateData) {
+            ret = Merge.merge(ret, this.lateData);
         }
 
         return ret;

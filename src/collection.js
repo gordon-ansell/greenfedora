@@ -71,8 +71,8 @@ class Collection
     sortDefault(toSort)
     {
         toSort.sort((a, b) => {
-            let ams = (new Date(a.date)).getMilliseconds();
-            let bms = (new Date(b.date)).getMilliseconds();
+            let ams = (new Date(a.date)).valueOf();
+            let bms = (new Date(b.date)).valueOf();
             return (ams < b.ms) ? 1 : ((bms < ams) ? -1 : 0)
         });   
 
@@ -82,16 +82,22 @@ class Collection
     /**
      * Load the live templates.
      * 
+     * @param   {boolean}   tplLoad     Load the whole template?    
+     * 
      * @return  {object}
      */
-    loadLive()
+    loadLive(tplLoad = false)
     {
         let ret = [];
         for (let item of this.data) {
             if (!item in this.config.templates) {
                 throw new GfCollectionError(`No '${item}' entry found in live templates.`);
             }
-            ret.push(this.config.templates[item].getData());
+            if (tplLoad) {
+                ret.push(this.config.templates[item]);
+            } else {
+                ret.push(this.config.templates[item].getData());
+            }
         }
         return ret;
     }
@@ -99,13 +105,50 @@ class Collection
     /**
      * Get all entries.
      * 
+     * @param   {string}    order       Order to return.
+     * @param   {boolean}   tplLoad     Load the whole template?    
+     * 
      * @return  {TemplateFile[]}
      */
-    getAll()
+    getAll(order = 'date-desc', tplLoad = false)
     {
-        let ret = this.loadLive();
-        ret = this.sortDefault(ret);
+        let ret = this.loadLive(tplLoad);
+        if ('date-desc' === order) {
+            ret = this.sortDefault(ret);
+        }
         return ret;
+    }
+
+    /**
+     * Get selected entries.
+     * 
+     * @param   {number}    from        Start record.
+     * @param   {number}    maxSize     Maximum size.
+     * @param   {string}    order       Order to return.
+     * @param   {boolean}   tplLoad     Load the whole template?    
+     * 
+     * @return  {TemplateFile[]}
+     */
+    getSelected(from, maxSize, order = 'date-desc', tplLoad = false)
+    {
+        let tmp = this.loadLive(tplLoad);
+        if ('date-desc' === order) {
+            tmp = this.sortDefault(tmp);
+        }
+
+        let ret = tmp.slice(from, from + maxSize + 1);
+
+        return ret;
+    }
+
+    /**
+     * Get the size of the collection.
+     * 
+     * @return  {number}
+     */
+    getSize()
+    {
+        return this.data.length;
     }
 
     /**

@@ -57,6 +57,7 @@
         "gray-matter": "^4.0.2",
         "greenfedora-utils": "../greenfedora-utils",
         "image-size": "^1.0.0",
+        "lodash": "^4.17.21",
         "@markdoc/markdoc": "*",
         "minimist": "^1.2.6",
         "nunjucks": "^3.2.2",
