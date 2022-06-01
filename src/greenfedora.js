@@ -228,12 +228,6 @@ class GreenFedora
         // Save the template.
         this.config.saveTemplate(tpl);
 
-        /*
-        if (-1 !== filePath.indexOf('_temp/2.njk')) {
-            syslog.inspect(tpl.getData());
-        }
-        */
-
         // Extract collection data.
         let data = tpl.getData();
         if (data.collectionsToTrack) {
@@ -249,6 +243,8 @@ class GreenFedora
                 }
             }
         }
+
+        await this.config.eventManager.emit('AFTER_PROCESS_SINGLE_TEMPLATE', this.config, tpl);
 
         return true;
     }
@@ -341,7 +337,6 @@ class GreenFedora
         let tmpDir = path.join(this.config.sitePath, bc.locations.temp);
         let fsp = FsParser.fromLocal(this.config, tmpDir);
         let files = await fsp.parse();
-        syslog.inspect(files);
         await this.processTemplateFiles(files);
 
         // Render all the last templates.

@@ -93,10 +93,18 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             }
         }        
 
-        let eng = this.config.getTemplateProcessor('nunjucks');
+        let eng = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor);
+
+        let compileFields = this.options.compileFields;
 
         let fnReady = async function (data) {
-            return eng.renderString(tpl.extracted.content, data);
+            let cf = {};
+            for (let f of compileFields) {     
+                if (tpl.extracted[f]) {       
+                    cf[f] = eng.renderString(tpl.extracted[f], data);
+                }
+            }
+            return cf;
         };
 
         let ltpName = this.options.layoutTemplateProcessor;

@@ -694,12 +694,24 @@ class Config
      */
 
     /**
+     * See if we have global data.
+     * 
+     * @param   {string}    name    Data key.
+     * 
+     * @return  {boolean}
+     */
+    hasGlobalData(name) 
+    {
+        return (name in this.globalData);
+    }
+
+    /**
      * Add global data.
      * 
      * @param   {string}    name    Data key.
      * @param   {any}       val     Data value.
      * 
-     * @return  {UserConfig}
+     * @return  {Config}
      */
     addGlobalData(name, val) 
     {

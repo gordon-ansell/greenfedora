@@ -46,6 +46,7 @@ module.exports = function(config) {
                     fmParseOptions: {excerpt: true},
                     extractFromFm: ['content', 'excerpt', 'leader'],
                     compileFields: ['content', 'excerpt', 'leader'],
+                    preCompileTemplateProcessor: 'nunjucks',
                     layoutTemplateProcessor: 'nunjucks',
                     computedTemplateProcessor: 'nunjucks'
                 },

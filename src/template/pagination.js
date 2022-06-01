@@ -57,7 +57,6 @@ class Pagination
      */
     calculate(generate = true)
     {
-        syslog.warning(`Calculating pagination.`);
 
         let pagination = this.tplData.pagination;
 

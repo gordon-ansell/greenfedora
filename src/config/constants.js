@@ -14,6 +14,7 @@ module.exports = Object.freeze({
     EVENTS: [
         'INIT_FINISHED',
         'AFTER_PROCESS_ASSETS',
+        'AFTER_PROCESS_SINGLE_TEMPLATE',
         'RENDER_FINISHED'
     ]
 });

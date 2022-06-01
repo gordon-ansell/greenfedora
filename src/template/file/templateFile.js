@@ -183,10 +183,6 @@ class TemplateFile
                 let pagination = new Pagination(ret, this.config);
                 pagination.calculate(generate);
             }
-
-            //if (-1 !== this.filePath.indexOf('_temp/2.njk')) {
-            //    syslog.inspect(ret, "getdata");
-            //}
         }
  
         return ret;
@@ -452,7 +448,7 @@ class TemplateFile
         for (let d of k) {
             if ('layout' === d && null !== this[d]) {
                 ret[d] = this[d].dump();
-            } else if ('config' !== d && 'templateData' !== d) {
+            } else if ('config' !== d && 'templateData' !== d && 'collections' !== d) {
                 ret[d] = this[d];
             }
         }
