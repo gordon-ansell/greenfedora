@@ -52,12 +52,19 @@ class MenuShortcode extends NunjucksShortcode
         for (let item of d) {
             let title = 'undefined';
             let url = 'undefined';
+            let desc = '';
             let tplData = item.tpl.getData();
 
             if (item.data.title) {
                 title = item.data.title;
             } else if (tplData.title) {
                 title = tplData.title;    
+            }
+
+            if (item.data.description) {
+                desc = item.data.description;
+            } else if (tplData.description) {
+                desc = tplData.description;    
             }
 
             if (item.data.url) {
@@ -68,7 +75,7 @@ class MenuShortcode extends NunjucksShortcode
 
             url = GfPath.addTrailingSlash(url);
 
-            ret += `<li><a href="${url}">${title}</a></li>\n`;
+            ret += `<li><a href="${url}" title="${desc}">${title}</a></li>\n`;
         }
 
         return ret;

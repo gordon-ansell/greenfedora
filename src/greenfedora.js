@@ -368,22 +368,22 @@ class GreenFedora
                 if (d.parse && 'late' === d.parse) {
                     return t;
                 }  
-            })
+            });
         } else if ('last' === parse) {
             todo = tpls.filter(t => {
                 let d = t.getData();
                 if (d.parse && 'last' === d.parse) {
                     return t;
                 }  
-            })
+            });
 
         } else {
             todo = tpls.filter(t => {
                 let d = t.getData();
-                if (!d.parse || 'late' !== d.parse) {
+                if (!d.parse || ('late' !== d.parse && 'last' !== d.parse)) {
                     return t;
                 }  
-            })
+            });
         }
 
         await Promise.all(todo.map(async tpl => {

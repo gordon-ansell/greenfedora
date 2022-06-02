@@ -89,6 +89,7 @@ class Pagination
         debug(`Pagination calcs for %s`, this.tplData.relPath);
         debug(`page: ${pagination.page + 1}, perPage: ${pagination.perPage}, from: ${pagination.from}, to: ${pagination.to}`);
 
+        //this.prevNext(datasrc.getAll('date-desc', true));
         this.tplData[pagination.alias] = datasrc.getSelected(pagination.from, pagination.to, 'date-desc');
 
         if (pagination.pageCount > 1 && generate) {
@@ -130,33 +131,24 @@ class Pagination
      */
     static prevNext(data)
     {
-        let prevSaved = null;
-        if (data.length > 1) {
-            prevSaved = data[1];
-        }
-        let nextSaved = null;
-        let count = 0;
-        for (let idx in data) {
-            if (!data[idx].templateData.lateData) {
-                data[idx].templateData.lateData = {};
-            }
-            if (!data[idx].templateData.lateData.pagination) {
-                data[idx].templateData.lateData.pagination = {};
-            }
+        // Previous: older posts, datewise.
+        // Next: newer posts, datewise.
 
-            if (prevSaved) {
-                data[idx].templateData.lateData.pagination.prev = prevSaved;
-            }
-            if (nextSaved) {
-                data[idx].templateData.lateData.pagination.next = nextSaved;
-            }
-            nextSaved = data[idx];
-            if (data[idx + 1]) {
-                prevSaved = data[idx + 1];
-            } else {
-                prevSaved = null;
-            }
-            //syslog.inspect(data[idx].templateData.lateData.pagination);
+        let count = 0;
+
+        for (let idx in data) {
+            idx = parseInt(idx);
+            syslog.warning(`Index: ${idx}, Count: ${count}`);
+
+            if (count < data.length) {
+                syslog.warning(`Next: ${idx + 1}`)
+                data[idx].addLateData('next', data[idx + 1]);
+            } 
+
+            if (count > 0) {
+                syslog.warning(`Prev: ${idx - 1}`)
+                data[idx].addLateData('prev', data[idx - 1]);
+            } 
             count++;
         }
     }

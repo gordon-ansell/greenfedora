@@ -189,6 +189,22 @@ class TemplateFile
     }
 
     /**
+     * Add late data.
+     * 
+     * @param   {string}    name    
+     * @param   {any}       val
+     * 
+     * @return  {void}
+     */
+    addLateData(name, val)
+    {
+        if (null === this.templateData.lateData) {
+            this.templateData.lateData = {};
+        }
+        this.templateData.lateData[name] = val;
+    }
+
+    /**
      * Add computed data.
      * 
      * @return  {void}

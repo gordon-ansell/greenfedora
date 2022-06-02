@@ -35,12 +35,18 @@ class Collection
     config = null;
 
     /**
+     * Current sort.
+     * @member  {string}
+     */
+    currentSort = '';
+
+    /**
      * Constructor.
      * 
      * @param   {string}    name    Name of collection.
      * @param   {Config}    config  Configs.
      * 
-     * @return  {CollectionItem}
+     * @return  {Collection}
      */
     constructor(name, config)
     {
@@ -53,7 +59,7 @@ class Collection
      * 
      * @param   {TemplateFile}  tpl     Template file to add.
      * 
-     * @return  {CollectionItem}
+     * @return  {Collection}
      */
     add(tpl)
     {
@@ -64,19 +70,19 @@ class Collection
     /**
      * Standard sort (descending).
      * 
-     * @param   {TemplateFile[]}    toSort  Array to sort.
-     * 
-     * @return  {TemplateFile[]}
+     * @return  {void}
      */
-    sortDefault(toSort)
+    sortDefault()
     {
-        toSort.sort((a, b) => {
-            let ams = (new Date(a.date)).valueOf();
-            let bms = (new Date(b.date)).valueOf();
-            return (ams < b.ms) ? 1 : ((bms < ams) ? -1 : 0)
-        });   
-
-        return toSort;
+        if ('date-desc' !== this.currentSort) {
+            this.data.sort((a, b) => {
+                let ams = (new Date(a.getData().date)).valueOf();
+                let bms = (new Date(b.getData().date)).valueOf();
+                return (ams < b.ms) ? 1 : ((bms < ams) ? -1 : 0)
+            });   
+            this.currentSort = 'date-desc';
+            syslog.warning(`Sorting date-desc`);
+        }
     }
 
     /**
@@ -86,6 +92,7 @@ class Collection
      * 
      * @return  {object}
      */
+    /*
     loadLive(tplLoad = false)
     {
         let ret = [];
@@ -101,22 +108,22 @@ class Collection
         }
         return ret;
     }
+    */
 
     /**
      * Get all entries.
      * 
      * @param   {string}    order       Order to return.
-     * @param   {boolean}   tplLoad     Load the whole template?    
      * 
      * @return  {TemplateFile[]}
      */
-    getAll(order = 'date-desc', tplLoad = false)
+    getAll(order = 'date-desc')
     {
-        let ret = this.loadLive(tplLoad);
+        //let ret = this.loadLive(tplLoad);
         if ('date-desc' === order) {
-            ret = this.sortDefault(ret);
+            this.sortDefault();
         }
-        return ret;
+        return this.data;
     }
 
     /**
@@ -125,20 +132,18 @@ class Collection
      * @param   {number}    from        Start record.
      * @param   {number}    maxSize     Maximum size.
      * @param   {string}    order       Order to return.
-     * @param   {boolean}   tplLoad     Load the whole template?    
      * 
      * @return  {TemplateFile[]}
      */
-    getSelected(from, maxSize, order = 'date-desc', tplLoad = false)
+    getSelected(from, maxSize, order = 'date-desc')
     {
-        let tmp = this.loadLive(tplLoad);
+        //let tmp = this.loadLive(tplLoad);
         if ('date-desc' === order) {
-            tmp = this.sortDefault(tmp);
+            this.sortDefault();
         }
 
-        let ret = tmp.slice(from, from + maxSize + 1);
+        return this.data.slice(from, from + maxSize + 1);
 
-        return ret;
     }
 
     /**
