@@ -41,6 +41,12 @@ class Collection
     currentSort = '';
 
     /**
+     * Is dirty?
+     * @member  {boolean}
+     */
+    isDirty = false;
+
+    /**
      * Constructor.
      * 
      * @param   {string}    name    Name of collection.
@@ -64,6 +70,7 @@ class Collection
     add(tpl)
     {
         this.data.push(tpl);
+        this.isDirty = true;
         return this;
     }
 
@@ -74,41 +81,15 @@ class Collection
      */
     sortDefault()
     {
-        if ('date-desc' !== this.currentSort) {
+        if ('date-desc' !== this.currentSort || this.isDirty) {
             this.data.sort((a, b) => {
                 let ams = (new Date(a.getData().date)).valueOf();
                 let bms = (new Date(b.getData().date)).valueOf();
                 return (ams < b.ms) ? 1 : ((bms < ams) ? -1 : 0)
             });   
             this.currentSort = 'date-desc';
-            syslog.warning(`Sorting date-desc`);
         }
     }
-
-    /**
-     * Load the live templates.
-     * 
-     * @param   {boolean}   tplLoad     Load the whole template?    
-     * 
-     * @return  {object}
-     */
-    /*
-    loadLive(tplLoad = false)
-    {
-        let ret = [];
-        for (let item of this.data) {
-            if (!item in this.config.templates) {
-                throw new GfCollectionError(`No '${item}' entry found in live templates.`);
-            }
-            if (tplLoad) {
-                ret.push(this.config.templates[item]);
-            } else {
-                ret.push(this.config.templates[item].getData());
-            }
-        }
-        return ret;
-    }
-    */
 
     /**
      * Get all entries.
@@ -119,7 +100,6 @@ class Collection
      */
     getAll(order = 'date-desc')
     {
-        //let ret = this.loadLive(tplLoad);
         if ('date-desc' === order) {
             this.sortDefault();
         }
@@ -137,7 +117,6 @@ class Collection
      */
     getSelected(from, maxSize, order = 'date-desc')
     {
-        //let tmp = this.loadLive(tplLoad);
         if ('date-desc' === order) {
             this.sortDefault();
         }

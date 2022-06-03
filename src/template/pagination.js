@@ -89,7 +89,6 @@ class Pagination
         debug(`Pagination calcs for %s`, this.tplData.relPath);
         debug(`page: ${pagination.page + 1}, perPage: ${pagination.perPage}, from: ${pagination.from}, to: ${pagination.to}`);
 
-        //this.prevNext(datasrc.getAll('date-desc', true));
         this.tplData[pagination.alias] = datasrc.getSelected(pagination.from, pagination.to, 'date-desc');
 
         if (pagination.pageCount > 1 && generate) {
@@ -138,15 +137,12 @@ class Pagination
 
         for (let idx in data) {
             idx = parseInt(idx);
-            syslog.warning(`Index: ${idx}, Count: ${count}`);
 
             if (count < data.length) {
-                syslog.warning(`Next: ${idx + 1}`)
                 data[idx].addLateData('next', data[idx + 1]);
             } 
 
             if (count > 0) {
-                syslog.warning(`Prev: ${idx - 1}`)
                 data[idx].addLateData('prev', data[idx - 1]);
             } 
             count++;
