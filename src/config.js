@@ -13,6 +13,7 @@ const PluginManager = require('./config/pluginManager');
 const TemplateManager = require('./config/templateManager');
 const AssetManager = require('./config/assetManager');
 const ImageInfoStore = require('./imageInfoStore');
+const VideoInfoStore = require('./videoInfoStore');
 const Collection = require('./collection');
 const os = require('os');
 const constants = require('./config/constants');
@@ -166,6 +167,12 @@ class Config
     imageInfoStore = null;
 
     /**
+     * Video info store.
+     * @member  {VideoInfoStore}
+     */
+    videoInfoStore = null;
+
+    /**
      * Asset cache.
      * @member  {FileCache}
      */
@@ -266,6 +273,7 @@ class Config
         this.templateManager = new TemplateManager(this);
         this.assetManager = new AssetManager(this);
         this.imageInfoStore = new ImageInfoStore(this);
+        this.videoInfoStore = new VideoInfoStore(this);
         this.prepareCache();
         this.justCopy = [];
         this.assetsDir = null;

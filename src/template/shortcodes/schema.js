@@ -37,9 +37,10 @@ class SchemaShortcode extends NunjucksShortcode
 
         let schemaDefs = ctx.schemaDefs;
 
+        // Images.
+
         let imgUrls = this.config.imageInfoStore.getByPage(pl);
 
-        //let imageSchema = [];
         let imageIds = [];
         let phWidth = this.config.getGlobalData('imageConfig').options.placeholderWidth;
 
@@ -69,7 +70,6 @@ class SchemaShortcode extends NunjucksShortcode
             debug(`Imageurls is null for permalink: ${pl}`);
         }
 
-
         if (imageIds.length > 0) {
             for (let item of schemaDefs.addImagesTo) {
                 if (schstruct[item]) {
@@ -78,7 +78,45 @@ class SchemaShortcode extends NunjucksShortcode
             }
         }
 
-        //syslog.inspect(imageSchema);
+        // Videos.
+
+        let videoUrls = this.config.videoInfoStore.getByPage(pl);
+
+        let videoIds = [];
+
+        if (null !== videoUrls) {
+            for (let item of Object.keys(videoUrls)) {
+
+                let itemData = videoUrls[item]
+                //syslog.inspect(itemData);
+
+                let slug = '/#video-' + GfString.slugify(itemData.embedUrl);          
+                let ns = {
+                    "@type": "VideoObject",
+                    "@id": `${slug}`,
+                }
+
+                for (let spec in itemData) {
+                    ns[spec] = itemData[spec];
+                }
+
+                schstruct[slug] = ns;
+                videoIds.push({"@id": slug});
+
+            }
+        } else {
+            debug(`Videourls is null for permalink: ${pl}`);
+        }
+
+        if (videoIds.length > 0) {
+            for (let item of schemaDefs.addVideosTo) {
+                if (schstruct[item]) {
+                    schstruct[item].video = videoIds;
+                }
+            }
+        }
+
+        // Output.
 
         for (let idx in schstruct) {
             let curr = schstruct[idx];

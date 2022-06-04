@@ -116,10 +116,12 @@ module.exports = function(config) {
         buldSeparateRssContent: true,
         type: 'page',
         livereload: true,
+        schemaWarnings: true,
 
         // Schema definitions.
         schemaDefs: {
-            addImagesTo: ['webpage', 'article']
+            addImagesTo: ['webpage', 'article'],
+            addVideosTo: ['webpage', 'article']
         },
 
         // Default collections.

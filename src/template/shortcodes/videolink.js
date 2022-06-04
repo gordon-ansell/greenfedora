@@ -96,24 +96,22 @@ class VideoLinkShortcode extends NunjucksShortcode
                 kwargs.description = kwargs.caption;
             }
 
-            /*
             let meta = {};
             for (let item of ['description', 'name', 'uploadDate']) {
                 if (kwargs[item]) {
                     if ('uploadDate' == item) {
-                        let d = new MultiDate(kwargs[item]);
-                        meta[item] = d.iso;
+                        let d = new Date(kwargs[item]);
+                        meta[item] = d.toISOString();
                     } else {
                         meta[item] = kwargs[item];
                     }
                     delete kwargs[item];
                 } else {
-                    if (this.config.schemaWarnings) {
+                    if (this.config.getbaseData().schemaWarnings) {
                         syslog.warning(`YouTube video links should have the '${item}' parameter: ${context.ctx.permalink}.`);
                     }
                 }
             }
-            */
 
             ret += `<figure class="videolink aspect-ratio aspect-ratio--16x9">`
             ret += `<iframe frameborder="0"`
@@ -137,7 +135,6 @@ class VideoLinkShortcode extends NunjucksShortcode
             delete kwargs.src;
             delete kwargs.class;
 
-            /*
             let saveData = {
                 embedUrl: url,
                 contentUrl: `https://www.youtube-nocookie.com/watch?v=${id}`,
@@ -153,7 +150,8 @@ class VideoLinkShortcode extends NunjucksShortcode
                     saveData[idx] = meta[idx];
                 }
             }
-            */
+
+            this.config.videoInfoStore.addBySrcAndPage(url, context.ctx.permalink, saveData);
 
 
         } else if ('bbc' === type) {
@@ -180,7 +178,6 @@ class VideoLinkShortcode extends NunjucksShortcode
                 kwargs.src = kwargs.src.replace('{sect}', kwargs.section);
             }
 
-            /*
             let meta = {};
             for (let item of ['description', 'name', 'uploadDate']) {
                 if (kwargs[item]) {
@@ -192,12 +189,11 @@ class VideoLinkShortcode extends NunjucksShortcode
                     }
                     delete kwargs[item];
                 } else {
-                    if (this.config.schemaWarnings) {
+                    if (this.config.getbaseData().schemaWarnings) {
                         syslog.warning(`BBC video links should have the '${item}' parameter: ${context.ctx.permalink}.`);
                     }
                 }
             }
-            */
 
             ret += `<figure class="videolink aspect-ratio aspect-ratio--16x9">`
             ret += `<iframe frameborder="0"`
@@ -221,7 +217,6 @@ class VideoLinkShortcode extends NunjucksShortcode
             delete kwargs.src;
             delete kwargs.class;
 
-            /*
             let saveData = {
                 embedUrl: url,
                 contentUrl: kwargs.url,
@@ -238,7 +233,9 @@ class VideoLinkShortcode extends NunjucksShortcode
                     saveData[idx] = meta[idx];
                 }
             }
-            */
+
+            this.config.videoInfoStore.addBySrcAndPage(url, context.ctx.permalink, saveData);
+
 
         } else {
             syslog.error(`'${type}' is an unsupported video link type: ${context.ctx.permalink}.`);
