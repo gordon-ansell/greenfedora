@@ -37,6 +37,64 @@ class SchemaShortcode extends NunjucksShortcode
 
         let schemaDefs = ctx.schemaDefs;
 
+        // Citation?
+
+        if (ctx.citation) {
+            let citationSchema = [];
+            let toProcess;
+            if (!Array.isArray(ctx.citation)) {
+                toProcess = [ctx.citation];
+            } else {
+                toProcess = ctx.citation;
+            }
+
+            for (let item of toProcess) {
+                let schcurr = {
+                    "@type": "WebPage"
+                }
+
+                if (item.title) {
+                    schcurr.name = item.title;
+                    schcurr.headline = item.title;
+                } else if (this.config.getBaseData().schemaWarnings) {
+                    syslog.warning(`Citations should have a 'title', processing ${ctx.relPath}.`);
+                }
+
+                if (item.url) {
+                    schcurr.url = item.url;
+                } else if (ctx.externalLink) {
+                    schcurr.url = ctx.externalLink;
+                } else if (this.config.getBaseData().schemaWarnings) {
+                    syslog.warning(`Citations should have a 'url' or 'externalLink' should be specified, processing ${ctx.relPath}.`);
+                }
+
+                if (item.author) {
+                    let author = {
+                        "@type": "Person"
+                    }
+                    for (let f in item.author) {
+                        author[f] = item.author[f];
+                    }
+                    schcurr.author = author;
+                }
+                if (item.site) {
+                    let site = {
+                        "@type": "Organization"
+                    }
+                    for (let f in item.site) {
+                        site[f] = item.site[f];
+                    }
+                    schcurr.publisher = site;
+                }
+
+                citationSchema.push(schcurr);
+            }
+
+            if (schstruct.article) {
+                schstruct.article.citation = citationSchema;
+            }
+        }
+
         // Images.
 
         let imgUrls = this.config.imageInfoStore.getByPage(pl);

@@ -821,7 +821,7 @@ class Config
             this.collections[group][coll] = new Collection(coll, this);
         }
 
-        this.collections[group][coll].add(tpl);
+        this.collections[group][coll].add(tpl.relPath, tpl);
 
         debug(`Added ${tpl.relPath} to ${group}.${coll}`)
 

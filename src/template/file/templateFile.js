@@ -166,6 +166,8 @@ class TemplateFile
     {
         let ret = this.templateData.mergeData();
 
+        ret['extracted'] = this.extracted;
+
         if (extractions) {
             for (let idx in this.extracted) {
                 ret[idx] = this.extracted[idx];

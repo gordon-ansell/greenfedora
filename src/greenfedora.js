@@ -425,6 +425,7 @@ class GreenFedora
                 fs.mkdirSync(path.dirname(opFile), {recursive: true});
             }
             fs.writeFileSync(opFile, op, 'utf-8');
+
         }));
 
         Benchmarks.getInstance().markEnd('gf-render-' + parse);

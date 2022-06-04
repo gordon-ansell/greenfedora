@@ -97,11 +97,14 @@ class TemplateProcessorMarkdown extends TemplateProcessor
 
         let compileFields = this.options.compileFields;
 
+        let cfg = this.config;
+
         let fnReady = async function (data) {
             let cf = {};
             for (let f of compileFields) {     
                 if (tpl.extracted[f]) {       
                     cf[f] = eng.renderString(tpl.extracted[f], data);
+                    tpl.extracted[f] = cf[f];
                 }
             }
             return cf;
