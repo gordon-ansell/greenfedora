@@ -54,6 +54,10 @@ class TemplateProcessorNunjucks extends TemplateProcessor
             throw new GfTemplateProcessorNunjucksError(`Unable to load nunjucks engine`, null, err);
         }
 
+        this.engine.addGlobal('ctx', function() { 
+            return this.ctx;
+        });
+
         debug(`Loaded nunjucks template processor.`)
     }
 

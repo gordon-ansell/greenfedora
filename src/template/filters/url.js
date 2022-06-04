@@ -18,6 +18,11 @@ function url(url, base = '/')
         syslog.error(`The 'url' filter needs to act on a string, got ${typeof url}.`);
         return url;
     }
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+    }
+
     let ret = url;
 
     if (!ret.startsWith(base)) {

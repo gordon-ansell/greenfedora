@@ -64,6 +64,9 @@ class GreenFedora
         // Load the configs.
         this.loadConfig();
 
+        // Clean?
+        this.cleanDirs();
+
         Benchmarks.getInstance().markEnd('gf-constructor');
     }
 
@@ -107,8 +110,6 @@ class GreenFedora
             this.config.watcherTemplates = {};
         }
 
-        this.cleanDirs();
-
         await this.processFiles(files);
 
         await this.config.eventManager.emit('INIT_FINISHED');
@@ -124,11 +125,13 @@ class GreenFedora
      */
     cleanDirs()
     {
-        if (!this.config.isWatcherRun) {
+        if (this.processArgs.argv.clean) {
+            syslog.notice(`Cleaning transitory directories due to '-clean' argument.`)
             FsUtils.cleanDir(this.config.outputPath);
             FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.temp));
+            FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.cache))
         }
-    }
+   }
 
     /**
      * Process necessary files.
@@ -162,6 +165,16 @@ class GreenFedora
                 return f;
             }
         });
+
+        // If the -noimages flag is set, filter out image files.
+        if (this.processArgs.argv.noimages) {
+            assets = assets.filter(f => {
+                if (!this.config.getBaseConfig().defaultAssetProcessors.image.exts.includes(path.extname(f).substring(1))) {
+                    return f;
+                }
+            });
+        }
+
         debugdev(`Asset files to process: %O`, assets);
 
         // Filter templates.
@@ -257,16 +270,20 @@ class GreenFedora
      * @return  {Promise<boolean>}
      */
     async processAssetFiles(files)
-    {
+    {        
         Benchmarks.getInstance().markStart('gf-procass', 'Processing assets');
+        this.config.assetCache.load();
+
         await Promise.all(files.map(async file => {
             debug(`Processing template file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
             await this.processSingleAssetFile(fullPath);
         }));
 
-        Benchmarks.getInstance().markEnd('gf-procass');
+        this.config.assetCache.save();
+
         await this.config.eventManager.emit('AFTER_PROCESS_ASSETS', this.config)
+        Benchmarks.getInstance().markEnd('gf-procass');
         return true;
     }
 
@@ -279,12 +296,14 @@ class GreenFedora
      */
     async processSingleAssetFile(filePath)
     {
-        // Use the relevant template processor to compile the file.
-        let proc = this.config.getAssetProcessorForFile(filePath);
-        debug(`About to process asset %s.`, filePath.replace(this.config.sitePath, ''));
+        if (!this.config.assetCache.check(filePath)) {
+            // Use the relevant template processor to compile the file.
+            let proc = this.config.getAssetProcessorForFile(filePath);
+            debug(`About to process asset %s.`, filePath.replace(this.config.sitePath, ''));
 
-        // Process the file.
-        await proc.process(filePath);
+            // Process the file.
+            await proc.process(filePath);
+        }
 
         return true;
     }

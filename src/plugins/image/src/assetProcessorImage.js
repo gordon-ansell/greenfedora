@@ -331,7 +331,7 @@ class AssetProcessorImage extends AssetProcessor
             FsUtils.copyFile(absPath, opc);
         //}
 
-        syslog.notice(`Processed image asset: ${relPath}`);
+        syslog.info(`Processed image asset: ${relPath}`);
 
     }
 

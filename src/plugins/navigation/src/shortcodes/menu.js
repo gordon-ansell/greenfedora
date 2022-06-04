@@ -73,7 +73,7 @@ class MenuShortcode extends NunjucksShortcode
                 url = tplData.permalink;    
             }
 
-            url = GfPath.addTrailingSlash(url);
+            url = GfPath.addBothSlashes(url);
 
             ret += `<li><a href="${url}" title="${desc}">${title}</a></li>\n`;
         }

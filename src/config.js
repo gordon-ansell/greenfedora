@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { syslog, GfPath, GfError, Merge, EventManager, Cache } = require('greenfedora-utils');
+const { syslog, GfPath, GfError, Merge, EventManager, FileCache } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const PluginManager = require('./config/pluginManager');
@@ -166,10 +166,10 @@ class Config
     imageInfoStore = null;
 
     /**
-     * Cache.
-     * @member  {Cache}
+     * Asset cache.
+     * @member  {FileCache}
      */
-    cache = null;
+    assetCache = null;
 
     /**
      * Just copy things.
@@ -288,8 +288,8 @@ class Config
      */
     prepareCache()
     {
-        this.cache = new Cache();
-        this.cache.addGroup('templates');
+        let cp = path.join(this.sitePath, '_cache', '.assetCache.json');
+        this.assetCache = new FileCache(cp, this.sitePath);
     }
 
     /**
