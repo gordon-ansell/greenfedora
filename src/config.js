@@ -298,6 +298,8 @@ class Config
     {
         let cp = path.join(this.sitePath, '_cache', '.assetCache.json');
         this.assetCache = new FileCache(cp, this.sitePath);
+
+        this.imageInfoStore.load();
     }
 
     /**
@@ -369,6 +371,10 @@ class Config
         }
 
         this.extraConfig.mode = this.config.mode;
+
+        if (this.config.level) {
+            syslog.setLevel(this.config.level);
+        }
 
         // Work out the hostname.
         if (this.config.modehost && this.config.mode && this.config.modehost[this.config.mode]) {

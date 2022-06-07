@@ -166,6 +166,41 @@ class Collection
         return this.data;
     }
 
+    /**
+     * Get the stats for a bunch of collections.
+     * 
+     * @param   {string}    group           What to get them for.
+     * @param   {string}    [sort=key]      Sort by? 
+     * 
+     * @return  {object}
+     */
+    static getStats(group, sort = 'key') 
+    {
+        let keys = Object.keys(group);
+
+        let ret = {};
+        for (let key of keys) {
+            ret[key] = group[key].getSize();
+        }
+
+        let ordered;
+        if ('key' === sort) {
+            ordered = Object.keys(ret).sort().reduce(
+                (obj, key) => { 
+                    obj[key] = ret[key]; 
+                    return obj;
+                }, 
+                {}
+            );
+        } else {
+            ordered = Object.fromEntries(
+                Object.entries(ret).sort(([,a],[,b]) => b-a)
+            );
+        }
+
+        return ordered;
+    }
+
 }
 
 module.exports = Collection;

@@ -11,6 +11,7 @@ const path = require('path');
 const { GfError, syslog, GfPath, Merge } = require('greenfedora-utils');
 const TemplateData = require('./templateData');
 const Pagination = require('../pagination');
+const Collection = require('../../collection');
 const fs = require('fs');
 const fmparse = require('gray-matter');
 const debug = require("debug")("GreenFedora:TemplateFile");
@@ -95,6 +96,12 @@ class TemplateFile
     hasComputed = false;
 
     /**
+     * Do we have computed late data?
+     * @member  {boolean}
+     */
+    hasComputedLate = false;
+
+    /**
      * File stats.
      * @member  {object}
      */
@@ -174,6 +181,7 @@ class TemplateFile
             }
             ret.hostname = this.config.hostname;
             ret.collections = this.config.collections;
+            ret.Collection = Collection;
             ret.relPath = this.relPath;
             ret.sitePath = this.config.sitePath;
 
@@ -240,6 +248,39 @@ class TemplateFile
     }
 
     /**
+     * Add computed late data.
+     * 
+     * @return  {void}
+     */
+    addComputedLateData()
+    {
+        // If we don't have a computed field there's nothing to do.
+        if (!this.hasComputedLate) {
+            return;
+        }
+
+        // Workout which template processor to use to parse computed data.
+        if (null === this.computedTemplateProcessor) {
+            let tp = this.config.getTemplateProcessorForFile(this.filePath);
+            this.computedTemplateProcessor = tp.options.computedTemplateProcessor || 'nunjucks';
+        }
+
+        // Get the latest data.
+        let data = this.getData();
+
+        // Convert computed data to a string.
+        let str = JSON.stringify(data.computedLate);
+
+        // Parse the computed data string using the selected template processor,
+        //  passing in the data we have so far.
+        let parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data);
+
+        // Turn the parsed data back into an object and save it.
+        this.templateData.computedLateData = JSON.parse(parsed);
+
+    }
+
+    /**
      * Load the file.
      * 
      * @return  {Promise<boolean>}
@@ -299,6 +340,9 @@ class TemplateFile
         dataSoFar = this.templateData.mergeData();
         if (dataSoFar.computed) {
             this.hasComputed = true;
+        }
+        if (dataSoFar.computedLate) {
+            this.hasComputedLate = true;
         }
         if (this.templateData.frontMatterData.computed) {
             debug(`Template file '${this.relPath}' has computed data.`)

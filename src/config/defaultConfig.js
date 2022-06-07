@@ -117,6 +117,7 @@ module.exports = function(config) {
         type: 'page',
         livereload: true,
         schemaWarnings: true,
+        allowInlinePosts: true,
 
         // Schema definitions.
         schemaDefs: {

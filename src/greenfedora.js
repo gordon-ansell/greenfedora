@@ -7,14 +7,16 @@
 'use strict';
 
 const gfpkg = require("../package.json");
-const { syslog, GfError, Benchmarks, FsUtils, Merge } = require('greenfedora-utils');
+const { syslog, GfError, Benchmarks, FsUtils, Merge, GfString } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const Config = require("./config");
 const TemplateFile = require('./template/file/templateFile');
 const GlobalDataFileConfig = require('./config/globalDataFileConfig');
+const Collection = require('./collection');
 const FsParser = require('./fsParser');
 const Server = require('./server');
+const beautify = require('js-beautify').html;
 const Watcher = require('./watcher');
 const constants = require('./config/constants');
 const Pagination = require("./template/pagination");
@@ -125,6 +127,7 @@ class GreenFedora
      */
     cleanDirs()
     {
+        FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.temp));
         if (this.processArgs.argv.clean) {
             syslog.notice(`Cleaning transitory directories due to '-clean' argument.`)
             FsUtils.cleanDir(this.config.outputPath);
@@ -167,6 +170,11 @@ class GreenFedora
         });
 
         // If the -noimages flag is set, filter out image files.
+        let doImages = true;
+        if (this.processArgs.argv.noimages) {
+            doImages = false;
+        }
+        /*
         if (this.processArgs.argv.noimages) {
             assets = assets.filter(f => {
                 if (!this.config.getBaseConfig().defaultAssetProcessors.image.exts.includes(path.extname(f).substring(1))) {
@@ -174,6 +182,7 @@ class GreenFedora
                 }
             });
         }
+        */
 
         debugdev(`Asset files to process: %O`, assets);
 
@@ -187,10 +196,16 @@ class GreenFedora
 
 
         // Process the asset files.
-        await this.processAssetFiles(assets);
+        await this.processAssetFiles(assets, doImages);
 
         // Process the template files.
         await this.processTemplateFiles(templates);
+
+        // Save the image info store.
+        this.config.imageInfoStore.save();
+
+        // Generate tag pages.
+        await this.generateTagPages();
 
         // Process the just copy files.
         await this.processJustCopyFiles(justcopy);
@@ -265,11 +280,12 @@ class GreenFedora
     /**
      * Process asset files.
      * 
-     * @param   {string[]}  files   Files to process.
+     * @param   {string[]}  files       Files to process.
+     * @param   {boolean}   doImages    Are we processing images?
      * 
      * @return  {Promise<boolean>}
      */
-    async processAssetFiles(files)
+    async processAssetFiles(files, doImages = true)
     {        
         Benchmarks.getInstance().markStart('gf-procass', 'Processing assets');
         this.config.assetCache.load();
@@ -277,7 +293,7 @@ class GreenFedora
         await Promise.all(files.map(async file => {
             debug(`Processing template file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
-            await this.processSingleAssetFile(fullPath);
+            await this.processSingleAssetFile(fullPath, doImages);
         }));
 
         this.config.assetCache.save();
@@ -291,18 +307,24 @@ class GreenFedora
      * Process a single asset file.
      * 
      * @param   {string}    filePath    Full file path to asset file.
+     * @param   {boolean}   doImages    Are we processing images?
      * 
      * @return  {Promise<boolean>}
      */
-    async processSingleAssetFile(filePath)
+    async processSingleAssetFile(filePath, doImages = true)
     {
-        if (!this.config.assetCache.check(filePath)) {
+        if (this.config.assetCache.check(filePath)) {
             // Use the relevant template processor to compile the file.
             let proc = this.config.getAssetProcessorForFile(filePath);
             debug(`About to process asset %s.`, filePath.replace(this.config.sitePath, ''));
 
             // Process the file.
-            await proc.process(filePath);
+            if (this.config.getBaseConfig().defaultAssetProcessors.image.exts.includes(
+                path.extname(filePath).substring(1))) {
+                await proc.process(filePath, !doImages);
+            } else {
+                await proc.process(filePath);
+            }
         }
 
         return true;
@@ -367,6 +389,44 @@ class GreenFedora
     }
 
     /**
+     * Generate tags pages.
+     * 
+     * @return  {void}
+     */
+    async generateTagPages()
+    {
+        if (!this.config.collections.tags) {
+            return;
+        }
+
+        let dummyPath = path.join(this.config.sitePath, this.config.getBaseConfig().locations.layouts, 
+            'dummy', 'tag-tpl.njk');
+
+        if (!fs.existsSync(dummyPath)) {
+            throw new GfPaginationError(`No tag dummy file found at ${dummyPath}`);
+        }
+
+        let dummyData = fs.readFileSync(dummyPath, 'utf-8');
+
+        let tmpPath = path.join(this.config.sitePath, this.config.getBaseConfig().locations.temp, 'tagpages');
+        //if (fs.existsSync(tmpPath)) {
+        //    FsUtils.deleteFolderRecursive(tmpPath);
+        //}
+        fs.mkdirSync(tmpPath, {recursive: true});
+
+        let keys = Object.keys(Collection.getStats(this.config.collections.tags));
+
+        await Promise.all(keys.map(tag => {
+            let slug = GfString.slugify(tag);
+            let fn = path.join(tmpPath, slug + '.njk');
+            let op = GfString.replaceAll(dummyData, '[[tag]]', tag);
+            //op = GfString.replaceAll(op, '[[tag-slug]]', slug);
+            fs.writeFileSync(fn, op, 'utf-8');
+        }));
+
+    }
+
+    /**
      * Render an individual parse.
      * 
      * @param   {string}    parse       Parse to render.
@@ -409,6 +469,7 @@ class GreenFedora
             syslog.log(`Rendering ${tpl.relPath}.`);
 
             tpl.addComputedData();
+            tpl.addComputedLateData();
             let data = tpl.getData(true);
 
             if (null !== extraData) {
@@ -424,7 +485,7 @@ class GreenFedora
             if (!fs.existsSync(path.dirname(opFile))) {
                 fs.mkdirSync(path.dirname(opFile), {recursive: true});
             }
-            fs.writeFileSync(opFile, op, 'utf-8');
+            fs.writeFileSync(opFile, beautify(op), 'utf-8');
 
         }));
 

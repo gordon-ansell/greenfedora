@@ -7,6 +7,8 @@
 'use strict';
 
 const { GfError, GfPath, syslog } = require('greenfedora-utils');
+const path = require('path');
+const fs = require('fs');
 const debug = require("debug")('GreenFedora:ImageInfoStore');
 const debugdev = require("debug")('Dev.GreenFedora:ImageInfoStore');
 
@@ -39,6 +41,43 @@ class ImageInfoStore
     constructor(config)
     {
         this.config = config;
+    }
+
+    /**
+     * Load a cache from disk.
+     * 
+     * @return  {FileCache}
+     */
+    load()
+    {
+        let cp = path.join(this.config.sitePath, '_cache', 'imageInfoCache.json');
+        if (!fs.existsSync(cp)) {
+            debug(`No saved file cache found at ${cp}. This may be okay, but just saying.`);
+            this.store.bySrc = {};
+        } else {
+            debug(`Loading file cache from ${cp}.`);
+            let serialised = fs.readFileSync(cp, 'utf8');
+            this.store.bySrc = JSON.parse(serialised);
+        }
+        return this;
+    }
+
+    /**
+     * Save a cache to disk.
+     * 
+     * @return  {void}
+     */
+    save()
+    {
+        let cp = path.join(this.config.sitePath, '_cache', 'imageInfoCache.json');
+        if (!fs.existsSync(path.dirname(cp))) {
+            fs.mkdirSync(path.dirname(cp), {recurse: true});
+            let serialised = JSON.stringify(this.store.bySrc);
+            fs.writeFileSync(cp, serialised, 'utf8');
+        } else {
+            let serialised = JSON.stringify(this.store.bySrc);
+            fs.writeFileSync(cp, serialised, 'utf8');
+        }
     }
 
     /**

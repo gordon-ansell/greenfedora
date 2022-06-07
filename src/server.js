@@ -89,7 +89,7 @@ class Server
         this.server.use('/', express.static(this.outputPath));
 
         this.server.listen(this.port, () => {
-            syslog.notice(`Statico Express server running at ${this.address}`);
+            syslog.notice(`Express server running at ${this.address}`);
         });
 
         return this;
@@ -103,7 +103,7 @@ class Server
     stop()
     {
         if (this.server) {
-            syslog.notice(`Statico Express server shutting down.`);
+            syslog.notice(`Express server shutting down.`);
         }
     }
 }

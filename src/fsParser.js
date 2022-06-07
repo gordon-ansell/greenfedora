@@ -54,12 +54,13 @@ class FsParser {
     {
         // Get the options.
         let cfg = config.getBaseConfig();
-        let options = cfg.fsParser.options;
+        let options = {...cfg.fsParser.options};
         let prefix = '';
         if (pathOverride) {
             options.base = pathOverride;
             options.ignore = [];
             prefix = GfPath.addTrailingSlash(GfPath.removeLeadingSlash(pathOverride.replace(config.sitePath, '')));
+            prefix += '**/';
         } else {
             options.base = config.sitePath;
         }

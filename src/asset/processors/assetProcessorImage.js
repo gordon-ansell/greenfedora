@@ -43,10 +43,11 @@ class AssetProcessorImage extends AssetProcessor
      * Process a file.
      * 
      * @param   {string}    filePath    File to process.
+     * @param   {boolean}   skip        Skip?
      * 
      * @return  {boolean}
      */
-    process(filePath)
+    process(filePath, skip = false)
     {
         // By default we just copy the file.
         let op = path.join(this.config.outputPath, filePath.replace(this.config.sitePath, ''));

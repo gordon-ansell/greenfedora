@@ -125,7 +125,34 @@ class SchemaShortcode extends NunjucksShortcode
                 }
             }
         } else {
-            debug(`Imageurls is null for permalink: ${pl}`);
+            debug(`Imageurls is null for permalink: ${pl}. Will use default image.`);
+            if (ctx.site.defaultArticleImage) {
+                if (this.config.imageInfoStore.hasBySrc(ctx.site.defaultArticleImage)) {
+                    let defImg = this.config.imageInfoStore.getBySrc(ctx.site.defaultArticleImage);
+                    for (let type of Object.keys(defImg)) {
+                        for (let idx of Object.keys(defImg[type].files)) {
+                            let file = defImg[type].files[idx];
+                            if (phWidth !== file.width) {
+                                let u = (new URL(file.file, context.ctx.hostname)).toString();   
+                                let slug = '/#image-' + GfString.slugify(file.file);          
+                                let ns = {
+                                    "@type": "ImageObject",
+                                    "@id": `${slug}`,
+                                    contentUrl: `${u}`,
+                                    url: `${u}`,
+                                    width: file.width,
+                                    height: file.height
+                                }
+                                schstruct[slug] = ns;
+                                imageIds.push({"@id": slug});
+                            }
+                        }
+                    }
+                } else {
+                    syslog.inspect(Object.keys(this.config.imageInfoStore.store.bySrc), "Schema");
+                    syslog.warning(`Could not find default article image: ${ctx.site.defaultArticleImage}`);
+                }
+            }
         }
 
         if (imageIds.length > 0) {
@@ -185,9 +212,9 @@ class SchemaShortcode extends NunjucksShortcode
         }
 
         let ret = `
-            <script type="application/ld+json">
-            ${JSON.stringify(json, undefined, 3)}
-            </script>
+<script type="application/ld+json">\n
+${JSON.stringify(json, undefined, 3)}\n
+</script>
         `;
 
         return ret;

@@ -106,9 +106,9 @@ class Pagination
             let dummyData = fs.readFileSync(dummyPath, 'utf-8');
 
             let tmpPath = path.join(this.tplData.sitePath, this.tplData.locations.temp);
-            if (fs.existsSync(tmpPath)) {
-                FsUtils.deleteFolderRecursive(tmpPath);
-            }
+            //if (fs.existsSync(tmpPath)) {
+            //    FsUtils.deleteFolderRecursive(tmpPath);
+            //}
             fs.mkdirSync(tmpPath, {recursive: true});
 
             for (let newPage = 1; newPage < pagination.pageCount; newPage++) {

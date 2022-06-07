@@ -63,6 +63,12 @@ class TemplateData
     computedData = null;
 
     /**
+     * Computed late data.
+     * @member {object}
+     */
+    computedLateData = null;
+
+    /**
      * Late additions.
      * @member {object}
      */
@@ -131,6 +137,10 @@ class TemplateData
 
         if (null !== this.computedData) {
             ret = Merge.merge(ret, this.computedData);
+        }
+
+        if (null !== this.computedLateData) {
+            ret = Merge.merge(ret, this.computedLateData);
         }
 
         // Possibly modify the permalink.

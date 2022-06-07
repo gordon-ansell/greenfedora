@@ -78,11 +78,11 @@ class RatingStarsShortcode extends NunjucksShortcode
         }
 
         if (!kwargs.fg) {
-            kwargs.fg = 'var(--col-secondary-text)';
+            kwargs.fg = 'var(--col-secondary-text-offset)';
         }
 
         if (!kwargs.bg) {
-            kwargs.bg = '#fc0';
+            kwargs.bg = 'var(--col-secondary-text)';
         }
 
         let r = (Math.random() + 1).toString(36).substring(2);
