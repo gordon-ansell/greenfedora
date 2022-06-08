@@ -15,6 +15,7 @@ const AssetManager = require('./config/assetManager');
 const ImageInfoStore = require('./imageInfoStore');
 const VideoInfoStore = require('./videoInfoStore');
 const Collection = require('./collection');
+const DependencyGraph = require('dependency-graph').DepGraph;
 const os = require('os');
 const constants = require('./config/constants');
 const { URL } = require('url');
@@ -179,6 +180,12 @@ class Config
     assetCache = null;
 
     /**
+     * Layout dependencies.
+     * @member  {DependencyGraph}
+     */
+    layoutDependencies = null;
+
+    /**
      * Just copy things.
      * @member  {string[]}
      */
@@ -278,6 +285,7 @@ class Config
         this.justCopy = [];
         this.assetsDir = null;
         this.assetsPath = null;
+        this.layoutDependencies = new DependencyGraph();
         this.collections = {};
         this.templates = {};
         this.isWatcherRun = false;

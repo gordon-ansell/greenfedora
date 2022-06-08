@@ -44,7 +44,7 @@ class MenuShortcode extends NunjucksShortcode
         let d = menuData[menu];
 
         d.sort( (a, b) => {
-            return (a.data.pos < b.data.pos) ? 1 : ((b.data.pos < a.data.pos) ? -1 : 0)
+            return (a.data.pos > b.data.pos) ? 1 : ((b.data.pos > a.data.pos) ? -1 : 0)
         });
 
         let ret = '';

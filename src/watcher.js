@@ -64,19 +64,53 @@ class Watcher
      */
     async execute()
     {
+        let buildCss = false;
+        let buildAll = false;
         if (this.fileQueue.length > 0) {
 
             let files = [];
 
             for (let file of this.fileQueue) {
-                files.push(file.replace(this.config.sitePath, ''));
+                let rel = file.replace(this.config.sitePath, '');
+                let ext = path.extname(file);
+
+                // Data file change -> build all.
+                if (-1 !== file.indexOf('_data/') || -1 !== file.indexOf('.grnfdr')) {
+                    buildAll = true;
+                    break;
+
+                // SCSS file change -> build all CSS files.
+                } else if ('.scss' === ext || '.css' === ext) {
+                    for (let cssf of this.config.getBaseConfig().mainCssFiles) {
+                        files.push(cssf);
+                    }
+                    buildCss = true;
+
+                // Layout file change -> build all dependencies.
+                } else if (-1 !== file.indexOf('_layouts/')) {
+                    let relChange = file.replace(this.config.sitePath, '');
+                    let depArr = this.config.layoutDependencies.dependantsOf(relChange);
+                    for (let item of depArr) {
+                        files.push(item);
+                    }
+                
+                // Standard -> just build the changed file.
+                } else {
+                    files.push(rel);
+                }
             }
 
             // Reset the file queue.
             this.fileQueue = [];
 
-            if (files.length > 0) {
-                await this.greenfedora.processWatch(files);
+            if (buildAll) {
+                syslog.notice(`Data or control file changed, will rebuild everything.`)
+                this.greenfedora.loadConfig();
+                this.greenfedora.cleanDirs();
+                await this.greenfedora.init();
+                await this.greenfedora.render();
+            } else if (files.length > 0) {
+                await this.greenfedora.processWatch(files, buildCss);
             }
         }
     }
@@ -89,7 +123,7 @@ class Watcher
     async watch()
     {
         let bc = this.config.getBaseConfig();
-        let ignores = bc.fsParser.options.ignore;
+        let ignores = bc.fsParserWatcher.options.ignore;
 
         for (let idx in ignores) {
             ignores[idx] = path.join(this.config.sitePath, ignores[idx]);

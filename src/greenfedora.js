@@ -98,12 +98,13 @@ class GreenFedora
     /**
      * Initialisation.
      * 
-     * @param   {boolean}           [watch=false]   Are we initialising for a watch?            
-     * @param   {string[]|null}     [files=null]    Files to process or null to parse filesystem.
+     * @param   {boolean}           [watch=false]       Are we initialising for a watch?            
+     * @param   {string[]|null}     [files=null]        Files to process or null to parse filesystem.
+     * @param   {boolean}           [buildCss=false]    Force build of scss files?
      * 
      * @return  {Promise<boolean>}
      */
-    async init(watch = false, files = null)
+    async init(watch = false, files = null, buildCss = false)
     {
         Benchmarks.getInstance().markStart('gf-init', 'Initialisation');
 
@@ -112,7 +113,7 @@ class GreenFedora
             this.config.watcherTemplates = {};
         }
 
-        await this.processFiles(files);
+        await this.processFiles(files, buildCss);
 
         await this.config.eventManager.emit('INIT_FINISHED');
 
@@ -139,11 +140,12 @@ class GreenFedora
     /**
      * Process necessary files.
      * 
-     * @param   {string[]|null}     [files=null]    Files to process or null to parse filesystem.
+     * @param   {string[]|null}     [files=null]        Files to process or null to parse filesystem.
+     * @param   {boolean}           [buildCss=false]    Force build of scss files?
      * 
      * @return  {Promise<boolean>}
      */
-    async processFiles(files = null)
+    async processFiles(files = null, buildCss = false)
     {
         if (null === files) {
             // Grab the files from the filesystem.
@@ -196,7 +198,7 @@ class GreenFedora
 
 
         // Process the asset files.
-        await this.processAssetFiles(assets, doImages);
+        await this.processAssetFiles(assets, doImages, buildCss);
 
         // Process the template files.
         await this.processTemplateFiles(templates);
@@ -228,6 +230,9 @@ class GreenFedora
             let fullPath = path.join(this.config.sitePath, file);
             await this.processSingleTemplateFile(fullPath);
         }));
+
+        //syslog.inspect(this.config.layoutDependencies);
+        //syslog.inspect(this.config.layoutDependencies.dependantsOf('_layouts/post.njk'))
 
         Benchmarks.getInstance().markEnd('gf-proctpl');
         return true;
@@ -280,12 +285,13 @@ class GreenFedora
     /**
      * Process asset files.
      * 
-     * @param   {string[]}  files       Files to process.
-     * @param   {boolean}   doImages    Are we processing images?
+     * @param   {string[]}  files               Files to process.
+     * @param   {boolean}   [doImages=true]     Are we processing images?
+     * @param   {boolean}   [buildCss=false]    Force build of scss files?
      * 
      * @return  {Promise<boolean>}
      */
-    async processAssetFiles(files, doImages = true)
+    async processAssetFiles(files, doImages = true, buildCss = false)
     {        
         Benchmarks.getInstance().markStart('gf-procass', 'Processing assets');
         this.config.assetCache.load();
@@ -293,7 +299,7 @@ class GreenFedora
         await Promise.all(files.map(async file => {
             debug(`Processing template file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
-            await this.processSingleAssetFile(fullPath, doImages);
+            await this.processSingleAssetFile(fullPath, doImages, buildCss);
         }));
 
         this.config.assetCache.save();
@@ -306,14 +312,21 @@ class GreenFedora
     /**
      * Process a single asset file.
      * 
-     * @param   {string}    filePath    Full file path to asset file.
-     * @param   {boolean}   doImages    Are we processing images?
+     * @param   {string}    filePath            Full file path to asset file.
+     * @param   {boolean}   doImages            Are we processing images?
+     * @param   {boolean}   [buildCss=false]    Force build of scss files?
      * 
      * @return  {Promise<boolean>}
      */
-    async processSingleAssetFile(filePath, doImages = true)
+    async processSingleAssetFile(filePath, doImages = true, buildCss = false)
     {
-        if (this.config.assetCache.check(filePath)) {
+        let ext = path.extname(filePath);
+        let force = false;
+        if (('.css' === ext || '.scss' === ext) && buildCss) {
+            force = true;
+        }
+
+        if (this.config.assetCache.check(filePath) || force) {
             // Use the relevant template processor to compile the file.
             let proc = this.config.getAssetProcessorForFile(filePath);
             debug(`About to process asset %s.`, filePath.replace(this.config.sitePath, ''));
@@ -513,13 +526,14 @@ class GreenFedora
     /**
      * Process a watcher run.
      * 
-     * @param   {string[]}  files   Files to process.
+     * @param   {string[]}  files       Files to process.
+     * @param   {boolean}   buildCss    Process buind of (S)CSS?
      * 
      * @return  {void}
      */
-    async processWatch(files)
+    async processWatch(files, buildCss = false)
     {
-        await this.init(true, files);
+        await this.init(true, files, buildCss);
         await this.render();
         this.config.copyWatcherTemplates();
         this.config.watcherRun = false;

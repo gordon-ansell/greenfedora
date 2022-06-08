@@ -109,6 +109,24 @@ module.exports = function(config) {
             }
         },
 
+        // File system parser for the watcher.
+        fsParserWatcher: {
+            options: {
+                ignore: [
+                    'node_modules/**',
+                    'package.json',
+                    'package-lock.json',
+                    'sh-*',
+                    'assets/_generatedImages/**',
+                    '_cache/**',
+                    '_copy/**',
+                    '_site/**',
+                    '_temp/**'
+                ],
+                onlyFiles: true
+            }
+        },
+
         // Some flags.
         useMarkdoc: false,
         lazyload: true,
@@ -118,6 +136,7 @@ module.exports = function(config) {
         livereload: true,
         schemaWarnings: true,
         allowInlinePosts: true,
+        mainCssFiles: ['assets/style/local.scss'],
 
         // Schema definitions.
         schemaDefs: {

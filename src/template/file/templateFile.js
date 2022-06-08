@@ -293,11 +293,21 @@ class TemplateFile
         // Merge the data before any layout work.
         let dataSoFar = this.templateData.mergeData();
 
+        // Add a note to the dependency graph.
+        this.config.layoutDependencies.addNode(this.relPath);
+
         // Do we have a layout? If so, load it now.
         if (dataSoFar.layout) {
+            // Save dependency.
+
             // Read the template's layout.
             debug(`Loading layout ${dataSoFar.layout}`)
             await this.getLayout().load();
+
+            // Add this layout to the dependency graph.
+            this.config.layoutDependencies.addNode(this.layout.relPath);
+            this.config.layoutDependencies.addDependency(this.relPath, this.layout.relPath);
+
             // Save the layout data as part of the data cascade.
             this.templateData.layoutData = this.layout.frontMatter.data;
 
