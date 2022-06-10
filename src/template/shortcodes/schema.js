@@ -8,6 +8,7 @@
 
 const { NunjucksShortcode, syslog, GfString } = require("greenfedora-utils");
 const { URL } = require('url');
+const Breadcrumb = require('./breadcrumb');
 const debug = require("debug")("GreenFedora:Plugin:SchemaShortcode");
 
 /**
@@ -197,6 +198,61 @@ class SchemaShortcode extends NunjucksShortcode
             for (let item of schemaDefs.addVideosTo) {
                 if (schstruct[item]) {
                     schstruct[item].video = videoIds;
+                }
+            }
+        }
+
+        // Breadcrumbs.
+        if (context.ctx.breadcrumb) {
+            let brcr = {
+                "@type": "BreadcrumbList",
+                itemListElement: []
+            }
+
+            let items = [];
+
+            let count = 0;
+            for (let item of context.ctx.breadcrumb) {
+                let data;
+                if (item.loc) {
+                    data = Breadcrumb.locationParse(item.loc, context.ctx);
+                } else {
+                    data = item;
+                }
+
+                let single = {
+                    "@type": "ListItem",
+                    position: count + 1,
+                    name: data.title
+                }
+
+                if (count < context.ctx.breadcrumb.length - 1) {
+                    single.item = {
+                        "@type": "WebPage",
+                        "@id": data.url
+
+                    }
+                }
+
+                items.push(single);
+            }
+
+            brcr.itemListElement = items;
+
+            if (schstruct.webpage) {
+                schstruct.webpage.breadcrumb = brcr;
+            }
+        }
+
+        // Product warnings?
+        if (schstruct.product && this.config.getBaseConfig().schemaWarnings) {
+            let product = schstruct.product;
+            let type = product["@type"];
+            if (type === "Movie") {
+                for (let chk of ['image', 'dateCreated', 'director']) {
+                    if (!product[chk]) {
+                        syslog.warning(`Google will complain if you don't specify '${chk}' on ${type} schema: ${context.ctx.relPath}`);
+                    }
                 }
             }
         }

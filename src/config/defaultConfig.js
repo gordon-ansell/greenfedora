@@ -140,8 +140,8 @@ module.exports = function(config) {
 
         // Schema definitions.
         schemaDefs: {
-            addImagesTo: ['webpage', 'article'],
-            addVideosTo: ['webpage', 'article']
+            addImagesTo: ['webpage', 'article', 'product'],
+            addVideosTo: ['webpage', 'article', 'product']
         },
 
         // Default collections.
@@ -151,6 +151,14 @@ module.exports = function(config) {
         permalinkIgnoreParts: ["^\\d{4}-\\d{2}-\\d{2}-"],
 
         // Suitable defaults.
+        breadcrumb: [
+            {
+                loc: "home",
+            },
+            {
+                loc: "self"
+            }
+        ],
         computed: {
             permalink: "{{fbase}}"
         } 

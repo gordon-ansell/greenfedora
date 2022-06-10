@@ -132,7 +132,6 @@ class GreenFedora
         if (this.processArgs.argv.clean) {
             syslog.notice(`Cleaning transitory directories due to '-clean' argument.`)
             FsUtils.cleanDir(this.config.outputPath);
-            FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.temp));
             FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.cache))
         }
    }
@@ -276,6 +275,7 @@ class GreenFedora
                 }
             }
         }
+        this.config.addToCollection(null, 'all', tpl);
 
         await this.config.eventManager.emit('AFTER_PROCESS_SINGLE_TEMPLATE', this.config, tpl);
 

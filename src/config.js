@@ -826,18 +826,26 @@ class Config
      */
     addToCollection(group, coll, tpl)
     {
+        if (null === group) {
+            if (!this.collections[coll]) {
+                this.collections[coll] = new Collection(coll, this);
+            }
+            this.collections[coll].add(tpl.relPath, tpl);
+            debug(`Added ${tpl.relPath} to ${coll}`)
+        } else {
 
-        if (!this.collections[group]) {
-            this.collections[group] = {};
+            if (!this.collections[group]) {
+                this.collections[group] = {};
+            }
+
+            if (!this.collections[group][coll]) {
+                this.collections[group][coll] = new Collection(coll, this);
+            }
+
+            this.collections[group][coll].add(tpl.relPath, tpl);
+
+            debug(`Added ${tpl.relPath} to ${group}.${coll}`)
         }
-
-        if (!this.collections[group][coll]) {
-            this.collections[group][coll] = new Collection(coll, this);
-        }
-
-        this.collections[group][coll].add(tpl.relPath, tpl);
-
-        debug(`Added ${tpl.relPath} to ${group}.${coll}`)
 
         return this;
     }
