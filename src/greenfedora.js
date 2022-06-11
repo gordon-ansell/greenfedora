@@ -444,6 +444,7 @@ class GreenFedora
      * 
      * @param   {string}    parse       Parse to render.
      * @param   {object}    extraData   Extra data to merge in for the parse.
+     * @param   {boolean}   msg         Issue a message?
      * 
      * @return  {void}
      */
@@ -478,8 +479,19 @@ class GreenFedora
             });
         }
 
+        let msgHomePages = false;
+        let msgTagPages = false;
+
         await Promise.all(todo.map(async tpl => {
-            syslog.log(`Rendering ${tpl.relPath}.`);
+            if (tpl.relPath.includes('/homepages/') && !msgHomePages) {
+                syslog.log(`Rendering additional home pages ...`);
+                msgHomePages = true;
+            } else if (tpl.relPath.includes('/tagpages/') && !msgTagPages) {
+                syslog.log(`Rendering tag pages ...`);
+                msgTagPages = true;
+            } else {
+                syslog.log(`Rendering ${tpl.relPath}.`);
+            }
 
             tpl.addComputedData();
             tpl.addComputedLateData();

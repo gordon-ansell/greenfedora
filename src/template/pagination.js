@@ -105,7 +105,7 @@ class Pagination
 
             let dummyData = fs.readFileSync(dummyPath, 'utf-8');
 
-            let tmpPath = path.join(this.tplData.sitePath, this.tplData.locations.temp);
+            let tmpPath = path.join(this.tplData.sitePath, this.tplData.locations.temp, 'homepages');
             //if (fs.existsSync(tmpPath)) {
             //    FsUtils.deleteFolderRecursive(tmpPath);
             //}
