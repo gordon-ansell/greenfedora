@@ -9,6 +9,7 @@
 const showdown = require('showdown');
 const { GfError, syslog, TemplateProcessor } = require('greenfedora-utils');
 const TemplateFile = require('../file/templateFile');
+const striptags = require('striptags');
 const debug = require("debug")("GreenFedora:TemplateProcessorMarkdown");
 const debugdev = require("debug")("Dev.GreenFedora:TemplateProcessorMarkdown");
 
@@ -117,6 +118,23 @@ class TemplateProcessorMarkdown extends TemplateProcessor
 
     }
 
+    /**
+     * Parse into html and text.
+     * 
+     * @param   {string}    str     String to parse.
+     * @param   {object}    data    Data to use.
+     * 
+     * @return  {string[]}          [html, text]
+     */
+    parseMarkdown(str, data = {})
+    {
+        let eng = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor);
+        let html = eng.renderString(str, data);
+        html = this.engine.makeHtml(html);
+        let text = striptags(html);
+
+        return [html, text];
+    }
 }
 
 module.exports = TemplateProcessorMarkdown;

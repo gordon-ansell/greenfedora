@@ -27,6 +27,8 @@ const Schema = require('../template/shortcodes/schema');
 const VideoLink = require('../template/shortcodes/videolink');
 const Citations = require('../template/shortcodes/citations');
 const Breadcrumb = require('../template/shortcodes/breadcrumb');
+const HowTo = require('../template/shortcodes/howto');
+const HowToStep = require('../template/shortcodes/howtostep');
 
 const PreprocessorImage = require('../template/preprocessors/preprocessorImage');
 const PreprocessorComment = require('../template/preprocessors/preprocessorComment');
@@ -121,7 +123,9 @@ class TemplateManager extends ResourceManager
             .addShortcode('videolink', VideoLink)
             .addShortcode('schema', Schema)
             .addShortcode('citations', Citations)
-            .addShortcode('breadcrumb', Breadcrumb);
+            .addShortcode('breadcrumb', Breadcrumb)
+            .addPairedShortcode('howto', HowTo)
+            .addPairedShortcode('howtostep', HowToStep);
 
         this.getProcessor('markdown')
             .addPreprocessor(new PreprocessorImage(this.config))

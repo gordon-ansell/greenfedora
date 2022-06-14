@@ -40,10 +40,11 @@ class AssetProcessorScss extends AssetProcessor
      * Process a file.
      * 
      * @param   {string}    filePath    File to process.
+     * @param   {boolean}   silent      Silent processing?
      * 
      * @return  {boolean}
      */
-    process(filePath)
+    process(filePath, silent = false)
     {
         let relPath = filePath.replace(this.config.sitePath, '');
         let baseName = path.basename(relPath, path.extname(relPath));
@@ -95,7 +96,9 @@ class AssetProcessorScss extends AssetProcessor
         }
         fs.writeFileSync(op, compiled.css.toString());
 
-        syslog.info(`Processed SCSS asset: ${relPath}`)
+        if (!silent) {
+            syslog.info(`Processed SCSS asset: ${relPath}`);
+        }
 
         return true;
     }

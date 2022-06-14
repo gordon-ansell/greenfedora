@@ -43,7 +43,7 @@ module.exports = function(config) {
             markdown: {
                 options: {
                     parseFrontMatter: true,
-                    fmParseOptions: {excerpt: true},
+                    fmParseOptions: {excerpt: false},
                     extractFromFm: ['content', 'excerpt', 'leader'],
                     compileFields: ['content', 'excerpt', 'leader'],
                     preCompileTemplateProcessor: 'nunjucks',

@@ -20,6 +20,7 @@ const beautify = require('js-beautify').html;
 const Watcher = require('./watcher');
 const constants = require('./config/constants');
 const Pagination = require("./template/pagination");
+const cliProgress = require('cli-progress');
 const debug = require("debug")("GreenFedora");
 const debugdev = require("debug")("Dev.GreenFedora");
 
@@ -47,6 +48,28 @@ class GreenFedora
     server = null;
 
     /**
+     * Start time.
+     * @member  {number}
+     */
+    startTime = null;
+
+    /**
+     * Render start time.
+     * @member  {number}
+     */
+    renderStartTime = null;
+
+    /**
+     * Counts.
+     * @member  {object}
+     */
+    counts = {
+        assets: 0,
+        templates: 0,
+        renders: 0
+    }
+
+    /**
      * Constructor.
      * 
      * @param   {ProcessArgs}   processArgs Process arguments.
@@ -56,6 +79,8 @@ class GreenFedora
     constructor(processArgs)
     {
         Benchmarks.getInstance().markStart('gf-constructor', 'Constructing GreenFedora');
+
+        this.startTime = Date.now();
 
         // Save the passed process arguments.
         this.processArgs = processArgs;
@@ -175,15 +200,6 @@ class GreenFedora
         if (this.processArgs.argv.noimages) {
             doImages = false;
         }
-        /*
-        if (this.processArgs.argv.noimages) {
-            assets = assets.filter(f => {
-                if (!this.config.getBaseConfig().defaultAssetProcessors.image.exts.includes(path.extname(f).substring(1))) {
-                    return f;
-                }
-            });
-        }
-        */
 
         debugdev(`Asset files to process: %O`, assets);
 
@@ -194,7 +210,6 @@ class GreenFedora
             }
         });
         debugdev(`Template files to process: %O`, templates);
-
 
         // Process the asset files.
         await this.processAssetFiles(assets, doImages, buildCss);
@@ -211,19 +226,28 @@ class GreenFedora
         // Process the just copy files.
         await this.processJustCopyFiles(justcopy);
 
+        syslog.notice(`GreenFedora initialisation completed in ${(Date.now() - this.startTime) / 1000} seconds.`);
         return true;
     }
 
     /**
      * Process template files.
      * 
-     * @param   {string[]}  files   Files to process.
+     * @param   {string[]}  files       Files to process.
+     * @param   {boolean}   stragglers  Stragglers?
      * 
      * @return  {Promise<boolean>}
      */
-    async processTemplateFiles(files)
+    async processTemplateFiles(files, stragglers = false)
     {
         Benchmarks.getInstance().markStart('gf-proctpl', 'Processing templates');
+
+        if (stragglers) {
+            syslog.notice(`Processing template files (stragglers) ...`);
+        } else {
+            syslog.notice(`Processing template files ...`);
+        }
+
         await Promise.all(files.map(async file => {
             debug(`Processing template file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
@@ -277,27 +301,31 @@ class GreenFedora
         }
         this.config.addToCollection(null, 'all', tpl);
 
+        this.counts.templates++;
+
         await this.config.eventManager.emit('AFTER_PROCESS_SINGLE_TEMPLATE', this.config, tpl);
 
         return true;
     }
 
     /**
-     * Process asset files.
+     * Process asset files (sync).
      * 
      * @param   {string[]}  files               Files to process.
      * @param   {boolean}   [doImages=true]     Are we processing images?
      * @param   {boolean}   [buildCss=false]    Force build of scss files?
      * 
-     * @return  {Promise<boolean>}
+     * @return  {boolean}
      */
     async processAssetFiles(files, doImages = true, buildCss = false)
     {        
         Benchmarks.getInstance().markStart('gf-procass', 'Processing assets');
         this.config.assetCache.load();
 
+        syslog.notice(`Processing asset files ...`);
+
         await Promise.all(files.map(async file => {
-            debug(`Processing template file: %s`, file);
+            debug(`Processing asset file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
             await this.processSingleAssetFile(fullPath, doImages, buildCss);
         }));
@@ -334,10 +362,12 @@ class GreenFedora
             // Process the file.
             if (this.config.getBaseConfig().defaultAssetProcessors.image.exts.includes(
                 path.extname(filePath).substring(1))) {
-                await proc.process(filePath, !doImages);
+                await proc.process(filePath, !doImages, true);
             } else {
-                await proc.process(filePath);
+                await proc.process(filePath, true);
             }
+
+            this.counts.assets++;
         }
 
         return true;
@@ -374,7 +404,11 @@ class GreenFedora
      */
     async render()
     {
+        this.renderStartTime = Date.now();
+        
         Benchmarks.getInstance().markStart('gf-render', 'Render');
+
+        syslog.log(`Rendering ...`);
 
         // Prev/next links.
         let colldata = this.config.collections.type.post.getAll('date-desc', true);
@@ -391,13 +425,18 @@ class GreenFedora
         let tmpDir = path.join(this.config.sitePath, bc.locations.temp);
         let fsp = FsParser.fromLocal(this.config, tmpDir);
         let files = await fsp.parse();
-        await this.processTemplateFiles(files);
+        await this.processTemplateFiles(files, true);
 
         // Render all the last templates.
         await this._renderParse('last', {collections: this.config.collections});
 
         await this.config.eventManager.emit('RENDER_FINISHED', this.config);
         Benchmarks.getInstance().markEnd('gf-render');
+
+        syslog.notice(`GreenFedora render completed in ${(Date.now() - this.renderStartTime) / 1000} seconds.`);
+        syslog.notice(`GreenFedora build completed in ${(Date.now() - this.startTime) / 1000} seconds.`);
+        syslog.notice(`GreenFedora processed - Assets: ${this.counts.assets}, Templates: ${this.counts.templates}, Renders: ${this.counts.renders}.`);
+
         return 0;
     }
 
@@ -479,18 +518,9 @@ class GreenFedora
             });
         }
 
-        let msgHomePages = false;
-        let msgTagPages = false;
-
         await Promise.all(todo.map(async tpl => {
-            if (tpl.relPath.includes('/homepages/') && !msgHomePages) {
-                syslog.log(`Rendering additional home pages ...`);
-                msgHomePages = true;
-            } else if (tpl.relPath.includes('/tagpages/') && !msgTagPages) {
-                syslog.log(`Rendering tag pages ...`);
-                msgTagPages = true;
-            } else {
-                syslog.log(`Rendering ${tpl.relPath}.`);
+            if (!tpl.relPath.startsWith('_temp/')) {
+                syslog.info(`Rendering ${tpl.relPath}.`);
             }
 
             tpl.addComputedData();
@@ -511,6 +541,8 @@ class GreenFedora
                 fs.mkdirSync(path.dirname(opFile), {recursive: true});
             }
             fs.writeFileSync(opFile, beautify(op), 'utf-8');
+
+            this.counts.renders++;
 
         }));
 

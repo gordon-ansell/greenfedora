@@ -9,6 +9,7 @@
 const { NunjucksShortcode, syslog, GfString } = require("greenfedora-utils");
 const { URL } = require('url');
 const Breadcrumb = require('./breadcrumb');
+const path = require('path');
 const debug = require("debug")("GreenFedora:Plugin:SchemaShortcode");
 
 /**
@@ -254,6 +255,34 @@ class SchemaShortcode extends NunjucksShortcode
                         syslog.warning(`Google will complain if you don't specify '${chk}' on ${type} schema: ${context.ctx.relPath}`);
                     }
                 }
+            }
+        }
+
+        // Global data we've saved.
+        let relPath = context.ctx.relPath;
+        if (this.config.hasGlobalData('schema')) {
+            let idx = 'article';
+            let gd = this.config.getGlobalData('schema');
+            if (relPath in gd) {
+                if (gd[relPath].howto) {
+                    schstruct[idx] = gd[relPath].howto;
+                    schstruct[idx]['@type'] = "HowTo";
+                    schstruct[idx].mainEntityOfPage = {"@id": "/#webpage"}
+                    schstruct[idx].step = [];
+                
+                    if (gd[relPath].howtostep) {
+                        let count = 1;
+                        for (let step of gd[relPath].howtostep) {
+                            step['@type'] = "HowToStep";
+                            step.url = path.join('/', context.ctx.permalink, '/#step-' + count);
+                            schstruct[idx].step.push(step);
+                            count++;
+                        }
+                    } else {
+                        syslog.error(`No HowToSteps found for HowTo in ${relPath}`)
+                    }
+                }
+                    
             }
         }
 

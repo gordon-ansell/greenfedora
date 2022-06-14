@@ -186,12 +186,13 @@ class AssetProcessorImage extends AssetProcessor
      * 
      * @param   {string}    filePath    Path to file to process.
      * @param   {boolean}   skip        Skip processing?
+     * @param   {boolean}   silent      Silent processing?
      * 
      * @return
      * 
      * @throws  {GfAssetProcessorImageError}
      */
-    async process(filePath, skip = false)
+    async process(filePath, skip = false, silent = false)
     {
         filePath = GfPath.addLeadingSlash(filePath);
         debug(`Processing image: ${filePath}`);
@@ -331,7 +332,9 @@ class AssetProcessorImage extends AssetProcessor
             FsUtils.copyFile(absPath, opc);
         //}
 
-        syslog.info(`Processed image asset: ${relPath}`);
+        if (!silent) {
+            syslog.info(`Processed image asset: ${relPath}`);
+        }
 
     }
 

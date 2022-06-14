@@ -241,9 +241,18 @@ class TemplateFile
         // Parse the computed data string using the selected template processor,
         //  passing in the data we have so far.
         let parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data);
+        //if (-1 !== this.relPath.indexOf('space-is-smooth')) {
+        //    syslog.inspect(parsed);
+        //}
 
         // Turn the parsed data back into an object and save it.
-        this.templateData.computedData = JSON.parse(parsed);
+        try {
+            this.templateData.computedData = JSON.parse(parsed);
+        } catch(err) {
+            syslog.inspect(str, "Raw string.");
+            syslog.inspect(parsed, "Parsed string.");
+            syslog.error(`Unable to parse computed data for ${this.relPath}, ${err.message}`);
+        }
 
     }
 

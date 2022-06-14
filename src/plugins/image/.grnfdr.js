@@ -33,7 +33,7 @@ module.exports = function(config, options = {}) {
 
     let cfg = {
         options: {
-            exts: ['jpg', 'jpeg', 'png', 'webp'],
+            exts: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
             placeholderWidth: 24,
             widths: [1920, 1280, 1024, 768, 480, 320],
             upscaling: false,
@@ -44,6 +44,7 @@ module.exports = function(config, options = {}) {
                 png: ['webp', 'png'],
                 jpeg: ['webp', 'jpeg'],
                 webp: ['webp', 'jpeg'],
+                gif: ['webp', 'gif']
             },
             baseTypes: ['jpg', 'jpeg', 'png'],
             sharp: {
@@ -71,7 +72,8 @@ module.exports = function(config, options = {}) {
                 webp: "image/webp",
                 png: "image/png",
                 svg: "image/svg+xml",
-                avif: "image/avif",       
+                avif: "image/avif",      
+                gif: "image/gif" 
             },
             generated: new Map(),
             generatedStoreFile: '.generatedImages.json', 
