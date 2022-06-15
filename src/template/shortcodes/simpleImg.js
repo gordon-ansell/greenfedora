@@ -90,7 +90,7 @@ class SimpleImgShortcode extends NunjucksShortcode
         };
         let generated = {};
         generated[ext] = {files:[spec]};
-        this.config.imageInfoStore.addBySrcAndPage(url, context.ctx.permalink, generated);
+        this.config.imageInfoStore.addBySrcAndPage(url, context.ctx.relPath, generated);
 
         /*
         if (!this.config.schema[context.ctx.permalink]) {

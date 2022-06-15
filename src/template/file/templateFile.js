@@ -240,7 +240,12 @@ class TemplateFile
 
         // Parse the computed data string using the selected template processor,
         //  passing in the data we have so far.
-        let parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data);
+        let parsed;
+        try {
+            parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data, this.relPath);
+        } catch (err) {
+            throw new GfTemplateFileError(`Problem parsing computed data for ${this.relPath}.`, "addComputedData", err);
+        }
         //if (-1 !== this.relPath.indexOf('space-is-smooth')) {
         //    syslog.inspect(parsed);
         //}
@@ -282,7 +287,7 @@ class TemplateFile
 
         // Parse the computed data string using the selected template processor,
         //  passing in the data we have so far.
-        let parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data);
+        let parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data, this.relPath);
 
         // Turn the parsed data back into an object and save it.
         this.templateData.computedLateData = JSON.parse(parsed);

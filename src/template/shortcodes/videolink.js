@@ -25,10 +25,11 @@ class VideoLinkShortcode extends NunjucksShortcode
         let bc = this.config.getBaseConfig();
         if (bc.lazyload) {
             if (kwargs.class) {
-                kwargs.class += ' lazyload';
+                kwargs.class += ' lazyload cf';
             } else {
-                kwargs.class = 'lazyload';
+                kwargs.class = 'lazyload cf';
             }
+            kwargs.loading = 'lazy';
         }
         return kwargs;
     }
@@ -43,7 +44,7 @@ class VideoLinkShortcode extends NunjucksShortcode
         let bc = this.config.getBaseConfig();
         let srcName = 'src';
         if (bc.lazyload) {
-            srcName = 'data-src';
+            //srcName = 'data-src';
         }
 
         return srcName;
@@ -80,12 +81,18 @@ class VideoLinkShortcode extends NunjucksShortcode
 
         kwargs.class += " aspect-ratio--object";
 
+
         let ret = '';
         if ('youtube' == type) {
 
             let id;
             if (kwargs.id) {
-                kwargs.src = "https://www.youtube-nocookie.com/embed/" + kwargs.id;
+                if (kwargs.cook) {
+                    kwargs.src = "https://www.youtube.com/embed/" + kwargs.id;
+                    delete kwargs.cook;
+                } else {
+                    kwargs.src = "https://www.youtube-nocookie.com/embed/" + kwargs.id;
+                }
                 id = kwargs.id;
                 delete kwargs.id;
             } else {
@@ -114,7 +121,7 @@ class VideoLinkShortcode extends NunjucksShortcode
             }
 
             ret += `<figure class="videolink aspect-ratio aspect-ratio--16x9">`
-            ret += `<iframe frameborder="0"`
+            ret += `<iframe frameborder="0" width="560" height="315" title="YouTube video player"`
             for (let idx in kwargs) {
                 if (!idx.startsWith('__')) {
                     if ('src' == idx) {
@@ -124,7 +131,7 @@ class VideoLinkShortcode extends NunjucksShortcode
                     }
                 }
             }
-            ret += ' allowfullscreen>';
+            ret += ' allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">';
             ret += '</iframe>';
             if (kwargs.caption) {
                 ret += '<figcaption>' + kwargs.caption + '</figcaption>';

@@ -182,13 +182,13 @@ class TemplateProcessorNunjucks extends TemplateProcessor
      * 
      * @throws  {GfTemplateProcessorNunjucksError}
      */
-    renderString(str, data = {})
+    renderString(str, data = {}, hint = 'unknown')
     {
         let ret;
         try {
             ret = this.engine.renderString(str, data);
         } catch (err) {
-            throw new GfTemplateProcessorNunjucksError(`Unable to render string: ${err.message}` +
+            throw new GfTemplateProcessorNunjucksError(`Unable to render string: ${err.message}, processing ${hint}` +
                 this._getUsefulErrDetails(err.message), null, err);           
         }
         return ret;
