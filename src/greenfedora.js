@@ -427,6 +427,8 @@ class GreenFedora
         let files = await fsp.parse();
         await this.processTemplateFiles(files, true);
 
+        syslog.log(`Rendering stragglers ...`);
+
         // Render all the last templates.
         await this._renderParse('last', {collections: this.config.collections});
 

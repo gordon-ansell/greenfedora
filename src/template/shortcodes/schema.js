@@ -282,6 +282,34 @@ class SchemaShortcode extends NunjucksShortcode
                         syslog.error(`No HowToSteps found for HowTo in ${relPath}`)
                     }
                 }
+                if (gd[relPath].faqpage) {
+                    let idx1 = 'faqpage';
+                    schstruct[idx1] = {
+                        '@type': "FAQPage",
+                        name: gd[relPath].faqpage.name,
+                        mainEntity: []
+                    }
+
+                    if (gd[relPath].faqqa) {
+                        let count = 1;
+                        for (let step of gd[relPath].faqqa) {
+                            let ops = {
+                                '@type': 'Question',
+                                url: path.join('/', context.ctx.permalink, '/#faq-' + count),
+                                name: step.q,
+                                acceptedAnswer: {
+                                    '@type': 'Answer',
+                                    text: step.html
+                                }
+                            }
+                            schstruct[idx1].mainEntity.push(ops);
+                            count++;
+                        }
+                    } else {
+                        syslog.error(`No FaqQas found for FaqPage in ${relPath}`)
+                    }
+
+                }
                     
             }
         }
