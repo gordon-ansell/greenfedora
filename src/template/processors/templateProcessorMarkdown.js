@@ -88,7 +88,20 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             if (f.startsWith('data.') && data[f]) {
                 tpl.templateData.frontMatterData[f] = this.engine.makeHtml(data[f]);
             } else if (tpl.extracted[f]) {
-                tpl.extracted[f] = this.engine.makeHtml(tpl.extracted[f]);
+                try {
+                    if (Array.isArray(tpl.extracted[f])) {
+                        let tmp = '<ul>\n';
+                        for (let item of tpl.extracted[f]) {
+                            tmp += `<li>${item}</li>\n`;
+                        }
+                        tmp += '</ul>\n';
+                        tpl.extracted[f] = tmp;
+                    } else {
+                        tpl.extracted[f] = this.engine.makeHtml(tpl.extracted[f]);
+                    }
+                } catch (err) {
+                    throw new GfTemplateProcessorMarkdownError(`Unable to makeHtml on extracted field '${f}' in ${tpl.relPath}`);
+                }
             } else {
                 debug(`No '${f}' field found in data or extracts for ${tpl.relPath}`);
             }
