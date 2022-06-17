@@ -283,14 +283,19 @@ class SchemaShortcode extends NunjucksShortcode
                     }
                 }
                 if (gd[relPath].faqpage) {
+                    /*
                     let idx1 = 'faqpage';
                     schstruct[idx1] = {
                         '@type': "FAQPage",
                         name: gd[relPath].faqpage.name,
                         mainEntity: []
                     }
+                    */
 
                     if (gd[relPath].faqqa) {
+                        if (!schstruct.webpage.mainEntity) {
+                            schstruct.webpage.mainEntity = [];
+                        }
                         let count = 1;
                         for (let step of gd[relPath].faqqa) {
                             let ops = {
@@ -299,10 +304,10 @@ class SchemaShortcode extends NunjucksShortcode
                                 name: step.q,
                                 acceptedAnswer: {
                                     '@type': 'Answer',
-                                    text: step.html
+                                    text: step.text
                                 }
                             }
-                            schstruct[idx1].mainEntity.push(ops);
+                            schstruct.webpage.mainEntity.push(ops);
                             count++;
                         }
                     } else {

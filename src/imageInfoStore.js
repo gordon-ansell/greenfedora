@@ -50,7 +50,7 @@ class ImageInfoStore
      */
     load()
     {
-        let cp = path.join(this.config.sitePath, '_cache', 'imageInfoCache.json');
+        let cp = path.join(this.config.sitePath, '_cache', '.imageInfoCache.json');
         if (!fs.existsSync(cp)) {
             debug(`No saved file cache found at ${cp}. This may be okay, but just saying.`);
             this.store.bySrc = {};
@@ -69,7 +69,7 @@ class ImageInfoStore
      */
     save()
     {
-        let cp = path.join(this.config.sitePath, '_cache', 'imageInfoCache.json');
+        let cp = path.join(this.config.sitePath, '_cache', '.imageInfoCache.json');
         if (!fs.existsSync(path.dirname(cp))) {
             fs.mkdirSync(path.dirname(cp), {recurse: true});
             let serialised = JSON.stringify(this.store.bySrc);

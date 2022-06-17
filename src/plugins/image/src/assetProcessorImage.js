@@ -333,7 +333,7 @@ class AssetProcessorImage extends AssetProcessor
         //}
 
         if (!silent) {
-            syslog.info(`Processed image asset: ${relPath}`);
+            syslog.log(`Processed image asset: ${relPath}`);
         }
 
     }

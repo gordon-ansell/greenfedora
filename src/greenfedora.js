@@ -242,6 +242,8 @@ class GreenFedora
     {
         Benchmarks.getInstance().markStart('gf-proctpl', 'Processing templates');
 
+        this.config.templateCache.load();
+
         if (stragglers) {
             syslog.notice(`Processing template files (stragglers) ...`);
         } else {
@@ -257,6 +259,8 @@ class GreenFedora
         //syslog.inspect(this.config.layoutDependencies);
         //syslog.inspect(this.config.layoutDependencies.dependantsOf('_layouts/post.njk'))
 
+        this.config.templateCache.save();
+
         Benchmarks.getInstance().markEnd('gf-proctpl');
         return true;
     }
@@ -270,19 +274,30 @@ class GreenFedora
      */
     async processSingleTemplateFile(filePath)
     {
+        // Incremental build?
+        let incr = this.processArgs.argv.incr;
+
         // Create and load a template file.
         let tpl = new TemplateFile(filePath, this.config);
         await tpl.load();
 
-        // Use the relevant template processor to compile the file.
-        let proc = this.config.getTemplateProcessorForFile(filePath);
-        debug(`About to compile %s.`, tpl.relPath);
+        // If this is an incremental build, check the template cache.
+        let go = true;
+        if (incr && !this.config.templateCache.check(filePath)) {
+            go = false;
+        }
 
-        // Save the returned renderer.
-        tpl.renderer = await proc.compile(tpl);
+        if (go) {
+            // Use the relevant template processor to compile the file.
+            let proc = this.config.getTemplateProcessorForFile(filePath);
+            debug(`About to compile %s.`, tpl.relPath);
 
-        // Save the template.
-        this.config.saveTemplate(tpl);
+            // Save the returned renderer.
+            tpl.renderer = await proc.compile(tpl);
+
+            // Save the template.
+            this.config.saveTemplate(tpl);
+        }
 
         // Extract collection data.
         let data = tpl.getData();
@@ -301,10 +316,11 @@ class GreenFedora
         }
         this.config.addToCollection(null, 'all', tpl);
 
-        this.counts.templates++;
+        if (go) {
+            this.counts.templates++;
+        }
 
         await this.config.eventManager.emit('AFTER_PROCESS_SINGLE_TEMPLATE', this.config, tpl);
-
         return true;
     }
 
@@ -362,9 +378,9 @@ class GreenFedora
             // Process the file.
             if (this.config.getBaseConfig().defaultAssetProcessors.image.exts.includes(
                 path.extname(filePath).substring(1))) {
-                await proc.process(filePath, !doImages, true);
+                await proc.process(filePath, !doImages, this.processArgs.argv.silent);
             } else {
-                await proc.process(filePath, true);
+                await proc.process(filePath, this.processArgs.argv.silent);
             }
 
             this.counts.assets++;
@@ -408,7 +424,7 @@ class GreenFedora
         
         Benchmarks.getInstance().markStart('gf-render', 'Render');
 
-        syslog.log(`Rendering ...`);
+        syslog.notice(`Rendering ...`);
 
         // Prev/next links.
         let colldata = this.config.collections.type.post.getAll('date-desc', true);
@@ -427,7 +443,7 @@ class GreenFedora
         let files = await fsp.parse();
         await this.processTemplateFiles(files, true);
 
-        syslog.log(`Rendering stragglers ...`);
+        syslog.notice(`Rendering stragglers ...`);
 
         // Render all the last templates.
         await this._renderParse('last', {collections: this.config.collections});
@@ -522,7 +538,7 @@ class GreenFedora
 
         await Promise.all(todo.map(async tpl => {
             if (!tpl.relPath.startsWith('_temp/')) {
-                syslog.info(`Rendering ${tpl.relPath}.`);
+                syslog.log(`Rendering ${tpl.relPath}.`);
             }
 
             tpl.addComputedData();

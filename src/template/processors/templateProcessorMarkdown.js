@@ -104,7 +104,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             let cf = {};
             for (let f of compileFields) {     
                 if (tpl.extracted[f]) {       
-                    cf[f] = eng.renderString(tpl.extracted[f], data, tpl.relPath);
+                    cf[f] = eng.renderString(tpl.extracted[f], data, tpl.relPath + ' - ' + f);
                     tpl.extracted[f] = cf[f];
                 }
             }

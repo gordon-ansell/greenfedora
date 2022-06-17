@@ -97,7 +97,7 @@ class AssetProcessorScss extends AssetProcessor
         fs.writeFileSync(op, compiled.css.toString());
 
         if (!silent) {
-            syslog.info(`Processed SCSS asset: ${relPath}`);
+            syslog.log(`Processed SCSS asset: ${relPath}`);
         }
 
         return true;

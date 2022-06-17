@@ -180,6 +180,12 @@ class Config
     assetCache = null;
 
     /**
+     * Template cache.
+     * @member  {FileCache}
+     */
+    templateCache = null;
+
+    /**
      * Layout dependencies.
      * @member  {DependencyGraph}
      */
@@ -304,8 +310,11 @@ class Config
      */
     prepareCache()
     {
-        let cp = path.join(this.sitePath, '_cache', '.assetCache.json');
-        this.assetCache = new FileCache(cp, this.sitePath);
+        let cp1 = path.join(this.sitePath, '_cache', '.assetCache.json');
+        this.assetCache = new FileCache(cp1, this.sitePath);
+
+        let cp2 = path.join(this.sitePath, '_cache', '.templateCache.json');
+        this.templateCache = new FileCache(cp2, this.sitePath, 'md5');
 
         this.imageInfoStore.load();
     }

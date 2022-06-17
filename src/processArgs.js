@@ -61,7 +61,8 @@ class ProcessArgs
               "serve",
               "watch",
               "clean",
-              "noimages"
+              "noimages",
+              "incr"
             ],
             default: {
               input: './',
@@ -74,6 +75,7 @@ class ProcessArgs
               watch: false,
               clean: false,
               noimages: false,
+              incr: false,
               port: '8081'
             },
             unknown: function (unknownArgument) {
