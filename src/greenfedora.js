@@ -7,7 +7,7 @@
 'use strict';
 
 const gfpkg = require("../package.json");
-const { syslog, GfError, Benchmarks, FsUtils, Merge, GfString } = require('greenfedora-utils');
+const { syslog, GfError, Benchmarks, FsUtils, Merge, GfString, GfPath } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const Config = require("./config");
@@ -277,17 +277,22 @@ class GreenFedora
         // Incremental build?
         let incr = this.processArgs.argv.incr;
 
-        // Create and load a template file.
-        let tpl = new TemplateFile(filePath, this.config);
-        await tpl.load();
-
-        // If this is an incremental build, check the template cache.
+        // Do we go?
         let go = true;
         if (incr && !this.config.templateCache.check(filePath)) {
             go = false;
         }
 
+        // Load a template file.
+        let tpl = new TemplateFile(filePath, this.config);
+        await tpl.load();
+
+        if (incr && -1 !== filePath.indexOf('/_temp/')) {
+            go = false;
+        }
+
         if (go) {
+
             // Use the relevant template processor to compile the file.
             let proc = this.config.getTemplateProcessorForFile(filePath);
             debug(`About to compile %s.`, tpl.relPath);
@@ -514,14 +519,14 @@ class GreenFedora
         let todo;
         if ('late' === parse) {
             todo = tpls.filter(t => {
-                let d = t.getData();
+                let d = t.tmpl.getData();
                 if (d.parse && 'late' === d.parse) {
                     return t;
                 }  
             });
         } else if ('last' === parse) {
             todo = tpls.filter(t => {
-                let d = t.getData();
+                let d = t.tmpl.getData();
                 if (d.parse && 'last' === d.parse) {
                     return t;
                 }  
@@ -529,33 +534,42 @@ class GreenFedora
 
         } else {
             todo = tpls.filter(t => {
-                let d = t.getData();
-                if (!d.parse || ('late' !== d.parse && 'last' !== d.parse)) {
+                let d = t.tmpl.getData();
+                if ((!d.parse || ('late' !== d.parse && 'last' !== d.parse))) {
                     return t;
                 }  
             });
         }
 
         await Promise.all(todo.map(async tpl => {
-            if (!tpl.relPath.startsWith('_temp/')) {
-                syslog.log(`Rendering ${tpl.relPath}.`);
+            if (!tpl.tmpl.relPath.startsWith('_temp/')) {
+                syslog.log(`Rendering ${tpl.tmpl.relPath}.`);
             }
 
-            tpl.addComputedData();
-            tpl.addComputedLateData();
-            let data = tpl.getData(true);
+            tpl.tmpl.addComputedData();
+            tpl.tmpl.addComputedLateData();
+            let data = tpl.tmpl.getData(true);
 
             if (null !== extraData) {
                 data = Merge.merge(data, extraData);
             }
 
-            let op = await tpl.render(data);
+            if (!data.permalink) {
+                throw new GfError(`File ${tpl.tmpl.relPath} has no permalink.`);
+            }
+
+            let op;
+            try {
+                op = await tpl.tmpl.render(data);
+             } catch (err) {
+                syslog.error(`Failed to render ${tpl.tmpl.relPath}, ${err.message}`);
+             }
 
             let opFile = path.join(this.config.outputPath, data.permalink);
-            if ('' === path.extname(opFile)) {
+            if ('' === path.extname(opFile) && !data.permalinkIsFile) {
                 opFile = path.join(opFile, 'index.html');
             }
-            if (!fs.existsSync(path.dirname(opFile))) {
+            if (!data.permaLinkIsFile && !fs.existsSync(path.dirname(opFile))) {
                 fs.mkdirSync(path.dirname(opFile), {recursive: true});
             }
             fs.writeFileSync(opFile, beautify(op), 'utf-8');

@@ -9,7 +9,7 @@
 const showdown = require('showdown');
 const { GfError, syslog, TemplateProcessor } = require('greenfedora-utils');
 const TemplateFile = require('../file/templateFile');
-const striptags = require('striptags');
+const st = require('striptags');
 const debug = require("debug")("GreenFedora:TemplateProcessorMarkdown");
 const debugdev = require("debug")("Dev.GreenFedora:TemplateProcessorMarkdown");
 
@@ -107,6 +107,14 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             }
         }        
 
+        if (tpl.extracted.content_rss) {
+            syslog.info(`${tpl.relPath} OK`)
+        } else {
+            syslog.warn(`${tpl.relPath} NOT OK`)
+        }
+
+
+
         let eng = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor);
 
         let compileFields = this.options.compileFields;
@@ -144,7 +152,10 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         let eng = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor);
         let html = eng.renderString(str, data);
         html = this.engine.makeHtml(html);
-        let text = striptags(html);
+        let text = st(html);
+        if (-1 !== text.indexOf('<em>')) {
+            syslog.error(`Striptags did not work correctly.`);
+        }
 
         return [html, text];
     }

@@ -60,6 +60,7 @@
         "greenfedora-utils": "../greenfedora-utils",
         "image-size": "^1.0.0",
         "js-beautify": "^1.14.3",
+        "json-stringify-safe": "*",
         "lodash": "^4.17.21",
         "@markdoc/markdoc": "*",
         "minimist": "^1.2.6",

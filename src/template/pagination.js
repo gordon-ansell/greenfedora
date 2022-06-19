@@ -29,23 +29,15 @@ class Pagination
     tplData = null;
 
     /**
-     * Config.
-     * @member  {Config}
-     */
-    config = null;
-
-    /**
      * Constructor.
      * 
      * @param   {object}    tplData     Template data.   
-     * @param   {Config}    config      Configs.
      * 
      * @return  {Pagination}
      */
-    constructor(tplData, config)
+    constructor(tplData)
     {
         this.tplData = tplData;
-        this.config = config;
     }
 
     /**

@@ -189,8 +189,8 @@ class VideoLinkShortcode extends NunjucksShortcode
             for (let item of ['description', 'name', 'uploadDate']) {
                 if (kwargs[item]) {
                     if ('uploadDate' == item) {
-                        let d = new MultiDate(kwargs[item]);
-                        meta[item] = d.iso;
+                        let d = new Date(kwargs[item]);
+                        meta[item] = d.toISOString();
                     } else {
                         meta[item] = kwargs[item];
                     }

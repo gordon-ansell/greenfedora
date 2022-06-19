@@ -131,12 +131,13 @@ module.exports = function(config) {
         useMarkdoc: false,
         lazyload: true,
         figureClass: 'respimg',
-        buldSeparateRssContent: true,
+        buildSeparateRssContent: true,
         type: 'page',
         livereload: true,
         schemaWarnings: true,
         allowInlinePosts: true,
         mainCssFiles: ['assets/style/local.scss'],
+        draft: false,
 
         // Schema definitions.
         schemaDefs: {

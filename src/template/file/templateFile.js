@@ -78,6 +78,12 @@ class TemplateFile
     layout = null;
 
     /**
+     * Layout path.
+     * @member  {string}
+     */
+    layoutPath = null;
+
+    /**
      * Fields extracted.
      * @member  {object}
      */
@@ -114,31 +120,66 @@ class TemplateFile
     computedTemplateProcessor = null;
 
     /**
+     * Loaded from cache?
+     * @member  {boolean}
+     */
+    loadedFromCache = false;
+
+    /**
      * Constructor.
      * 
-     * @param   {string}    filePath    Path to the file.
-     * @param   {Config}    config      Config class instance.
+     * @param   {string}        filePath    Path to the file.
+     * @param   {Config}        config      Config class instance.
+     * @param   {object|null}   cacheData   Cache data.
      * 
      * @return  {TemplateFile}
      */
-    constructor(filePath, config)
+    constructor(filePath, config, cacheData = null)
     {
-        if (!filePath.startsWith(config.sitePath)) {
-            filePath = path.join(config.sitePath, filePath);
-        }
-        this.filePath = filePath;
-        this.relPath = filePath.replace(config.sitePath, '');
-
-        this.fileName = GfPath.removeLeadingSlash(this.relPath.replace('_layouts', ''));
-
         this.config = config;
-
-        this.fnParts.dir = GfPath.addLeadingSlash(path.dirname(this.relPath));
-        this.fnParts.ext = path.extname(this.relPath);
-        this.fnParts.base = path.basename(this.relPath, this.fnParts.ext);
         this.templateData = new TemplateData(filePath, config);
 
-        this.stats = fs.statSync(this.filePath);
+        if (cacheData) {
+            for (let idx in cacheData) {
+                this[idx] = cacheData[idx];
+            }
+            this.loadedFromCache = true;
+        } else {
+            if (!filePath.startsWith(config.sitePath)) {
+                filePath = path.join(config.sitePath, filePath);
+            }
+            this.filePath = filePath;
+            this.relPath = filePath.replace(config.sitePath, '');
+
+            this.fileName = GfPath.removeLeadingSlash(this.relPath.replace('_layouts', ''));
+
+            this.fnParts.dir = GfPath.addLeadingSlash(path.dirname(this.relPath));
+            this.fnParts.ext = path.extname(this.relPath);
+            this.fnParts.base = path.basename(this.relPath, this.fnParts.ext);
+
+            this.stats = fs.statSync(this.filePath);
+        }
+        
+    }
+
+    /**
+     * Get the cacheable data.
+     * 
+     * @return  {object}
+     */
+    getCacheable()
+    {
+        return {
+            filePath: this.filePath,
+            relPath: this.relPath,
+            fileName: this.fileName,
+            fnParts: this.fnParts,
+            stats: this.stats,
+            layoutPath: this.layoutPath,
+
+            frontMatter: this.frontMatter,
+            extracted: this.extracted,
+        }
     }
 
     /**
@@ -187,10 +228,10 @@ class TemplateFile
 
             if (ret.pagination && ret.pagination.data) {
                 let generate = true;
-                if ('last' === ret.parse) {
+                if ('early' !== ret.parse) {
                     generate = false;
                 }
-                let pagination = new Pagination(ret, this.config);
+                let pagination = new Pagination(ret);
                 pagination.calculate(generate);
             }
         }
@@ -237,6 +278,9 @@ class TemplateFile
 
         // Convert computed data to a string.
         let str = JSON.stringify(data.computed);
+        //if (-1 !== this.relPath.indexOf('who-hates-phones')) {
+        //    syslog.inspect(data.computed);
+        //}
 
         // Parse the computed data string using the selected template processor,
         //  passing in the data we have so far.
@@ -302,7 +346,12 @@ class TemplateFile
     async load()
     {
         // Read the template.
-        await this.read();
+        if (!this.loadedFromCache) {
+            await this.read();
+        }
+
+        // Save the front matter data.
+        this.templateData.frontMatterData = this.frontMatter.data;
 
         // Merge the data before any layout work.
         let dataSoFar = this.templateData.mergeData();
@@ -405,11 +454,13 @@ class TemplateFile
         if (null === this.layout) {
             let dataSoFar = this.templateData.mergeData();
             if (dataSoFar.layout) {
-                let layoutPath = this._locateLayout(dataSoFar.layout);
-                if (null === layoutPath) {
+                if (null === this.layoutPath) {
+                    this.layoutPath = this._locateLayout(dataSoFar.layout);
+                }
+                if (null === this.layoutPath) {
                     throw new GfTemplateFileError(`Unable to locate layout for '${dataSoFar.layout}', processing ${this.relPath}.`);
                 }
-                this.layout = new TemplateFile(layoutPath, this.config);
+                this.layout = new TemplateFile(this.layoutPath, this.config);
             } else {
                 throw new GfTemplateFileError(`No layout specified in ${this.relPath}.`);
             }
@@ -453,8 +504,6 @@ class TemplateFile
             }
         }
 
-        // Save the front matter data.
-        this.templateData.frontMatterData = this.frontMatter.data;
 
         return this;
     }

@@ -25,6 +25,7 @@ const SimpleImg = require('../template/shortcodes/simpleImg');
 const Img = require('../template/shortcodes/img');
 const Schema = require('../template/shortcodes/schema');
 const VideoLink = require('../template/shortcodes/videolink');
+const SimpleVideoLink = require('../template/shortcodes/simplevideolink');
 const Citations = require('../template/shortcodes/citations');
 const Breadcrumb = require('../template/shortcodes/breadcrumb');
 const HowTo = require('../template/shortcodes/howto');
@@ -122,6 +123,7 @@ class TemplateManager extends ResourceManager
         this.getProcessor('nunjucks')
             .addShortcode('simpleimg', SimpleImg)
             .addShortcode('img', Img)
+            .addShortcode('simplevideolink', SimpleVideoLink)
             .addShortcode('videolink', VideoLink)
             .addShortcode('schema', Schema)
             .addShortcode('citations', Citations)

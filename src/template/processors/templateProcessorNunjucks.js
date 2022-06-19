@@ -48,6 +48,10 @@ class TemplateProcessorNunjucks extends TemplateProcessor
             throw new GfTemplateProcessorNunjucksError(`Unable to create nunjucks filesystem loader`, null, err);
         }
 
+        if ('dev' === this.config.config.mode) {
+            engineOptions.dev = true;
+        }
+
         try {
             this.engine = new nunjucks.Environment(loader, engineOptions);
         } catch (err) {
@@ -59,6 +63,20 @@ class TemplateProcessorNunjucks extends TemplateProcessor
         });
 
         debug(`Loaded nunjucks template processor.`)
+    }
+
+    /**
+     * Add a global variable.
+     * 
+     * @param   {string}    name    Name of variable.
+     * @param   {any}       val     Value of the global.
+     * 
+     * @return  {TemplateProcessorNunjucks}
+     */
+    addGlobal(name, val)
+    {
+        this.engine.addGlobal(name, val);
+        return this;
     }
 
     /**
@@ -129,8 +147,8 @@ class TemplateProcessorNunjucks extends TemplateProcessor
     async compile(tpl, fnReady)
     {
         // Sanity check.
-        if (!tpl instanceof TemplateFile) {
-            throw new GfTemplateProcessorNunjucksError(`Template files should be an instance of 'TemplateBase'.`);
+        if (!(tpl instanceof TemplateFile)) {
+            throw new GfTemplateProcessorNunjucksError(`Template files should be an instance of 'TemplateFile'.`);
         }
 
         // Compile.

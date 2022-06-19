@@ -12,11 +12,11 @@ const { syslog, GfPath } = require('greenfedora-utils');
 /**
  * URL filter. Ensure a URL is properly constructed.
  */
-function url(url, base = '/')
+function url(url, base = '/', hint = 'NONE')
 {
     if (!url || "string" !== typeof url) {
-        syslog.error(`The 'url' filter needs to act on a string, got ${typeof url}.`);
-        return url;
+        syslog.error(`The 'url' filter needs to act on a string, got ${typeof url} (Hint: ${hint})).`);
+        return '/UNDEFINED';
     }
 
     if (url.startsWith('http://') || url.startsWith('https://')) {

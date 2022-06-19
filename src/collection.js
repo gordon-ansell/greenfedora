@@ -147,6 +147,23 @@ class Collection
     }
 
     /**
+     * Get the latest modified date for items in this collection.
+     * 
+     * @return  {string}
+     */
+    getLatestModifiedDate()
+    {
+        let arr = [...this.data.values()];
+        let latest = null;
+        for (let item of arr) {
+            if (null === latest || item.stats.mtimeMs > latest.mtimeMs) {
+                latest = item.stats.mtimeMs;
+            }
+        }
+        return latest;
+    }
+
+    /**
      * Get the size of the collection.
      * 
      * @return  {number}

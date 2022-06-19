@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { syslog, GfPath, GfError, Merge, EventManager, FileCache } = require('greenfedora-utils');
+const { syslog, GfPath, GfError, Merge, EventManager, FileCache, GfString } = require('greenfedora-utils');
 const path = require('path');
 const fs = require('fs');
 const PluginManager = require('./config/pluginManager');
@@ -17,6 +17,7 @@ const VideoInfoStore = require('./videoInfoStore');
 const Collection = require('./collection');
 const DependencyGraph = require('dependency-graph').DepGraph;
 const os = require('os');
+const jss = require('json-stringify-safe');
 const constants = require('./config/constants');
 const { URL } = require('url');
 const debug = require("debug")("GreenFedora:Config");
@@ -314,7 +315,7 @@ class Config
         this.assetCache = new FileCache(cp1, this.sitePath);
 
         let cp2 = path.join(this.sitePath, '_cache', '.templateCache.json');
-        this.templateCache = new FileCache(cp2, this.sitePath, 'md5');
+        this.templateCache = new FileCache(cp2, this.sitePath);
 
         this.imageInfoStore.load();
     }
@@ -780,15 +781,16 @@ class Config
      * Save a template.
      * 
      * @param   {TemplateFile}  tpl     Template file to save.
+     * @param   {boolean}       render  Do we need to render?
      * 
      * @return  {Config}
      */
-    saveTemplate(tpl)
+    saveTemplate(tpl, render = true)
     {
         if (this.isWatcherRun) {
-            this.watcherTemplates[tpl.relPath] = tpl;
+            this.watcherTemplates[tpl.relPath] = {tmpl: tpl, render: render};
         } else {
-            this.templates[tpl.relPath] = tpl; 
+            this.templates[tpl.relPath] = {tmpl: tpl, render: render}; 
         }
         return this;
     }

@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { NunjucksShortcode } = require('greenfedora-utils');
+const { NunjucksShortcode, syslog } = require('greenfedora-utils');
 
 /**
  * Howtostep shortcode class.
@@ -40,9 +40,9 @@ class HowtostepShortcode extends NunjucksShortcode
         let [html, text] = mde.parseMarkdown(body);
         //syslog.inspect(html, "warning");
 
-        if (!kwargs.text) {
+        //if (!kwargs.text) {
             kwargs.text = text;
-        }
+        //}
 
         let gd = this.config.getGlobalData('schema');
         if (null === gd) {
@@ -60,7 +60,15 @@ class HowtostepShortcode extends NunjucksShortcode
         let ss = {};
         for (let item in kwargs) {
             if (!item.startsWith('__')) {
-                ss[item] = kwargs[item];
+                if ('text' === item) {
+                    ss[item] = kwargs[item].trim();
+                    if (-1 !== ss[item].indexOf('<em>')) {
+                        syslog.error(`Striptags did not work correctly (detected in howtostep).`);
+                    }
+
+                } else {
+                    ss[item] = kwargs[item];
+                }
             }
         }
 

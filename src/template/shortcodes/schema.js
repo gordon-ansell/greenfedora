@@ -258,6 +258,15 @@ class SchemaShortcode extends NunjucksShortcode
             }
         }
 
+        // Review warnings.
+        if (schstruct.article && this.config.getBaseConfig().schemaWarnings) {
+            if (schstruct.article['@type'] && 'Review' === schstruct.article['@type']) {
+                if (!('ratingStars' in ctx)) {
+                    syslog.warning(`Reviews require a 'ratingStars' setting in the front matter, on ${context.ctx.relPath}.`)
+                }
+            }
+        }
+
         // Global data we've saved.
         let relPath = context.ctx.relPath;
         if (this.config.hasGlobalData('schema')) {

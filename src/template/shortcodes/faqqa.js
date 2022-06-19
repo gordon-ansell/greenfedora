@@ -43,10 +43,9 @@ class FaqQaShortcode extends NunjucksShortcode
             kwargs.text = text;
         }
 
-        if (!kwargs.html) {
-            kwargs.html = html;
-        }
-
+        //if (!kwargs.html) {
+        //    kwargs.html = html;
+        //}
 
         let gd = this.config.getGlobalData('schema');
         if (null === gd) {
