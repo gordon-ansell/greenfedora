@@ -80,6 +80,18 @@ class TemplateProcessorNunjucks extends TemplateProcessor
     }
 
     /**
+     * Get a global variable.
+     * 
+     * @param   {string}    name    Name of variable.
+     * 
+     * @return  {any}
+     */
+    getGlobal(name)
+    {
+        return this.engine.getGlobal(name);
+    }
+
+    /**
      * Add a filter.
      * 
      * @param   {string}                    name                Name.
