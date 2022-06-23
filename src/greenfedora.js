@@ -70,6 +70,12 @@ class GreenFedora
     }
 
     /**
+     * Interim dependencies to check.
+     * @member {string[]}
+     */
+    interimDeps = [];
+
+    /**
      * Constructor.
      * 
      * @param   {ProcessArgs}   processArgs Process arguments.
@@ -154,8 +160,22 @@ class GreenFedora
     cleanDirs()
     {
         FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.temp));
+
         if (this.processArgs.argv.clean) {
-            syslog.notice(`Cleaning transitory directories due to '-clean' argument.`)
+            syslog.notice(`Cleaning template caches due to '-clean' argument.`);
+            let files = [
+                path.join(this.config.sitePath, this.config.getBaseConfig().locations.cache, '.templateCache.json'),
+                path.join(this.config.sitePath, this.config.getBaseConfig().locations.cache, '.dependencyMap.json')
+            ];
+            for (let f of files) {
+                if (fs.existsSync(f)) {
+                    fs.unlinkSync(f);
+                }
+            }
+        }
+
+        if (this.processArgs.argv.cleanall) {
+            syslog.notice(`Cleaning transitory directories due to '-cleanall' argument.`)
             FsUtils.cleanDir(this.config.outputPath);
             FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.cache))
         }
@@ -247,6 +267,9 @@ class GreenFedora
 
         this.config.loadDependencyMap();
         this.config.templateCache.load();
+        if (!stragglers) {
+            this.interimDeps = [];
+        }
 
         if (stragglers) {
             syslog.notice(`Processing template files (stragglers) ...`);
@@ -269,10 +292,17 @@ class GreenFedora
         }));
 
         //syslog.inspect(this.config.layoutDependencies);
-        //syslog.inspect(this.config.layoutDependencies.dependantsOf('_layouts/post.njk'))
+        //syslog.inspect(this.config.layoutDependencies.dependantsOf('_layouts/includes/base.njk'))
 
+        if (stragglers) {
+            let uniq = [...new Set(this.interimDeps)];
+            for (let item of uniq) {
+                this.config.templateCache.check(item);
+            }
+        }
         this.config.templateCache.save();
         this.config.saveDependencyMap();
+
 
         Benchmarks.getInstance().markEnd('gf-proctpl');
         return true;
@@ -290,48 +320,29 @@ class GreenFedora
         // Incremental build?
         let incr = this.processArgs.argv.incr;
 
+        // Extract relative path.
+        let relPath = filePath.replace(this.config.sitePath, '');
+
         // Do we go?
-        //let name = GfPath.addLeadingSlash(filePath.replace(this.sitePath, ''))
-        let go = true;
-        if (incr && !this.config.templateCache.check(filePath)) {
-            let depForcesGo = false;
-            for (let dep of this.config.layoutDependencies.dependenciesOf(filePath.replace(this.config.sitePath, ''))) {
-                if (this.config.templateCache.check(dep)) {
-                    depForcesGo = true;
-                    break;
+        let go = false;
+
+        // If we're incremental, check dependencies too.
+        let chk = this.config.templateCache.check(relPath);
+        if (incr && !chk) {
+             for (let dep of this.config.layoutDependencies.dependenciesOf(relPath)) {
+                if (this.config.templateCache.check(dep, false)) {
+                    //syslog.warn(`Dep forces go because ${dep} is a dependency of ${relPath}`)
+                    go = true;
+                    this.interimDeps.push(dep);
                 }
             }   
-            if (!depForcesGo) {
-                go = false;
-            }
-        } else if (!incr) {
-            this.config.templateCache.check(filePath);
+        } else if (chk || !incr) {
+            go = true;
         }
-
-        // Cache check.
-        /*
-        let usingCached = false;
-        let name = GfPath.addLeadingSlash(filePath.replace(this.sitePath, ''));
-        let tpl;
-        if (incr && -1 === filePath.indexOf('/_temp/') && !this.config.templateCache.check(filePath)) {
-            let cached = this.config.templateCache.get(name);
-            tpl = new TemplateFile(filePath, this.config, cached.data);
-            usingCached = true;
-        } else {
-            tpl = new TemplateFile(filePath, this.config);
-            let stats = fs.statSync(filePath);
-            this.config.templateCache.set(name, {mtimeMs: stats.mtimeMs, size: stats.size, data: tpl.getCacheable});
-        }
-        */
 
         // Load a template file.
         let tpl = new TemplateFile(filePath, this.config);
         await tpl.load();
-
-        // Save dependencies in cache.
-        for (let dep of this.config.layoutDependencies.dependenciesOf(tpl.relPath)) {
-            this.config.templateCache.check(dep);        
-        }
 
         if (incr && -1 !== filePath.indexOf('/_temp/')) {
             go = false;

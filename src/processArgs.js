@@ -61,6 +61,7 @@ class ProcessArgs
               "serve",
               "watch",
               "clean",
+              "cleanall",
               "noimages",
               "incr"
             ],
@@ -74,6 +75,7 @@ class ProcessArgs
               serve: false,
               watch: false,
               clean: false,
+              cleanall: false,
               noimages: false,
               incr: false,
               port: '8081'
