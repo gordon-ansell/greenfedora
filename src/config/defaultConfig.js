@@ -152,6 +152,7 @@ module.exports = function(config) {
         permalinkIgnoreParts: ["^\\d{4}-\\d{2}-\\d{2}-"],
 
         // Suitable defaults.
+        breadcrumbUsesTags: 1,
         breadcrumb: [
             {
                 loc: "home",

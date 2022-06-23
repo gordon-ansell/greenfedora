@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { syslog, NunjucksShortcode, GfError, GfPath } = require("greenfedora-utils");
+const { syslog, NunjucksShortcode, GfError, GfPath, GfString } = require("greenfedora-utils");
 
 class GfBreadcrumbShortcodeError extends GfError {};
 
@@ -35,6 +35,20 @@ class BreadcrumbShortcode extends NunjucksShortcode
                 title: "Tags",
                 url: "/tags/"
             }
+        } else if ("taggrab" === loc) {
+            let count = ctx.breadcrumbUsesTags;
+            if (count < 1) count = 1;
+            let articleTags = ctx.tags;
+            if ("string" === typeof articleTags) {
+                articleTags = articleTags.split(',');
+            }
+            let ret = [];
+            for (let i = 0; i < count; i++) {
+                if (articleTags.length > i) {
+                    ret.push({title: articleTags[i].trim(), url: "/tags/" + GfString.slugify(articleTags[i].trim()) + "/"})
+                }
+            }
+            return ret;
         } else if ("self" === loc) {
             return {
                 title: ctx.title,
@@ -75,14 +89,31 @@ class BreadcrumbShortcode extends NunjucksShortcode
                 data = item;
             }
 
-            if (count < brc.length - 1) {
-                ret += `<a href=${data.url}>${data.title}</a>`;
+            if (Array.isArray(data)) {
+                let tagRet = '';
+                for (let singleTag of data) {
+                    if ('' !== tagRet) {
+                        tagRet += ' ' + rarr + ' ';
+                    }
+                    if (count < brc.length - 1) {
+                        tagRet += `<a href=${singleTag.url}>${singleTag.title}</a>`;
+                    } else {
+                        tagRet += singleTag.title;
+                    }
+                }
+                ret += tagRet;
             } else {
-                ret += data.title;
-            }
+                if (count < brc.length - 1) {
+                    ret += `<a href=${data.url}>${data.title}</a>`;
+                } else {
+                    ret += data.title;
+                }
+            } 
+
             count++;
         }
 
+        //syslog.inspect(ret);           
         return ret;
 
     }

@@ -113,19 +113,38 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             syslog.warn(`${tpl.relPath} NOT OK`)
         }
 
-
-
         let eng = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor);
 
         let compileFields = this.options.compileFields;
+        let needsCompilation = this.needsCompliation;
+        let etags = {};
+        if (this.engine.options && this.engine.options.tags) {
+            etags = this.engine.options.tags;
+        }
 
         let cfg = this.config;
+
+        let ppp = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor).postprocessors;
+
+        let fnPost = async function(str) {
+            if (ppp.length > 0) {
+                for (let pp of ppp) {
+                    str = pp.postprocessString(str);
+                }
+            }
+            return str;
+        };
 
         let fnReady = async function (data) {
             let cf = {};
             for (let f of compileFields) {     
-                if (tpl.extracted[f]) {       
-                    cf[f] = eng.renderString(tpl.extracted[f], data, tpl.relPath + ' - ' + f);
+                if (tpl.extracted[f] && needsCompilation(tpl.extracted[f], etags)) {       
+                    try {
+                        cf[f] = eng.renderString(tpl.extracted[f], data, tpl.relPath + ' - ' + f);
+                    } catch (err) {
+                        syslog.inspect(tpl.extracted[f], 'Field to process for error that follows:');
+                        throw new GfError(`Problem processing render's fnReady function through nunkucks for field '${f}', for file ${tpl.relPath}`, null, err);
+                    }
                     tpl.extracted[f] = cf[f];
                 }
             }
@@ -135,7 +154,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         let ltpName = this.options.layoutTemplateProcessor;
         let ltp = this.config.getTemplateProcessor(ltpName);
 
-        return ltp.compile(tpl.layout, fnReady);
+        return ltp.compile(tpl.layout, fnReady, fnPost);
 
     }
 

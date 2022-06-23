@@ -36,6 +36,7 @@ const FaqQa = require('../template/shortcodes/faqqa');
 const PreprocessorImage = require('../template/preprocessors/preprocessorImage');
 const PreprocessorComment = require('../template/preprocessors/preprocessorComment');
 const PreprocessorDelimiter = require('../template/preprocessors/preprocessorDelimiter');
+const PostprocessorDelimiter = require('../template/postprocessors/postprocessorDelimiter');
 const debug = require("debug")("GreenFedora:TemplateManager");
 
 /**
@@ -135,8 +136,10 @@ class TemplateManager extends ResourceManager
 
         this.getProcessor('markdown')
             .addPreprocessor(new PreprocessorImage(this.config))
-            .addPreprocessor(new PreprocessorComment(this.config))
-            .addPreprocessor(new PreprocessorDelimiter(this.config));
+            .addPreprocessor(new PreprocessorComment(this.config));
+
+        this.getProcessor('nunjucks')
+            .addPostprocessor(new PostprocessorDelimiter(this.config));
     }
 }
 

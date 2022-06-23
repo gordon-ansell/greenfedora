@@ -221,7 +221,7 @@ class TemplateFile
                 ret[idx] = this.extracted[idx];
             }
             ret.hostname = this.config.hostname;
-            ret.collections = this.config.collections;
+            //ret.collections = this.config.collections;
             ret.Collection = Collection;
             ret.relPath = this.relPath;
             ret.sitePath = this.config.sitePath;
@@ -232,7 +232,7 @@ class TemplateFile
                     generate = false;
                 }
                 let pagination = new Pagination(ret);
-                pagination.calculate(generate);
+                pagination.calculate(generate, this.config.collections);
             }
         }
  
@@ -361,7 +361,6 @@ class TemplateFile
 
         // Do we have a layout? If so, load it now.
         if (dataSoFar.layout) {
-            // Save dependency.
 
             // Read the template's layout.
             debug(`Loading layout ${dataSoFar.layout}`)
@@ -379,7 +378,16 @@ class TemplateFile
             let curr = this.layout;
             while(curr) {
                 if (curr.frontMatter.data) {
-                    ld = Merge.merge(ld, curr.frontMatter.data)
+                    ld = Merge.merge(ld, curr.frontMatter.data);
+                    if (curr.frontMatter.data.deps) {
+                        if (!Array.isArray(curr.frontMatter.data.deps)) {
+                            curr.frontMatter.data.deps = [curr.frontMatter.data.deps];
+                        }
+                        for (let item of curr.frontMatter.data.deps) {
+                            this.config.layoutDependencies.addNode(item);
+                            this.config.layoutDependencies.addDependency(curr.relPath, item);
+                        }
+                    }
                 }
                 if (curr.layout) {
                     curr = curr.layout;

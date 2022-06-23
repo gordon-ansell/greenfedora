@@ -884,6 +884,35 @@ class Config
         }
         return this;
     }
+
+    /**
+     * Save the layout dependencies.
+     * 
+     * @return  {Config}
+     */
+    saveDependencyMap()
+    {
+        let op = path.join(this.sitePath, '_cache', '.dependencyMap.json');
+        fs.writeFileSync(op, JSON.stringify(this.layoutDependencies), 'utf-8');
+        return this;
+    }
+
+    /**
+     * Load the layout dependencies.
+     * 
+     * @return  {Config}
+     */
+    loadDependencyMap()
+    {
+        let op = path.join(this.sitePath, '_cache', '.dependencyMap.json');
+        if (fs.existsSync(op)) {
+            let dg = JSON.parse(fs.readFileSync(op, 'utf-8'));
+            for (let item in dg) {
+                this.layoutDependencies[item] = dg[item];
+            }
+        }
+        return this;
+    }
 }
 
 module.exports = Config;

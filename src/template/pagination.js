@@ -44,10 +44,11 @@ class Pagination
      * Calculate pagination stuff.
      * 
      * @param   {boolean}   generate    Generate pages?
+     * @param   {object}    colls       Collections.
      * 
      * @return  {void}
      */
-    calculate(generate = true)
+    calculate(generate = true, colls = null)
     {
 
         let pagination = this.tplData.pagination;
@@ -62,11 +63,18 @@ class Pagination
 
         pagination.perPage = parseInt(pagination.perPage || 10);
 
-        if (!lodashhas(this.tplData, `${pagination.data}`)) {
-            throw new GfPaginationError(`Pagination 'data' is unresolvable for '${pagination.data}'.`);
+        let datasrc = null;
+        if (lodashhas(this.tplData, `${pagination.data}`)) {
+            datasrc = lodashget(this.tplData, `${pagination.data}`);
+        } else if (colls) {
+            if (lodashhas(colls, `${pagination.data}`.replace('collections.', ''))) {
+                datasrc = lodashget(colls, `${pagination.data}`.replace('collections.', ''));
+            }
         }
 
-        let datasrc = lodashget(this.tplData, `${pagination.data}`);
+        if (null === datasrc) {
+            throw new GfPaginationError(`Pagination 'data' is unresolvable for '${pagination.data}'.`);
+        }
 
         pagination.page = parseInt(pagination.page);
         pagination.size = parseInt(datasrc.getSize());

@@ -25,7 +25,8 @@ class TemplateProcessorNunjucks extends TemplateProcessor
      */
     mods = {
         filters: {},
-        preProcessors: {}
+        preProcessors: {},
+        postProcessors: {}
     };
 
     /**
@@ -156,7 +157,7 @@ class TemplateProcessorNunjucks extends TemplateProcessor
      * 
      * @return  {Promise<function>}
      */
-    async compile(tpl, fnReady)
+    async compile(tpl, fnReady, fnPost)
     {
         // Sanity check.
         if (!(tpl instanceof TemplateFile)) {
@@ -181,6 +182,9 @@ class TemplateProcessorNunjucks extends TemplateProcessor
             return ltp.compile(tpl.layout);
         }
 
+        // We'll always need this in the data.
+        let colls = this.config.collections;
+
         // Prepare a function that will eventually render the template.
         return async function (data) {
             if ("function" === typeof fnReady) {
@@ -188,13 +192,18 @@ class TemplateProcessorNunjucks extends TemplateProcessor
                 for (let key in cf) {
                     data[key] = cf[key];
                 }
+                data.collections = colls;
             }
             return new Promise(function (resolve, reject) {
                 compiled.render(data, function (err, res) {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve(res);
+                        if (fnPost) {
+                            resolve(fnPost(res));
+                        } else {
+                            resolve(res);
+                        }
                     }
                 });
             });
@@ -218,9 +227,18 @@ class TemplateProcessorNunjucks extends TemplateProcessor
         try {
             ret = this.engine.renderString(str, data);
         } catch (err) {
+            //syslog.inspect(str);
             throw new GfTemplateProcessorNunjucksError(`Unable to render string: ${err.message}, processing ${hint}` +
                 this._getUsefulErrDetails(err.message), null, err);           
         }
+
+        /*
+        if (this.postprocessors.length > 0) {
+            for (let pp of this.postprocessors) {
+                ret = pp.postprocessString(ret, hint);
+            }
+        }
+        */
         return ret;
     }
 

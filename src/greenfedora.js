@@ -220,6 +220,9 @@ class GreenFedora
         // Save the image info store.
         this.config.imageInfoStore.save();
 
+        // Save the collections as a global.
+        //this.config.getTemplateProcessor('nunjucks').addGlobal('collections', this.config.collections);
+
         // Generate tag pages.
         await this.generateTagPages();
 
@@ -242,6 +245,7 @@ class GreenFedora
     {
         Benchmarks.getInstance().markStart('gf-proctpl', 'Processing templates');
 
+        this.config.loadDependencyMap();
         this.config.templateCache.load();
 
         if (stragglers) {
@@ -250,6 +254,14 @@ class GreenFedora
             syslog.notice(`Processing template files ...`);
         }
 
+        /*
+        for (let file of files) {
+            debug(`Processing template file: %s`, file);
+            let fullPath = path.join(this.config.sitePath, file);
+            await this.processSingleTemplateFile(fullPath);
+        }
+        */
+        
         await Promise.all(files.map(async file => {
             debug(`Processing template file: %s`, file);
             let fullPath = path.join(this.config.sitePath, file);
@@ -260,6 +272,7 @@ class GreenFedora
         //syslog.inspect(this.config.layoutDependencies.dependantsOf('_layouts/post.njk'))
 
         this.config.templateCache.save();
+        this.config.saveDependencyMap();
 
         Benchmarks.getInstance().markEnd('gf-proctpl');
         return true;
@@ -278,14 +291,47 @@ class GreenFedora
         let incr = this.processArgs.argv.incr;
 
         // Do we go?
+        //let name = GfPath.addLeadingSlash(filePath.replace(this.sitePath, ''))
         let go = true;
         if (incr && !this.config.templateCache.check(filePath)) {
-            go = false;
+            let depForcesGo = false;
+            for (let dep of this.config.layoutDependencies.dependenciesOf(filePath.replace(this.config.sitePath, ''))) {
+                if (this.config.templateCache.check(dep)) {
+                    depForcesGo = true;
+                    break;
+                }
+            }   
+            if (!depForcesGo) {
+                go = false;
+            }
+        } else if (!incr) {
+            this.config.templateCache.check(filePath);
         }
+
+        // Cache check.
+        /*
+        let usingCached = false;
+        let name = GfPath.addLeadingSlash(filePath.replace(this.sitePath, ''));
+        let tpl;
+        if (incr && -1 === filePath.indexOf('/_temp/') && !this.config.templateCache.check(filePath)) {
+            let cached = this.config.templateCache.get(name);
+            tpl = new TemplateFile(filePath, this.config, cached.data);
+            usingCached = true;
+        } else {
+            tpl = new TemplateFile(filePath, this.config);
+            let stats = fs.statSync(filePath);
+            this.config.templateCache.set(name, {mtimeMs: stats.mtimeMs, size: stats.size, data: tpl.getCacheable});
+        }
+        */
 
         // Load a template file.
         let tpl = new TemplateFile(filePath, this.config);
         await tpl.load();
+
+        // Save dependencies in cache.
+        for (let dep of this.config.layoutDependencies.dependenciesOf(tpl.relPath)) {
+            this.config.templateCache.check(dep);        
+        }
 
         if (incr && -1 !== filePath.indexOf('/_temp/')) {
             go = false;
@@ -515,6 +561,7 @@ class GreenFedora
         Benchmarks.getInstance().markStart('gf-render-' + parse, 'Render' + ' (' + parse + ')');
 
         let tpls = Object.values(this.config.getTemplates());
+        //let incr = this.processArgs.argv.incr;
 
         let todo;
         if ('late' === parse) {
@@ -542,7 +589,9 @@ class GreenFedora
         }
 
         await Promise.all(todo.map(async tpl => {
-            if (!tpl.tmpl.relPath.startsWith('_temp/')) {
+            if (this.config.isWatcherRun || this.processArgs.argv.incr) {
+                syslog.notice(`Rendering ${tpl.tmpl.relPath}.`);
+            } else if (!tpl.tmpl.relPath.startsWith('_temp/')) {
                 syslog.log(`Rendering ${tpl.tmpl.relPath}.`);
             }
 
