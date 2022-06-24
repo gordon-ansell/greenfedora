@@ -471,6 +471,11 @@ class GreenFedora
             fs.copyFileSync(fullPath, opPath);
         }));
 
+        let cd = path.join(this.config.sitePath, '_copy');
+        if (fs.existsSync(cd)) {
+            FsUtils.copyDir(cd, path.join(this.config.sitePath, '_site'));
+        }
+
         Benchmarks.getInstance().markEnd('gf-procjc');
         return true;
     }

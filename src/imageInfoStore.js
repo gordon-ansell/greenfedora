@@ -296,6 +296,27 @@ class ImageInfoStore
 
         return saved;
     }
+
+    /**
+     * Get the page's image URL of specified type that's closest to the size given.
+     * 
+     * @param   {string}    page    Source to get image for.
+     * @param   {string}    type    Type of image.
+     * @param   {number}    size    Size we're looking for.
+     * @param   {string}    def     Default image to return if none found.    
+     * 
+     * @return  {string}
+     */
+    getSpecificUrlByPage(page, type, size, def = '')
+    {
+        let obj = this.getSpecificByPage(page, type, size);
+
+        if (null === obj) {
+            return def;
+        }
+
+        return obj.file;
+    }
 }
 
 module.exports = ImageInfoStore;
