@@ -32,11 +32,13 @@ const HowTo = require('../template/shortcodes/howto');
 const HowToStep = require('../template/shortcodes/howtostep');
 const FaqPage = require('../template/shortcodes/faqpage');
 const FaqQa = require('../template/shortcodes/faqqa');
+const PageImage = require('../template/shortcodes/pageImage');
 
 const PreprocessorImage = require('../template/preprocessors/preprocessorImage');
 const PreprocessorComment = require('../template/preprocessors/preprocessorComment');
 const PreprocessorDelimiter = require('../template/preprocessors/preprocessorDelimiter');
 const PostprocessorDelimiter = require('../template/postprocessors/postprocessorDelimiter');
+const { syslog } = require('greenfedora-utils');
 const debug = require("debug")("GreenFedora:TemplateManager");
 
 /**
@@ -44,7 +46,6 @@ const debug = require("debug")("GreenFedora:TemplateManager");
  */
 class TemplateManager extends ResourceManager
 {
-
     /**
      * Constructor.
      * 
@@ -101,6 +102,7 @@ class TemplateManager extends ResourceManager
             new TemplateProcessorNunjucks(this.config, cfg.options, cfg.engineOptions),
             cfg.exts
         );
+
     }
 
     /**
@@ -129,6 +131,7 @@ class TemplateManager extends ResourceManager
             .addShortcode('schema', Schema)
             .addShortcode('citations', Citations)
             .addShortcode('breadcrumb', Breadcrumb)
+            .addShortcode('pageImage', PageImage)
             .addPairedShortcode('howto', HowTo)
             .addPairedShortcode('howtostep', HowToStep)
             .addPairedShortcode('faqpage', FaqPage)

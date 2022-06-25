@@ -26,7 +26,7 @@ class TemplateProcessorNunjucks extends TemplateProcessor
     mods = {
         filters: {},
         preProcessors: {},
-        postProcessors: {}
+        postProcessors: {},
     };
 
     /**
@@ -179,7 +179,7 @@ class TemplateProcessorNunjucks extends TemplateProcessor
             let ltpName = this.options.layoutTemplateProcessor;
             let ltp = this.config.getTemplateProcessor(ltpName);
 
-            return ltp.compile(tpl.layout);
+            return ltp.compile(tpl.layout, fnReady, fnPost);
         }
 
         // We'll always need this in the data.
@@ -193,7 +193,7 @@ class TemplateProcessorNunjucks extends TemplateProcessor
                     data[key] = cf[key];
                 }
                 data.collections = colls;
-            }
+            } 
             return new Promise(function (resolve, reject) {
                 compiled.render(data, function (err, res) {
                     if (err) {

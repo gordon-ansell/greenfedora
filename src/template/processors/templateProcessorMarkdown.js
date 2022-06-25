@@ -122,8 +122,6 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             etags = this.engine.options.tags;
         }
 
-        let cfg = this.config;
-
         let ppp = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor).postprocessors;
 
         let fnPost = async function(str) {
@@ -134,6 +132,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             }
             return str;
         };
+
 
         let fnReady = async function (data) {
             let cf = {};
