@@ -455,7 +455,7 @@ class Config
             this.loadLocalConfig();
             this.config = this.mergeConfigs();
             this.applyExtractions();
-            this.config = Merge.merge(this.config, this.extraConfig);  // Merge a second time to pick ip extra config.
+            this.config = Merge.merge(this.config, this.extraConfig);  // Merge a second time to pick up extra config.
             this.hasMerged = true;
         }
         return this.config;

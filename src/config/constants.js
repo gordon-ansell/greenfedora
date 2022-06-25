@@ -12,9 +12,13 @@ module.exports = Object.freeze({
 
     /** Events. @constant {string[]} */
     EVENTS: [
+        'CONFIG_LOADED_GLOBALDATAFILES',
+        'CONFIG_LOAD_FINISHED',
         'INIT_FINISHED',
         'AFTER_PROCESS_ASSETS',
         'AFTER_PROCESS_SINGLE_TEMPLATE',
+        'BEFORE_RENDER_SINGLE_TEMPLATE',
+        'AFTER_RENDER_SINGLE_TEMPLATE',
         'RENDER_FINISHED'
     ]
 });

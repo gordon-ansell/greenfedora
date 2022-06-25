@@ -94,12 +94,6 @@ class GreenFedora
         // Set the log level here.
         syslog.setLevel(this.processArgs.level);
 
-        // Load the configs.
-        this.loadConfig();
-
-        // Clean?
-        this.cleanDirs();
-
         Benchmarks.getInstance().markEnd('gf-constructor');
     }
 
@@ -108,7 +102,7 @@ class GreenFedora
      * 
      * @return  {void}
      */
-    loadConfig()
+    async loadConfig()
     {
         Benchmarks.getInstance().markStart('gf-loadconf', 'Loading GreenFedora config');
 
@@ -123,7 +117,11 @@ class GreenFedora
         // Load a bunch of defaults.
         this.config.postProcessing(true);
 
+        await this.config.eventManager.emit('CONFIG_LOAD_FINISHED', this.config);
+
         Benchmarks.getInstance().markEnd('gf-loadconf');
+
+        return this;
     }
 
     /**
@@ -138,6 +136,11 @@ class GreenFedora
     async init(watch = false, files = null, buildCss = false)
     {
         Benchmarks.getInstance().markStart('gf-init', 'Initialisation');
+
+        await this.loadConfig();
+
+        // Clean?
+        this.cleanDirs();
 
         if (watch) {
             this.config.isWatcherRun = true;
@@ -623,12 +626,16 @@ class GreenFedora
                 throw new GfError(`File ${tpl.tmpl.relPath} has no permalink.`);
             }
 
+            await this.config.eventManager.emit('BEFORE_RENDER_SINGLE_TEMPLATE', this.config, tpl.tmpl, data);
+
             let op;
             try {
                 op = await tpl.tmpl.render(data);
              } catch (err) {
                 syslog.error(`Failed to render ${tpl.tmpl.relPath}, ${err.message}`);
              }
+
+            await this.config.eventManager.emit('AFTER_RENDER_SINGLE_TEMPLATE', this.config, tpl.tmpl);
 
             let opFile = path.join(this.config.outputPath, data.permalink);
             if ('' === path.extname(opFile) && !data.permalinkIsFile) {

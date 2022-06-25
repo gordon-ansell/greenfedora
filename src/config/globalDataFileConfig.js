@@ -111,22 +111,25 @@ class GlobalDataFileConfig
 
         for (let f of entries) {
 
-            let full = path.join(dirPath, f);
-            let stats = fs.statSync(full);
-            let data = {};
+            if (!f.startsWith('__')) {
 
-            if (stats.isFile()) {
-                data = DataFileLoader.load(full, this.config);
+                let full = path.join(dirPath, f);
+                let stats = fs.statSync(full);
+                let data = {};
 
-                if (data) {
-                    let relevantPath = path.dirname(full).replace(path.join(this.config.sitePath, bc.locations.data), '');
-                    relevantPath = path.join(relevantPath, path.basename(full, path.extname(full)));
-                    let newData = GfPath.dataToObjectPath(relevantPath, data);
-                    this.globalData = Merge.merge(this.globalData, newData);     
+                if (stats.isFile()) {
+                    data = DataFileLoader.load(full, this.config);
+
+                    if (data) {
+                        let relevantPath = path.dirname(full).replace(path.join(this.config.sitePath, bc.locations.data), '');
+                        relevantPath = path.join(relevantPath, path.basename(full, path.extname(full)));
+                        let newData = GfPath.dataToObjectPath(relevantPath, data);
+                        this.globalData = Merge.merge(this.globalData, newData);     
+                    }
+
+                } else if (stats.isDirectory()) {
+                    this.processDir(path.join(dirPath, f));
                 }
-
-            } else if (stats.isDirectory()) {
-                this.processDir(path.join(dirPath, f));
             }
 
         }
