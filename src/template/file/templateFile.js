@@ -156,6 +156,10 @@ class TemplateFile
             this.fnParts.dir = GfPath.addLeadingSlash(path.dirname(this.relPath));
             this.fnParts.ext = path.extname(this.relPath);
             this.fnParts.base = path.basename(this.relPath, this.fnParts.ext);
+            this.fnParts.basenoindex = this.fnParts.base;
+            if ('index' === this.fnParts.basenoindex) {
+                this.fnParts.basenoindex = "";
+            }
 
             this.stats = fs.statSync(this.filePath);
         }
