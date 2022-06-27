@@ -181,6 +181,7 @@ class GreenFedora
             syslog.notice(`Cleaning transitory directories due to '-cleanall' argument.`)
             FsUtils.cleanDir(this.config.outputPath);
             FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.cache))
+            FsUtils.cleanDir(path.join(this.config.sitePath, this.config.getBaseConfig().locations.site))
         }
    }
 
