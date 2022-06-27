@@ -8,6 +8,8 @@
 
 const { syslog, GfError } = require('greenfedora-utils');
 const Menu = require('./src/shortcodes/menu');
+const MenuSubs = require('./src/shortcodes/menusubs');
+const MenuSeq = require('./src/shortcodes/menuseq');
 const debug = require('debug')('GreenFedora:Plugin:navigation');
 
 class GfNavigationPluginError extends GfError {}''
@@ -22,33 +24,48 @@ class GfNavigationPluginError extends GfError {}''
  */
 function after_process_single_template(config, tpl)
 {
-    let data = tpl.getData();
-    if ('navigation' in data) {
-        if (!data.navigation.menu) {
-            //syslog.inspect(typeof data.navigation)
-            //syslog.inspect(Object.keys(data.navigation));
-            //throw new GfNavigationPluginError(`Navigation spec must have a 'menu' setting. Processing: ${tpl.relPath}`);
-            debug(`Navigation spec must have a 'menu' setting. Processing: ${tpl.relPath}`);
-            return;
+    let tplData = tpl.getData();
+
+    if (Object.keys(tplData).includes(`navigation`)) {
+
+        let nav = tplData.navigation;
+        if (!Array.isArray(nav)) {
+            nav = [nav]
         }
+
         let store;
-        if (!config.hasGlobalData('navigation')) {
+        if (!config.hasGlobalData('menus')) {
             store = {};
         } else {
-            store = config.getGlobalData('navigation');
+            store = config.getGlobalData('menus');
         }
-        if (!store[data.navigation.menu]) {
-            store[data.navigation.menu] = [];
+
+        for (let item of nav) {
+
+            if (!item.menu) {
+                debug(`Navigation spec must have a 'menu' setting. It consists of %O. Processing: ${tpl.relPath}`, nav);
+                continue;
+            }
+            if (!store[item.menu]) {
+                store[item.menu] = [];
+            }
+            if (!item.pos) {
+                item.pos = 5;
+            }
+            if (!item.title) {
+                item.title = tplData.title;
+            }
+            if (!item.description) {
+                item.description = tplData.description;
+            }
+            let newItem = {
+                data: item,
+                tpl: tpl
+            }
+            store[item.menu].push(newItem);
+            debug(`Storing for menu ${item.menu}: %O`, newItem.data);
         }
-        if (!data.navigation.pos) {
-            data.navigation.pos = 5;
-        }
-        let newItem = {
-            data: data.navigation,
-            tpl: tpl
-        }
-        store[data.navigation.menu].push(newItem);
-        config.addGlobalData('navigation', store);
+        config.addGlobalData('menus', store);
         debug(`Added navigation data from: ${tpl.relPath}`);
     }
 }
@@ -57,15 +74,10 @@ module.exports = function(config, options = {}) {
 
 
     config.templateManager.getProcessor('nunjucks').addShortcode('menu', Menu);
+    config.templateManager.getProcessor('nunjucks').addShortcode('menusubs', MenuSubs);
+    config.templateManager.getProcessor('nunjucks').addShortcode('menuseq', MenuSeq);
 
     config.eventManager.on('AFTER_PROCESS_SINGLE_TEMPLATE', after_process_single_template);
-
-
-    //config.assetHandlers.addHandler('image', new ImageAssetsHandler(config), ['jpg', 'jpeg', 'png', 'webp']);
-
-
-    //config.addNunjucksShortcode('img', ImgShortcode, true);
-    //debug(`Added shortcode to Nunjucks: img`);
 
     syslog.notice(`GreenFedora navigation plugin loaded.`);
 

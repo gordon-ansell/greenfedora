@@ -74,8 +74,8 @@ class Watcher
                 let rel = file.replace(this.config.sitePath, '');
                 let ext = path.extname(file);
 
-                // Data file change -> build all.
-                if (-1 !== file.indexOf('_data/') || -1 !== file.indexOf('.grnfdr')) {
+                // Control file change -> build all.
+                if (-1 !== file.indexOf('.grnfdr')) {
                     buildAll = true;
                     break;
 
@@ -86,8 +86,8 @@ class Watcher
                     }
                     buildCss = true;
 
-                // Layout file change -> build all dependencies.
-                } else if (-1 !== file.indexOf('_layouts/')) {
+                // Layout or data file change -> build all dependencies.
+                } else if (-1 !== file.indexOf('_layouts/') || -1 !== file.indexOf('_data/')) {
                     let relChange = file.replace(this.config.sitePath, '');
                     let depArr = this.config.layoutDependencies.dependantsOf(relChange);
                     for (let item of depArr) {

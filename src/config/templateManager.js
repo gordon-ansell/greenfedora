@@ -33,6 +33,8 @@ const HowToStep = require('../template/shortcodes/howtostep');
 const FaqPage = require('../template/shortcodes/faqpage');
 const FaqQa = require('../template/shortcodes/faqqa');
 const PageImage = require('../template/shortcodes/pageImage');
+const Section = require('../template/shortcodes/section');
+const Clearfix = require('../template/shortcodes/clearfix');
 
 const PreprocessorImage = require('../template/preprocessors/preprocessorImage');
 const PreprocessorComment = require('../template/preprocessors/preprocessorComment');
@@ -132,10 +134,12 @@ class TemplateManager extends ResourceManager
             .addShortcode('citations', Citations)
             .addShortcode('breadcrumb', Breadcrumb)
             .addShortcode('pageImage', PageImage)
+            .addShortcode('clearfix', Clearfix)
             .addPairedShortcode('howto', HowTo)
             .addPairedShortcode('howtostep', HowToStep)
             .addPairedShortcode('faqpage', FaqPage)
-            .addPairedShortcode('faqqa', FaqQa);
+            .addPairedShortcode('faqqa', FaqQa)
+            .addPairedShortcode('section', Section);
 
         this.getProcessor('markdown')
             .addPreprocessor(new PreprocessorImage(this.config))

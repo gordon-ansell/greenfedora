@@ -228,9 +228,9 @@ class TemplateFile
 
             if (ret.pagination && ret.pagination.data) {
                 let generate = true;
-                if ('early' !== ret.parse) {
-                    generate = false;
-                }
+                //if ('early' !== ret.parse) {
+                //    generate = false;
+                //}
                 let pagination = new Pagination(ret);
                 pagination.calculate(generate, this.config.collections);
             }

@@ -6,8 +6,8 @@
  */
 'use strict';
 
-const { NunjucksShortcode, syslog, GfError, GfPath } = require("greenfedora-utils");
-const path = require('path');
+const { GfError } = require("greenfedora-utils");
+const MenuBase = require('../menuBase');
 const debug = require("debug")("GreenFedora:Plugin:MenuShortcode");
 const debugdev = require("debug")("Dev.GreenFedora:Plugin:MenuShortcode");
 
@@ -17,7 +17,7 @@ class GfMenuShortcodeError extends GfError {}
 /**
  * Menu shortcode class.
  */
-class MenuShortcode extends NunjucksShortcode
+class MenuShortcode extends MenuBase
 { 
     /**
      * Render.
@@ -31,51 +31,41 @@ class MenuShortcode extends NunjucksShortcode
     {
         let menu = args[0];
 
-        if (!this.config.hasGlobalData('navigation')) {
-            throw new GfMenuShortcodeError(`No 'navigation' sabed in global data. Cannot render menu shortcode.`);
+        if (!this.config.hasGlobalData('menus')) {
+            throw new GfMenuShortcodeError(`No 'menus' saved in global data. Cannot render menu shortcode.`);
         }
 
-        let menuData = this.config.getGlobalData('navigation');
+        let menuData = this.config.getGlobalData('menus');
 
         if (!menuData[menu]) {
-            throw new GfMenuShortcodeError(`No navigation spects for menu '${menu}' found. Cannot render menu shortcode.`);
+            throw new GfMenuShortcodeError(`No menu specs for menu '${menu}' found. Cannot render menu shortcode.`);
         }
 
         let d = menuData[menu];
-
-        d.sort( (a, b) => {
-            return (a.data.pos > b.data.pos) ? 1 : ((b.data.pos > a.data.pos) ? -1 : 0)
-        });
+        let struct = this.structureise(d);
 
         let ret = '';
 
-        for (let item of d) {
-            let title = 'undefined';
-            let url = 'undefined';
-            let desc = '';
-            let tplData = item.tpl.getData();
+        // Display the menu, beginning with the main structure.
+        for (let item of struct['_main']) {
 
-            if (item.data.title) {
-                title = item.data.title;
-            } else if (tplData.title) {
-                title = tplData.title;    
+            item = this.sanitizeItem(item);
+
+            ret += `<li><a href="${item.data.url}" title="${item.data.description}">${item.data.title}</a></li>\n`;
+
+            // Substructure?
+            if (struct[item.data.title]) {
+                debug(`Processing subsitems for ${item.data.title}`);
+                ret += `<li><ul class="menu-subitems">`;
+                for (let subitem of struct[item.data.title]) {
+                    subitem = this.sanitizeItem(subitem);
+                    debug(`Processing subitem ${subitem.data.title} with URL ${subitem.data.url}`);
+                    ret += `<li class="subitem"><a class="link" href="${subitem.data.url}" title="${subitem.data.description}">
+                        ${subitem.data.title}
+                    </a></li>`
+                }
+                ret += `</ul></li>`;
             }
-
-            if (item.data.description) {
-                desc = item.data.description;
-            } else if (tplData.description) {
-                desc = tplData.description;    
-            }
-
-            if (item.data.url) {
-                url = item.data.url;
-            } else if (tplData.permalink) {
-                url = tplData.permalink;    
-            }
-
-            url = GfPath.addBothSlashes(url);
-
-            ret += `<li><a href="${url}" title="${desc}">${title}</a></li>\n`;
         }
 
         return ret;
