@@ -17,8 +17,6 @@ try {
     // Grab the process arguments.
     let processArgs = new ProcessArgs();
 
-    syslog.inspect(process.env);
-
     const GreenFedora = require('./src/greenfedora');
 
     // Unhandled promise rejections.
