@@ -32,7 +32,7 @@ class ProcessArgs
      * 
      * @throws  {GfProcessArgsError}    If something's amiss.
      */
-    constructor(pa = null)
+    constructor(pa = null, env = null)
     {
         let inputArgs; 
         
