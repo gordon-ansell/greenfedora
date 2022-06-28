@@ -47,25 +47,29 @@ class MenuShortcode extends MenuBase
         let ret = '';
 
         // Display the menu, beginning with the main structure.
-        for (let item of struct['_main']) {
+        try {
+            for (let item of struct['_main']) {
 
-            item = this.sanitizeItem(item);
+                item = this.sanitizeItem(item);
 
-            ret += `<li><a href="${item.data.url}" title="${item.data.description}">${item.data.title}</a></li>\n`;
+                ret += `<li><a href="${item.data.url}" title="${item.data.description}">${item.data.title}</a></li>\n`;
 
-            // Substructure?
-            if (struct[item.data.title]) {
-                debug(`Processing subsitems for ${item.data.title}`);
-                ret += `<li><ul class="menu-subitems">`;
-                for (let subitem of struct[item.data.title]) {
-                    subitem = this.sanitizeItem(subitem);
-                    debug(`Processing subitem ${subitem.data.title} with URL ${subitem.data.url}`);
-                    ret += `<li class="subitem"><a class="link" href="${subitem.data.url}" title="${subitem.data.description}">
-                        ${subitem.data.title}
-                    </a></li>`
+                // Substructure?
+                if (struct[item.data.title]) {
+                    debug(`Processing subsitems for ${item.data.title}`);
+                    ret += `<li><ul class="menu-subitems">`;
+                    for (let subitem of struct[item.data.title]) {
+                        subitem = this.sanitizeItem(subitem);
+                        debug(`Processing subitem ${subitem.data.title} with URL ${subitem.data.url}`);
+                        ret += `<li class="subitem"><a class="link" href="${subitem.data.url}" title="${subitem.data.description}">
+                            ${subitem.data.title}
+                        </a></li>`
+                    }
+                    ret += `</ul></li>`;
                 }
-                ret += `</ul></li>`;
             }
+        } catch (err) {
+            throw new GfMenuShortcodeError(`Error in 'menu' shortcode looping struct: ${err.message}`, null, err);
         }
 
         return ret;

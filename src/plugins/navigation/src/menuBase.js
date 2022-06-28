@@ -6,7 +6,8 @@
  */
 'use strict';
 
-const { NunjucksShortcode, GfPath, GfError } = require("greenfedora-utils");
+const { NunjucksShortcode, GfPath, GfError, syslog } = require("greenfedora-utils");
+const debug = require("debug")("GreenFedora:shortcode:MenuBase");
 
 // Local error.
 class GfMenuBaseError extends GfError {}
@@ -93,11 +94,23 @@ class MenuBase extends NunjucksShortcode
             item.data.description = tplData.description;    
         }
 
+        if (!item.data.url && item.data.link) {
+            item.data.url = item.data.link;
+            delete item.data.link;
+        }
+
         if (!item.data.url && tplData.permalink) {
             item.data.url = tplData.permalink;    
         }
 
-        item.data.url = GfPath.addBothSlashes(item.data.url);
+        try {
+            if (item.data.url) {
+                item.data.url = GfPath.addBothSlashes(item.data.url);
+            }
+        } catch (err) {
+            syslog.inspect(tplData, "Template data for following error");
+            throw new GfMenuBaseError(`Error adding slashes to URL in sanitizeItem. url = ${item.data.url}, msg = ${err.message}`, null, err);
+        }
 
         return item;
     }
