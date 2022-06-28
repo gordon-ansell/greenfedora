@@ -4,13 +4,13 @@
             "path": "."
         },
         {
-            "path": "../../new.gordonansell.com"
-        },
-        {
             "path": "../greenfedora-utils"
         },
         {
-            "path": "../../scss-fw"
+            "path": "../../greenfedora-scss"
+        },
+        {
+            "path": "../../gordonansell.com"
         }
     ]
 }
