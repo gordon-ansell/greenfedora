@@ -34,6 +34,10 @@ function absoluteUrl(url, base)
         syslog.error(`Double base error in absurl filter: ${ret}`);
     }
 
+    if (-1 !== ret.indexOf('index.html')) {
+        ret = ret.replace('index.html', '');
+    }
+
     return ret;
 }
 
