@@ -337,11 +337,11 @@ class TemplateFile
         //  passing in the data we have so far.
         let parsed;
         try {
+            parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data, this.relPath);
+        } catch (err) {
             syslog.warning(`Permalink: ${data.permalink}`);
             syslog.warning(`Hostname: ${data.hostname}`);
             syslog.inspect(str, "String we're trying to render for following error.");
-            parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data, this.relPath);
-        } catch (err) {
             throw new GfTemplateFileError(`Problem parsing (late) computed data for ${this.relPath}.`, "addComputedDataLate", err);
         }
 
