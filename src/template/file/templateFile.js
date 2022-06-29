@@ -337,7 +337,6 @@ class TemplateFile
         //  passing in the data we have so far.
         let parsed;
         try {
-            syslog.inspect(data, "Data for following error.", "warn", false, 1);
             syslog.warning(`Permalink: ${data.permalink}`);
             syslog.warning(`Hostname: ${data.hostname}`);
             syslog.inspect(str, "String we're trying to render for following error.");
