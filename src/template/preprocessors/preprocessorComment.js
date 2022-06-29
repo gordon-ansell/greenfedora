@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { Preprocessor, GfError, syslog } = require('GreenFedora-Utils');
+const { Preprocessor, GfError, syslog } = require('greenfedora-utils');
 const debug = require("debug")("GreenFedora:PreprocessorComment");
 
 // Local error.

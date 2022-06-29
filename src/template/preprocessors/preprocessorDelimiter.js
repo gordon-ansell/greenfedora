@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { Preprocessor, GfError, GfString } = require('GreenFedora-Utils');
+const { Preprocessor, GfError, GfString } = require('greenfedora-utils');
 const debug = require("debug")("GreenFedora:PreprocessorDelimiter");
 
 // Local error.

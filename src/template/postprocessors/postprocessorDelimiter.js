@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { Postprocessor, GfError, GfString } = require('GreenFedora-Utils');
+const { Postprocessor, GfError, GfString } = require('greenfedora-utils');
 const debug = require("debug")("GreenFedora:PostprocessorDelimiter");
 
 // Local error.

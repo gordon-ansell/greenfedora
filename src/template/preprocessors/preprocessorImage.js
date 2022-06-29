@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { Preprocessor, GfError, GfPath } = require('GreenFedora-Utils');
+const { Preprocessor, GfError, GfPath } = require('greenfedora-utils');
 const path = require('path');
 const debug = require("debug")("GreenFedora:PreprocessorImage");
 

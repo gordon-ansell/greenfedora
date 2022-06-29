@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { GfError, syslog, GfString, FsUtils } = require('GreenFedora-Utils');
+const { GfError, syslog, GfString, FsUtils } = require('greenfedora-utils');
 const lodashget = require("lodash/get");
 const lodashhas = require("lodash/has");
 const fs = require('fs');
