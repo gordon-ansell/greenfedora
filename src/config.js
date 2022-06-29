@@ -412,6 +412,7 @@ class Config
             }
             this.hostname = calchost;
         } else {
+            syslog.warning(`No modehost settings for mode '${this.config.mode}. This may be okay ... just checking.`);
             this.hostname = os.hostname();
         }
 
