@@ -335,7 +335,14 @@ class TemplateFile
 
         // Parse the computed data string using the selected template processor,
         //  passing in the data we have so far.
-        let parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data, this.relPath);
+        let parsed;
+        try {
+            syslog.inspect(data, "Data for following error.");
+            syslog.inspect(str, "String we're trying to render for following error.");
+            parsed = this.config.getTemplateProcessor(this.computedTemplateProcessor).renderString(str, data, this.relPath);
+        } catch (err) {
+            throw new GfTemplateFileError(`Problem parsing (late) computed data for ${this.relPath}.`, "addComputedDataLate", err);
+        }
 
         // Turn the parsed data back into an object and save it.
         this.templateData.computedLateData = JSON.parse(parsed);
