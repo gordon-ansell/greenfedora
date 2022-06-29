@@ -6,8 +6,9 @@
  */
 'use strict';
 
-const { syslog } = require('greenfedora-utils');
+const { syslog, GfPath } = require('greenfedora-utils');
 const { URL } = require('url');
+const path = require('path');
 
 /**
  * Absolute URL filter. Make a relative URL an absolute URL.
@@ -36,6 +37,10 @@ function absoluteUrl(url, base)
 
     if (-1 !== ret.indexOf('index.html')) {
         ret = ret.replace('index.html', '');
+    }
+
+    if ('' === path.extname(ret)) {
+        ret = GfPath.addTrailingSlash(ret);
     }
 
     return ret;
