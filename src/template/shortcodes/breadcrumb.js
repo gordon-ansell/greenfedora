@@ -7,6 +7,7 @@
 'use strict';
 
 const { syslog, NunjucksShortcode, GfError, GfPath, GfString } = require("greenfedora-utils");
+const debug = require("debug")("GreenFedora:Plugin:BreadcrumbShortcode");
 
 class GfBreadcrumbShortcodeError extends GfError {};
 
@@ -36,16 +37,21 @@ class BreadcrumbShortcode extends NunjucksShortcode
                 url: "/tags/"
             }
         } else if ("taggrab" === loc) {
+            debug(`Doing tag grab for ${ctx.title}.`);
             let count = ctx.breadcrumbUsesTags;
+            debug(`count is ${count}`);
             if (count < 1) count = 1;
             let articleTags = ctx.tags;
             if ("string" === typeof articleTags) {
                 articleTags = articleTags.split(',');
             }
+            debug(`articleTags: %O,`, articleTags);
             let ret = [];
             for (let i = 0; i < count; i++) {
                 if (articleTags.length > i) {
-                    ret.push({title: articleTags[i].trim(), url: "/tags/" + GfString.slugify(articleTags[i].trim()) + "/"})
+                    let nr = {title: articleTags[i].trim(), url: "/tags/" + GfString.slugify(articleTags[i].trim()) + "/"};
+                    debug(`Pushing %O`, nr);
+                    ret.push(nr)
                 }
             }
             return ret;
