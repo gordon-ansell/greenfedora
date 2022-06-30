@@ -241,6 +241,8 @@ class SchemaShortcode extends NunjucksShortcode
                     }
 
                     items.push(single);
+
+                    count++;
                 }
             }
 
