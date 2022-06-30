@@ -221,21 +221,27 @@ class SchemaShortcode extends NunjucksShortcode
                     data = item;
                 }
 
-                let single = {
-                    "@type": "ListItem",
-                    position: count + 1,
-                    name: data.title
+                if (!Array.isArray(data)) {
+                    data = [data];
                 }
 
-                if (count < context.ctx.breadcrumb.length - 1) {
-                    single.item = {
-                        "@type": "WebPage",
-                        "@id": data.url
-
+                for (let elem of data) {
+                    let single = {
+                        "@type": "ListItem",
+                        position: count++,
+                        name: elem.title
                     }
-                }
 
-                items.push(single);
+                    if (count < context.ctx.breadcrumb.length - 1) {
+                        single.item = {
+                            "@type": "WebPage",
+                            "@id": elem.url
+
+                        }
+                    }
+
+                    items.push(single);
+                }
             }
 
             brcr.itemListElement = items;

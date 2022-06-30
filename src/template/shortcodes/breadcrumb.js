@@ -95,10 +95,7 @@ class BreadcrumbShortcode extends NunjucksShortcode
                 data = item;
             }
 
-            debug(`Returned data is: %O`, data);
-
             if (Array.isArray(data)) {
-                debug(`Data is an array.`);
                 let tagRet = '';
                 for (let singleTag of data) {
                     if ('' !== tagRet) {
@@ -110,7 +107,6 @@ class BreadcrumbShortcode extends NunjucksShortcode
                         tagRet += singleTag.title;
                     }
                 }
-                debug (`Adding %s to return`, tagRet);
                 ret += tagRet;
             } else {
                 if (count < brc.length - 1) {
