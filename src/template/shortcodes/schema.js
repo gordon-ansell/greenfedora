@@ -228,7 +228,7 @@ class SchemaShortcode extends NunjucksShortcode
                 for (let elem of data) {
                     let single = {
                         "@type": "ListItem",
-                        position: count++,
+                        position: count + 1,
                         name: elem.title
                     }
 
