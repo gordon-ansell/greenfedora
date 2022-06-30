@@ -110,7 +110,7 @@ class BreadcrumbShortcode extends NunjucksShortcode
                         tagRet += singleTag.title;
                     }
                 }
-                debug (`Adding %s to return`);
+                debug (`Adding %s to return`, tagRet);
                 ret += tagRet;
             } else {
                 if (count < brc.length - 1) {
