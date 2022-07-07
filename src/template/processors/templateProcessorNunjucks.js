@@ -30,6 +30,18 @@ class TemplateProcessorNunjucks extends TemplateProcessor
     };
 
     /**
+     * Precompiled templates.
+     * @member  {object}
+     */
+    precompiledTemplates = {};
+
+    /**
+     * Are we using precompiled templates?
+     * @member  {boolean}
+     */
+    usingPrecompiledTemplates = false;
+
+    /**
      * Constructor.
      * 
      * @param   {Config}    config              Configs.
