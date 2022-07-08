@@ -25,22 +25,6 @@ module.exports = function(config) {
 
         // Default template processor configs.
         defaultTemplateProcessors: {
-            markdoc: {
-                options: {
-                    parseFrontMatter: true,
-                    fmParseOptions: {excerpt: true},
-                    extractFromFm: ['content', 'leader'],
-                    compileFields: ['content', 'leader'],
-                    layoutTemplateProcessor: 'nunjucks',
-                    computedTemplateProcessor: 'nunjucks'
-                },
-                engineOptions: {
-                    extensions: [footnotes],
-                    strikethrough: true,
-                    tables: true
-                },
-                exts: ['md', 'markdown'],
-            },
             markdown: {
                 options: {
                     parseFrontMatter: true,
