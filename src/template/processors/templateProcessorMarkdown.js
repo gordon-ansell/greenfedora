@@ -89,6 +89,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
                 tpl.templateData.frontMatterData[f] = this.engine.makeHtml(data[f]);
             } else if (tpl.extracted[f]) {
                 try {
+                    /*
                     if (Array.isArray(tpl.extracted[f])) {
                         syslog.notice(`Leader is list for ${tpl.relPath}`)
                         let tmp = '<ul>\n';
@@ -98,8 +99,9 @@ class TemplateProcessorMarkdown extends TemplateProcessor
                         tmp += '</ul>\n';
                         tpl.extracted[f] = tmp;
                     } else {
+                        */
                         tpl.extracted[f] = this.engine.makeHtml(tpl.extracted[f]);
-                    }
+                    //}
                 } catch (err) {
                     throw new GfTemplateProcessorMarkdownError(`Unable to makeHtml on extracted field '${f}' in ${tpl.relPath}`);
                 }
