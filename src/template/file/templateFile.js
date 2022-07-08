@@ -560,17 +560,19 @@ class TemplateFile
                     throw new GfTemplateFileError(`Unable to parse front matter in ${this.relPath}.`, null, err);
                 }
 
+                /*
                 if (fm.data.excerpt && !fm.excerpt) {
                     fm.excerpt = fm.data.excerpt;
                     delete fm.data.excerpt;
                 }
+                */
 
                 ret = fm;
             } else {
-                ret = {data: {}, content: raw, excerpt: ""};
+                ret = {data: {}, content: raw};
             }
         } else {
-            ret = {data: {}, content: "", excerpt: ""};
+            ret = {data: {}, content: ""};
         }
 
         debugdev(`Front matter for '${this.relPath}: %o`, ret);
