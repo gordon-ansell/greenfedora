@@ -8,7 +8,6 @@
 
 const ResourceManager = require('./resourceManager');
 const TemplateProcessorMarkdown = require('../template/processors/templateProcessorMarkdown');
-const TemplateProcessorMarkdoc = require('../template/processors/templateProcessorMarkdoc');
 const TemplateProcessorNunjucks = require('../template/processors/templateProcessorNunjucks');
 
 const absoluteUrl = require('../template/filters/absoluteUrl');
@@ -71,28 +70,14 @@ class TemplateManager extends ResourceManager
     {
         let cfg; 
 
-        if (this.config.getBaseConfig().useMarkdoc) {
+        cfg = this.config.getBaseConfig().defaultTemplateProcessors.markdown;
 
-            cfg = this.config.getBaseConfig().defaultTemplateProcessors.markdoc;
-
-            // Markdoc.
-            this.addProcessor(
-                'markdoc', 
-                new TemplateProcessorMarkdoc(this.config, cfg.options, cfg.engineOptions),
-                cfg.exts
-            );
-
-        } else {
-
-            cfg = this.config.getBaseConfig().defaultTemplateProcessors.markdown;
-
-            // Markdown.
-            this.addProcessor(
-                'markdown', 
-                new TemplateProcessorMarkdown(this.config, cfg.options, cfg.engineOptions),
-                cfg.exts
-            );
-        }
+        // Markdown.
+        this.addProcessor(
+            'markdown', 
+            new TemplateProcessorMarkdown(this.config, cfg.options, cfg.engineOptions),
+            cfg.exts
+        );
 
         cfg = this.config.getBaseConfig().defaultTemplateProcessors.nunjucks;
 

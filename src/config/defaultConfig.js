@@ -113,7 +113,6 @@ module.exports = function(config) {
         },
 
         // Some flags.
-        useMarkdoc: false,
         lazyload: true,
         figureClass: 'respimg',
         buildSeparateRssContent: true,
