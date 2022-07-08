@@ -611,11 +611,14 @@ class GreenFedora
         }
 
         await Promise.all(todo.map(async tpl => {
+            syslog.log(`Rendering ${tpl.tmpl.relPath}.`);
+            /*
             if (this.config.isWatcherRun || this.processArgs.argv.incr) {
                 syslog.log(`Rendering ${tpl.tmpl.relPath}.`);
             } else if (!tpl.tmpl.relPath.startsWith('_temp/')) {
                 syslog.log(`Rendering ${tpl.tmpl.relPath}.`);
             }
+            */
 
             tpl.tmpl.addComputedData();
             tpl.tmpl.addComputedLateData();
