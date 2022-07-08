@@ -79,6 +79,6 @@ module.exports = function(config, options = {}) {
 
     config.eventManager.on('AFTER_PROCESS_SINGLE_TEMPLATE', after_process_single_template);
 
-    syslog.notice(`GreenFedora navigation plugin loaded.`);
+    syslog.log(`GreenFedora navigation plugin loaded.`);
 
 }

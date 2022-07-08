@@ -96,7 +96,7 @@ module.exports = function(config) {
     config.eventManager.on('CONFIG_LOAD_FINISHED', afterInit);
     config.eventManager.on('BEFORE_RENDER_SINGLE_TEMPLATE', afterParsedTemplateFile);
 
-    syslog.notice(`GreenFedora webmentions plugin loaded.`);
+    syslog.log(`GreenFedora webmentions plugin loaded.`);
 
     return {};
 

@@ -32,6 +32,8 @@ module.exports = function(config) {
 
     config.addAssetProcessor('scss', new AssetProcessorScss(config, cfg.options, cfg.engineOptions), cfg.exts);
 
+    syslog.log(`GreenFedora SCSS plugin loaded.`);
+
     return {};
 
 }

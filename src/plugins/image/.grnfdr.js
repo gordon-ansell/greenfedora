@@ -113,6 +113,6 @@ module.exports = function(config, options = {}) {
     //config.addNunjucksShortcode('img', ImgShortcode, true);
     debug(`Added shortcode to Nunjucks: img`);
 
-    syslog.notice(`GreenFedora image plugin loaded.`);
+    syslog.log(`GreenFedora image plugin loaded.`);
 
 }

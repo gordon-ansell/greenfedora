@@ -13,5 +13,5 @@ module.exports = function(config, options = {}) {
 
     config.templateManager.getProcessor('nunjucks').addShortcode('ratingstars', RatingStars);
 
-    syslog.notice(`GreenFedora rating stars plugin loaded.`);
+    syslog.log(`GreenFedora rating stars plugin loaded.`);
 }

@@ -612,7 +612,7 @@ class GreenFedora
 
         await Promise.all(todo.map(async tpl => {
             if (this.config.isWatcherRun || this.processArgs.argv.incr) {
-                syslog.notice(`Rendering ${tpl.tmpl.relPath}.`);
+                syslog.log(`Rendering ${tpl.tmpl.relPath}.`);
             } else if (!tpl.tmpl.relPath.startsWith('_temp/')) {
                 syslog.log(`Rendering ${tpl.tmpl.relPath}.`);
             }

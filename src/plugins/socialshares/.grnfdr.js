@@ -17,6 +17,6 @@ module.exports = function(config, options = {}) {
 
     config.templateManager.getProcessor('nunjucks').addShortcode('socialshares', SocialShares);
 
-    syslog.notice(`GreenFedora social shares plugin loaded.`);
+    syslog.log(`GreenFedora social shares plugin loaded.`);
 
 }
