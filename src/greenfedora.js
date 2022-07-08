@@ -86,6 +86,8 @@ class GreenFedora
     {
         Benchmarks.getInstance().markStart('gf-constructor', 'Constructing GreenFedora');
 
+        syslog.notice(`GreenFedora version ${pkg.version} started.`);
+
         this.startTime = Date.now();
 
         // Save the passed process arguments.
