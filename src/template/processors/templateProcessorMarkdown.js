@@ -90,6 +90,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             } else if (tpl.extracted[f]) {
                 try {
                     if (Array.isArray(tpl.extracted[f])) {
+                        syslog.notice(`Leader is list for ${tpl.relPath}`)
                         let tmp = '<ul>\n';
                         for (let item of tpl.extracted[f]) {
                             tmp += `<li>${item}</li>\n`;

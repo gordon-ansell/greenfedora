@@ -20,6 +20,8 @@ const displayTime = require('../template/filters/displayTime');
 const datePart = require('../template/filters/datePart');
 const isoDateTime = require('../template/filters/isoDateTime');
 const utcDateTime = require('../template/filters/utcDateTime');
+const mdToHtml = require('../template/filters/mdToHtml');
+const mdToText = require('../template/filters/mdToText');
 
 const SimpleImg = require('../template/shortcodes/simpleImg');
 const Img = require('../template/shortcodes/img');
@@ -124,6 +126,8 @@ class TemplateManager extends ResourceManager
             .addFilter('displayTime', displayTime)
             .addFilter('isoDateTime', isoDateTime)
             .addFilter('utcDateTime', utcDateTime)
+            .addFilter('mdToHtml', mdToHtml)
+            .addFilter('mdToText', mdToText);
 
         this.getProcessor('nunjucks')
             .addShortcode('simpleimg', SimpleImg)

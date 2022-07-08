@@ -29,8 +29,8 @@ module.exports = function(config) {
                 options: {
                     parseFrontMatter: true,
                     fmParseOptions: {excerpt: true},
-                    extractFromFm: ['content', 'excerpt', 'leader'],
-                    compileFields: ['content', 'excerpt', 'leader'],
+                    extractFromFm: ['content', 'leader'],
+                    compileFields: ['content', 'leader'],
                     layoutTemplateProcessor: 'nunjucks',
                     computedTemplateProcessor: 'nunjucks'
                 },
