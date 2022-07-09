@@ -70,7 +70,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         if (data.buildSeparateRssContent) {
             rss = true;
             tpl.extracted['content_rss'] = tpl.extracted['content'];
-            //this.options.compileFields.push('content_rss');
+            this.options.compileFields.push('content_rss');
         }
 
         // Preprocessing.
