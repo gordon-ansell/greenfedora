@@ -66,30 +66,24 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         let data = tpl.getData();
 
         // Are we building separate RSS content?
-        /*
         let rss = false;
         if (data.buildSeparateRssContent) {
             rss = true;
             tpl.extracted['content_rss'] = tpl.extracted['content'];
             this.options.compileFields.push('content_rss');
         }
-        */
 
         // Preprocessing.
         if (this.preprocessors.length > 0) {
             for (let pp of this.preprocessors) {
-                tpl.templateData.frontMatterData.content = pp.preprocessString(tpl.templateData.fromtMatterData.content, tpl.filePath);
-                /*
+                tpl.extracted.content = pp.preprocessString(tpl.extracted.content, tpl.filePath);
                 if (rss) {
                     tpl.extracted.content_rss = pp.preprocessString(tpl.extracted.content_rss, tpl.filePath, true);
                 }
-                */
             }
         }
 
         // Compile the necessary fields.
-        tpl.templateData.frontMatterData.content = this.engine.makeHtml(tpl.templateData.frontMatterData.content);
-        /*
         for (let f of this.options.compileFields) {
             if (f.startsWith('data.') && data[f]) {
                 tpl.templateData.frontMatterData[f] = this.engine.makeHtml(data[f]);
@@ -102,8 +96,8 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             } else {
                 debug(`No '${f}' field found in data or extracts for ${tpl.relPath}`);
             }
-        } 
-        */       
+        }        
+
 
         /*
         if (tpl.extracted.content_rss) {
@@ -115,7 +109,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
 
         let eng = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor);
 
-        //let compileFields = this.options.compileFields;
+        let compileFields = this.options.compileFields;
         let needsCompilation = this.needsCompliation;
         let etags = {};
         if (this.engine.options && this.engine.options.tags) {
@@ -135,11 +129,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
 
 
         let fnReady = async function (data) {
-            //let cf = {};
-            if (tpl.templateData.frontMatterData.content && needsCompilation(tpl.templateData.frontMatterData.content, etags)) { 
-                data.content = eng.renderString(tpl.templateData.frontMatterData.content, data, tpl.relPath);
-            }      
-            /*
+            let cf = {};
             for (let f of compileFields) {     
                 if (tpl.extracted[f] && needsCompilation(tpl.extracted[f], etags)) {       
                     try {
@@ -151,8 +141,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
                     tpl.extracted[f] = cf[f];
                 }
             }
-            */
-            //return cf;
+            return cf;
         };
 
         let ltpName = this.options.layoutTemplateProcessor;
