@@ -22,6 +22,7 @@ class VideoLinkShortcode extends NunjucksShortcode
      */
     configureLazyClass(kwargs)
     {
+        /*
         let bc = this.config.getBaseConfig();
         if (bc.lazyload) {
             if (kwargs.class) {
@@ -31,6 +32,7 @@ class VideoLinkShortcode extends NunjucksShortcode
             }
             kwargs.loading = 'lazy';
         }
+        */
         return kwargs;
     }
 
