@@ -115,7 +115,7 @@ module.exports = function(config) {
         // Some flags.
         lazyload: true,
         figureClass: 'respimg',
-        buildSeparateRssContent: true,
+        buildSeparateRssContent: false,
         type: 'page',
         livereload: true,
         schemaWarnings: true,
