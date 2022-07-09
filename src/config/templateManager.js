@@ -131,8 +131,8 @@ class TemplateManager extends ResourceManager
             .addPairedShortcode('section', Section);
 
         this.getProcessor('markdown')
-            .addPreprocessor(new PreprocessorImage(this.config))
-            .addPreprocessor(new PreprocessorComment(this.config));
+            .addPreprocessor(new PreprocessorImage(this.config));
+            //.addPreprocessor(new PreprocessorComment(this.config));
 
         this.getProcessor('nunjucks')
             .addPostprocessor(new PostprocessorDelimiter(this.config));
