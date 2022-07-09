@@ -60,6 +60,11 @@ class VideoLinkShortcode extends NunjucksShortcode
      */
     render(context, args)
     {
+        let ctx = context.ctx;
+        if (ctx.isRss) {
+            syslog.warning(`Detected RSS with ${context.ctx.permalink}.`);
+        }
+
         let type = args[0];
         let kwargs = args[1] || {};
 
