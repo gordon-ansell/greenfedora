@@ -87,7 +87,7 @@ class TemplateFile
      * Fields extracted.
      * @member  {object}
      */
-    extracted = {};
+    //extracted = {};
 
     /**
      * Renderer.
@@ -182,7 +182,6 @@ class TemplateFile
             layoutPath: this.layoutPath,
 
             frontMatter: this.frontMatter,
-            extracted: this.extracted,
         }
     }
 
@@ -218,12 +217,14 @@ class TemplateFile
     {
         let ret = this.templateData.mergeData();
 
-        ret['extracted'] = this.extracted;
+        //ret['extracted'] = this.extracted;
 
         if (extractions) {
+            /*
             for (let idx in this.extracted) {
                 ret[idx] = this.extracted[idx];
             }
+            */
             ret.hostname = this.config.hostname;
             //ret.collections = this.config.collections;
             ret.Collection = Collection;
@@ -417,9 +418,11 @@ class TemplateFile
         }
 
         // Extracted fields.
+        /*
         for (let k in this.extracted) {
             this.templateData.frontMatterData[k] = this.extracted[k];
         }
+        */
 
         // File name parts.
         for (let k in this.fnParts) {
@@ -497,34 +500,7 @@ class TemplateFile
      */
     async read()
     {
-        let tec = this.config.getTemplateProcessorForFile(this.filePath);
- 
-        if (!'options' in tec) {
-            syslog.inspect(tec, "Template Config");
-            throw new GfTemplateFileError(`No template user 'options' found in template engine config for: ${this.relPath}`);
-        }
-        let userOptions = tec.options;
-        let extractions = userOptions.extractFromFm || [];
-
         this.frontMatter = await this._extractFrontMatter();
-
-        if (0 === extractions.length || !extractions.includes('content')) {
-            extractions.push('content');
-        }
-
-        // Extract fields as necessary.
-        if (extractions) {
-            for (let item of extractions) {
-                if (this.frontMatter[item]) {
-                    this.extracted[item] = this.frontMatter[item];
-                } else if (this.frontMatter.data[item]) {
-                    this.extracted[item] = this.frontMatter.data[item];
-                    delete this.frontMatter.data[item];
-                }
-            }
-        }
-
-
         return this;
     }
 
@@ -560,22 +536,17 @@ class TemplateFile
                     throw new GfTemplateFileError(`Unable to parse front matter in ${this.relPath}.`, null, err);
                 }
 
-                /*
-                if (fm.data.excerpt && !fm.excerpt) {
-                    fm.excerpt = fm.data.excerpt;
-                    delete fm.data.excerpt;
-                }
-                */
+                ret = fm.data || {};
+                ret.content = fm.content;
 
-                ret = fm;
             } else {
-                ret = {data: {}, content: raw};
+                ret = {content: raw};
             }
         } else {
-            ret = {data: {}, content: ""};
+            ret = {};
         }
 
-        debugdev(`Front matter for '${this.relPath}: %o`, ret);
+        debugdev(`Front matter for '${this.relPath}: %O`, ret);
 
         return ret;
     }

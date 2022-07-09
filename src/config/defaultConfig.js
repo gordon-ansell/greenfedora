@@ -29,8 +29,6 @@ module.exports = function(config) {
                 options: {
                     parseFrontMatter: true,
                     fmParseOptions: {excerpt: false},
-                    extractFromFm: ['content'],
-                    compileFields: ['content'],
                     preCompileTemplateProcessor: 'nunjucks',
                     layoutTemplateProcessor: 'nunjucks',
                     computedTemplateProcessor: 'nunjucks'
@@ -46,7 +44,6 @@ module.exports = function(config) {
                 options: {
                     parseFrontMatter: true,
                     fmParseOptions: {excerpt: false},
-                    extractFromFm: ['content'],
                     usePrecompiledTemplates: false,
                     layoutTemplateProcessor: 'nunjucks',
                     computedTemplateProcessor: 'nunjucks'
