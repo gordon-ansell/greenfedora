@@ -98,11 +98,13 @@ class TemplateProcessorMarkdown extends TemplateProcessor
             }
         }        
 
+        /*
         if (tpl.extracted.content_rss) {
             syslog.info(`${tpl.relPath} OK`)
         } else {
             syslog.warn(`${tpl.relPath} NOT OK`)
         }
+        */
 
         let eng = this.config.getTemplateProcessor(this.options.preCompileTemplateProcessor);
 
