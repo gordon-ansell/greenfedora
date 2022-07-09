@@ -181,9 +181,9 @@ class TemplateProcessorNunjucks extends TemplateProcessor
         if (this.options.usePrecompiledTemplates) {
             debug(`Retrieving precompiled nunjucks.Template for %s.`, tpl.filePath);
             compiled = this.getTemplate(tpl.fileName);
-        } else if (this.needsCompliation(tpl.extracted.content)) {
+        } else if (this.needsCompliation(tpl.templateData.content)) {
             debug(`Creating nunjucks.Template for %s.`, tpl.filePath);
-            compiled = new nunjucks.Template(tpl.extracted.content, this.engine, tpl.filePath, true);
+            compiled = new nunjucks.Template(tpl.templateData.content, this.engine, tpl.filePath, true);
         }
 
         // Layout?
