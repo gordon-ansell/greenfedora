@@ -200,10 +200,12 @@ class TemplateProcessorNunjucks extends TemplateProcessor
         // Prepare a function that will eventually render the template.
         return async function (data) {
             if ("function" === typeof fnReady) {
-                let cf = await fnReady(data);
+                data.content = await fnReady(data);
+                /*
                 for (let key in cf) {
                     data[key] = cf[key];
                 }
+                */
                 data.collections = colls;
             } 
             return new Promise(function (resolve, reject) {

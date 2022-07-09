@@ -141,13 +141,15 @@ class TemplateProcessorMarkdown extends TemplateProcessor
 
 
         let fnReady = async function (data) {
-            let cf = {};
+            //let cf = {};
             try {
-                cf.content = eng.renderString(tpl.templateData.content, data, tpl.relPath);
+                tpl.templateData.content = eng.renderString(tpl.templateData.content, data, tpl.relPath);
             } catch (err) {
                 syslog.inspect(tpl.templateData.content, 'Field to process for error that follows:');
                 throw new GfError(`Problem processing render's fnReady function through nunkucks for content field, for file ${tpl.relPath}`, null, err);
             }
+            return tpl.templateData.content;
+    
             /*
             for (let f of compileFields) {     
                 if (tpl.extracted[f] && needsCompilation(tpl.extracted[f], etags)) {       
@@ -161,7 +163,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
                 }
             }
             */
-            return cf;
+            //return cf;
         };
 
         let ltpName = this.options.layoutTemplateProcessor;
