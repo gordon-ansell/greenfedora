@@ -66,24 +66,35 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         let data = tpl.getData();
 
         // Are we building separate RSS content?
+        /*
         let rss = false;
         if (data.buildSeparateRssContent) {
             rss = true;
             tpl.extracted['content_rss'] = tpl.extracted['content'];
             this.options.compileFields.push('content_rss');
         }
+        */
 
         // Preprocessing.
         if (this.preprocessors.length > 0) {
             for (let pp of this.preprocessors) {
-                tpl.extracted.content = pp.preprocessString(tpl.extracted.content, tpl.filePath);
+                tpl.templateData.content = pp.preprocessString(tpl.templateData.content, tpl.filePath);
+                /*
                 if (rss) {
                     tpl.extracted.content_rss = pp.preprocessString(tpl.extracted.content_rss, tpl.filePath, true);
                 }
+                */
             }
         }
 
         // Compile the necessary fields.
+        try {
+            tpl.templateData.content = this.engine.makeHtml(tpl.templateData.content);
+        } catch (err) {
+            throw new GfTemplateProcessorMarkdownError(`Unable to makeHtml on content field in ${tpl.relPath}`);
+        }
+
+        /*
         for (let f of this.options.compileFields) {
             if (f.startsWith('data.') && data[f]) {
                 tpl.templateData.frontMatterData[f] = this.engine.makeHtml(data[f]);
@@ -97,6 +108,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
                 debug(`No '${f}' field found in data or extracts for ${tpl.relPath}`);
             }
         }        
+        */
 
 
         /*
@@ -130,6 +142,13 @@ class TemplateProcessorMarkdown extends TemplateProcessor
 
         let fnReady = async function (data) {
             let cf = {};
+            try {
+                cf.content = eng.renderString(tpl.templateData.content, data, tpl.relPath);
+            } catch (err) {
+                syslog.inspect(tpl.templateData.content, 'Field to process for error that follows:');
+                throw new GfError(`Problem processing render's fnReady function through nunkucks for content field, for file ${tpl.relPath}`, null, err);
+            }
+            /*
             for (let f of compileFields) {     
                 if (tpl.extracted[f] && needsCompilation(tpl.extracted[f], etags)) {       
                     try {
@@ -141,6 +160,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
                     tpl.extracted[f] = cf[f];
                 }
             }
+            */
             return cf;
         };
 

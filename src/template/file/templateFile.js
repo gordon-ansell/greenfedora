@@ -87,7 +87,7 @@ class TemplateFile
      * Fields extracted.
      * @member  {object}
      */
-    extracted = {};
+    //extracted = {};
 
     /**
      * Renderer.
@@ -182,7 +182,6 @@ class TemplateFile
             layoutPath: this.layoutPath,
 
             frontMatter: this.frontMatter,
-            extracted: this.extracted,
         }
     }
 
@@ -218,12 +217,14 @@ class TemplateFile
     {
         let ret = this.templateData.mergeData();
 
-        ret['extracted'] = this.extracted;
+        //ret['extracted'] = this.extracted;
 
         if (extractions) {
+            /*
             for (let idx in this.extracted) {
                 ret[idx] = this.extracted[idx];
             }
+            */
             ret.hostname = this.config.hostname;
             //ret.collections = this.config.collections;
             ret.Collection = Collection;
@@ -365,6 +366,9 @@ class TemplateFile
         // Save the front matter data.
         this.templateData.frontMatterData = this.frontMatter.data;
 
+        // Content.
+        this.templateData.content = this.frontMatter.content;
+
         // Merge the data before any layout work.
         let dataSoFar = this.templateData.mergeData();
 
@@ -416,10 +420,13 @@ class TemplateFile
             debug(`Template file ${this.relPath} has no layout specified.`);
         }
 
+
         // Extracted fields.
+        /*
         for (let k in this.extracted) {
             this.templateData.frontMatterData[k] = this.extracted[k];
         }
+        */
 
         // File name parts.
         for (let k in this.fnParts) {
@@ -497,6 +504,7 @@ class TemplateFile
      */
     async read()
     {
+        /*
         let tec = this.config.getTemplateProcessorForFile(this.filePath);
  
         if (!'options' in tec) {
@@ -505,9 +513,11 @@ class TemplateFile
         }
         let userOptions = tec.options;
         let extractions = userOptions.extractFromFm || [];
+        */
 
         this.frontMatter = await this._extractFrontMatter();
 
+        /*
         if (0 === extractions.length || !extractions.includes('content')) {
             extractions.push('content');
         }
@@ -523,6 +533,7 @@ class TemplateFile
                 }
             }
         }
+        */
 
 
         return this;
