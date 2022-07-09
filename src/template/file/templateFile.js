@@ -364,7 +364,7 @@ class TemplateFile
         }
 
         // Save the front matter data.
-        this.templateData.frontMatterData = this.frontMatter.data;
+        this.templateData.frontMatterData = this.frontMatter;
 
         // Merge the data before any layout work.
         let dataSoFar = this.templateData.mergeData();
