@@ -35,7 +35,7 @@ module.exports = function(config, options = {}) {
         options: {
             exts: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
             placeholderWidth: 24,
-            usePlaceholder: false,
+            usePlaceholder: true,
             widths: [1920, 1280, 1024, 768, 480, 320],
             upscaling: false,
             aliases: {
