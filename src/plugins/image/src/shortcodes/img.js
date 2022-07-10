@@ -124,6 +124,12 @@ class ImgShortcode extends NunjucksShortcode
         */
 
         let bc = this.config.getBaseConfig();
+        let isRss = context.ctx.isRss;
+        if (isRss) {
+            syslog.warning(`RSS`);
+        } else {
+            syslog.log(`std`);
+        }
 
         let imgSpec = {};
 
