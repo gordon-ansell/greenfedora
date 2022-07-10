@@ -63,6 +63,12 @@ class TemplateData
     content = '';
 
     /**
+     * Raw content.
+     * @member  {string}
+     */
+    contentRaw = '';
+
+    /**
      * Computed data.
      * @member {object}
      */
@@ -141,6 +147,7 @@ class TemplateData
         ret = Merge.merge(ret, this._getDirData());
         ret = Merge.merge(ret, this.frontMatterData);
         ret.content = this.content;
+        ret.contentRaw = this.contentRaw;
 
         if (null !== this.computedData) {
             ret = Merge.merge(ret, this.computedData);

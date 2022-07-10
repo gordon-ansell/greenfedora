@@ -368,6 +368,7 @@ class TemplateFile
 
         // Content.
         this.templateData.content = this.frontMatter.content;
+        this.templateData.contentRaw = this.frontMatter.content;
 
         // Merge the data before any layout work.
         let dataSoFar = this.templateData.mergeData();
