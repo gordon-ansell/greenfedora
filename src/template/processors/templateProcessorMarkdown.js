@@ -91,6 +91,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         // Compile the necessary fields.
         try {
             tpl.templateData.content = this.engine.makeHtml(tpl.templateData.content);
+            tpl.templateData.contentRaw = this.engine.makeHtml(tpl.templateData.contentRaw);
         } catch (err) {
             throw new GfTemplateProcessorMarkdownError(`Unable to makeHtml on content field in ${tpl.relPath}`);
         }
