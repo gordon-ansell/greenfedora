@@ -201,7 +201,7 @@ class AssetProcessorImage extends AssetProcessor
         //let options = this.options;
         let options = this.config.getGlobalData('imageConfig').options;
 
-        if (options.placeholderWidth && (!options.widths.includes(options.placeholderWidth))) {
+        if (options.usePlaceholder && options.placeholderWidth && (!options.widths.includes(options.placeholderWidth))) {
             options.widths.push(options.placeholderWidth);
         }
 
