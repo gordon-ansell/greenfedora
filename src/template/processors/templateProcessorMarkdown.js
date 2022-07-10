@@ -79,7 +79,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         if (this.preprocessors.length > 0) {
             for (let pp of this.preprocessors) {
                 tpl.templateData.content = pp.preprocessString(tpl.templateData.content, tpl.filePath);
-                tpl.templateData.contentRaw = pp.preprocessString(tpl.templateData.contentRaw, tpl.filePath);
+                //tpl.templateData.contentRaw = pp.preprocessString(tpl.templateData.contentRaw, tpl.filePath);
                 /*
                 if (rss) {
                     tpl.extracted.content_rss = pp.preprocessString(tpl.extracted.content_rss, tpl.filePath, true);
@@ -91,7 +91,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         // Compile the necessary fields.
         try {
             tpl.templateData.content = this.engine.makeHtml(tpl.templateData.content);
-            tpl.templateData.contentRaw = this.engine.makeHtml(tpl.templateData.contentRaw);
+            //tpl.templateData.contentRaw = this.engine.makeHtml(tpl.templateData.contentRaw);
         } catch (err) {
             throw new GfTemplateProcessorMarkdownError(`Unable to makeHtml on content field in ${tpl.relPath}`);
         }
