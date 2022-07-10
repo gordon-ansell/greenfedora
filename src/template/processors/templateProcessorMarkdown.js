@@ -79,6 +79,7 @@ class TemplateProcessorMarkdown extends TemplateProcessor
         if (this.preprocessors.length > 0) {
             for (let pp of this.preprocessors) {
                 tpl.templateData.content = pp.preprocessString(tpl.templateData.content, tpl.filePath);
+                tpl.templateData.contentRaw = pp.preprocessString(tpl.templateData.contentRaw, tpl.filePath);
                 /*
                 if (rss) {
                     tpl.extracted.content_rss = pp.preprocessString(tpl.extracted.content_rss, tpl.filePath, true);
